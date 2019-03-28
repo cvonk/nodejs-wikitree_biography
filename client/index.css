@@ -11,7 +11,7 @@ body, html {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  /*overflow: hidden;*/
+  overflow: hidden;
 }
 
 .container > * {

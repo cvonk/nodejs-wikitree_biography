@@ -2,7 +2,8 @@
 /** @author Coert Vonk <coert vonk at gmail> */
 
 var get = require('./get.js'),
-    value = require('./value.js')
+    value = require('./value.js'),
+    FQDate = require('./fqdate.js');
 
 const NL = "\n";
 
@@ -43,12 +44,13 @@ function _aboutSibling(gedcom, sibling, refs, half) {
         }
         yrs += ', ' + yrsYounger.startsWith('-') ? yrsYounger.slice(1) +  i18n.__(' older') : yrsYounger +  i18n.__(' younger');
     }
-    let ret = get.byTemplate(gedcom, sibling, refs, '* ' + half + '[SEX:broerzus]| [NAME:given]| "[NAME:aka]"') + yrs;
+    let ret = get.byTemplate(gedcom, sibling, refs, '* ' + half + '[SEX:broerzus]| [NAME:given]| "[NAME:aka]"') + ", " + yrs;
     ret += get.byTemplate(gedcom, sibling, refs, ', [OCCU]');
     if (sibling.BIRT && sibling.BIRT.DATE ) {
-        value.birthday.push(sibling.BIRT.DATE.value);
-        ret += get.byTemplate(gedcom, sibling, refs, ', ' + i18n.__('turns') + ' [DEAT.DATE:age]');
-        value.birthday.pop();
+        const saved = value.birthday;
+        value.birthday = new FQDate(sibling.BIRT.DATE.value);
+        ret += get.byTemplate(gedcom, sibling, refs, ', ' + i18n.__('dies at age') + ' [DEAT.DATE:age]');
+        value.birthday = saved;
     }
     return ret;
 }
@@ -72,7 +74,8 @@ function _aboutAddress(gedcom, obj, refs) {
 function _aboutSpouse(gedcom, spouse, refs, mar) {
     let ret = '';
     if (gedcom && spouse) {
-        value.birthday.push(spouse.BIRT && spouse.BIRT.DATE ? spouse.BIRT.DATE.value : undefined);
+        const saved = value.birthday;
+        value.birthday = new FQDate(spouse.BIRT && spouse.BIRT.DATE ? spouse.BIRT.DATE.value : undefined);
         {
             ret += get.byTemplate(gedcom, spouse, refs, ' ' + i18n.__('with') + ' [NAME:full]');
             ret += get.byTemplate(gedcom, mar, refs, ' ([DATE:age])');
@@ -83,9 +86,9 @@ function _aboutSpouse(gedcom, spouse, refs, mar) {
                 let ret = ' ' + NL;
                 ret += get.byTemplate(gedcom, spouse, refs, '[NAME:first]|') + death;
             }
-            ret += NL;
+            //ret += NL;
         }
-        value.birthday.pop();
+        value.birthday = saved;
     }
     return ret;
 }
@@ -94,15 +97,18 @@ function _getDeath(gedcom, indi, refs, long) {
     let ret = '';
     if (gedcom && indi && indi.DEAT) {
         if (indi.BIRT && indi.BIRT.DATE) {
-            value.birthday.push(indi.BIRT.DATE.value);
-            if (long) {
-                ret += get.byTemplate(gedcom, indi, refs, '[NAME:first]| ' + i18n.__('died on') + ' [DEAT]| ([DEAT.DATE:age])| ' + i18n.__('due to') + ' [DEAT.CAUS]|');
-            } else {
-                ret += get.byTemplate(gedcom, indi, refs, ', ' + i18n.__('turns') + ' [DEAT.DATE:age]');
+            const saved = value.birthday;
+            value.birthday = new FQDate(indi.BIRT.DATE.value);
+            {
+                if (long) {
+                    ret += get.byTemplate(gedcom, indi, refs, '[NAME:first]| ' + i18n.__('died on') + ' [DEAT]| ([DEAT.DATE:age])| ' + i18n.__('due to') + ' [DEAT.CAUS]|');
+                } else {
+                    ret += get.byTemplate(gedcom, indi, refs, ', ' + i18n.__('dies at age') + ' [DEAT.DATE:age]');
+                }
             }
-            value.birthday.pop();
+            value.birthday = saved;
         } else {
-            ret += get.byTemplate(gedcom, indi, refs, ', ' + i18n.__('dies on') + ' [DEAT.DATE]');
+            ret += get.byTemplate(gedcom, indi, refs, ', ' + i18n.__('died on') + ' [DEAT.DATE]');
         }
     }
     return ret;
@@ -234,7 +240,7 @@ let about = {
                 let spouse = get.spouse(gedcom, fam, indi);
                 ret += _aboutSpouse(gedcom, spouse, refs, mars[0]);
                 if (fam.CHIL) {
-                    ret += ' ' + NL;
+                    ret += ' ';
                     ret += get.byTemplate(gedcom, indi, refs, i18n.__('Children of') + ' [NAME:first]');
                     ret += get.byTemplate(gedcom, spouse, refs, ' ' + i18n.__('and') + ' [NAME:first]:') + NL;
                     let childIds = get.byName(gedcom, fam, 'CHIL');
@@ -302,9 +308,8 @@ module.exports = {
 
         for (let indi of indis) {            
             //console.log(indi.id)
-            value.birthday.date = undefined;
             if (gedcom && indi && indi.BIRT && indi.BIRT.DATE) {
-                value.birthday.date = indi.BIRT.DATE.value;  // for calculating ages
+                value.birthday = new FQDate(indi.BIRT.DATE.value);  // for calculating ages later
             }
             let ret = "== Biography ==" + NL;
             ret += about.introduction(gedcom, indi, refs);

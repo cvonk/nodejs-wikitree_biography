@@ -141,9 +141,11 @@ module.exports = {
                 [pre, fieldName, post] = template.split(/\[|\]/);
                 if (fieldName) {
                     const oo = module.exports.byName(gedcom, obj, fieldName);
-                    const text = _fieldValue(gedcom, oo, refs, fieldName);
-                    if (text.length) {
-                        ret += i18n.__(pre) + text + i18n.__(post);
+                    if (oo && oo[0]) {
+                        const text = _fieldValue(gedcom, oo, refs, fieldName);
+                        if (text.length) {
+                            ret += i18n.__(pre) + text + i18n.__(post);
+                        }
                     }
                 } else {
                     ret += pre;

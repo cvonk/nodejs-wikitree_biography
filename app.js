@@ -21,7 +21,7 @@ var app = express();
 // localization
 global.i18n = new (require('i18n-2'))({locales: ['en', 'nl']}); 
 i18n.devMode = true;
-i18n.setLocale('en');  // test Netherlands locale
+i18n.setLocale('nl');  // test Netherlands locale
 
 // get path to GEDCOM file from command line argument
 
@@ -44,7 +44,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
     let persons = [];
     const personsFname = "./person-dump.js";
     if (!fs.existsSync(personsFname)) {  // problems?  ensure the file is not empty!
-        console.log('Creating a new persons file from GEDCOM (' + personsFname + '), this will take a few minutes ...')
+        console.log('Creating a new persons file from GEDCOM (' + personsFname + '), this will take several minutes ...')
         persons = person.get(gedcom);
         person.write(persons, personsFname); // starting from scratch
         console.log('Created a new persons file (' + personsFname + ')')
@@ -122,55 +122,8 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
     app.listen(8080);    
     console.log("App listening on http://localhost/index.html");
 
-    let personToFind = {
-        "gedcomId": "@I508@",
-        "name": {
-          "given": "Sander Cornelis",
-          "last": "Vonk"
-        },
-        "birth": {
-          "date": "12 Nov 2005",
-          "place": "Portland, Multnomah, Oregon, USA"
-        },
-        "father": {
-          "gedcomId": "@I240@",
-          "name": {
-            "given": "Cornelis Johannes Sijbrand",
-            "last": "Vonk"
-          },
-          "birth": {
-            "date": "6 Apr 1965",
-            "place": "Bergen op Zoom, Noord-Brabant, Netherlands"
-          }
-        },
-        "mother": {
-          "gedcomId": "@I203@",
-          "name": {
-            "given": "Barrie Robin",
-            "last": "Levinson"
-          },
-          "birth": {
-            "date": "25 Nov 1965",
-            "place": "Westport, Fairfield, Connecticut, USA"
-          }
-        },
-        "siblings": [
-          {
-            "gedcomId": "@I284@",
-            "name": {
-              "given": "Johan Daniel Sijbrand",
-              "last": "Vonk"
-            },
-            "birth": {
-              "date": "22 Nov 2003",
-              "place": "Portland, Multnomah, Oregon, USA"
-            }
-          }
-        ]
-      }    ;
-    //personJson.match(personToFind);
-    //personJson.write(gedcom);  // write to file, to be later matched to WikiTree profile numbers
-    //write.biography(gedcom); //, '@I1957@');
+    // enable next line to test biographies testing
+    //write.biography(gedcom); //  get.byId(gedcom, indi_)
 });
 
 app.use(bodyParser.json());

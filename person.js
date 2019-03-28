@@ -1,6 +1,5 @@
 /** @module person write/read key facts about gedcom individuals */
 /** @author Coert Vonk <coert vonk at gmail> */
-/** this is only used to map GEDCOM identifiers to WikiTree Usernames */
 
 var get = require('./get.js'),
     //value = require('./value.js'),
