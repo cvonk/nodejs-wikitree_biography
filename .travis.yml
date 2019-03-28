@@ -53,6 +53,6 @@ script:
   - npm run lint
 after_script:
   - |
-    # Upload coverage to coveralls
+    # Upload coverage to coveralls sdf
     npm install --save-dev coveralls@2.10.0
     coveralls < ./coverage/lcov.info
