@@ -60,12 +60,12 @@ class QDate {
         }
     }
 
-    get dayHi() { if (!this.qualifier || this.qualifier != 'after') return this.day; }
-    get yearHi() { if (!this.qualifier || this.qualifier != 'after') return this.year; }
-    get monthHi() { if (!this.qualifier || this.qualifier != 'after') return this.month; }
-    get dayLo() { if (!this.qualifier || this.qualifier != 'before') return this.day; }
-    get yearLo() { if (!this.qualifier || this.qualifier != 'before') return this.year; }
-    get monthLo() { if (!this.qualifier || this.qualifier != 'before') return this.month; }
+    get dayHi() { if (!this.qualifier || this.qualifier != 'after') return this.day; return null; }
+    get yearHi() { if (!this.qualifier || this.qualifier != 'after') return this.year; return null;; }
+    get monthHi() { if (!this.qualifier || this.qualifier != 'after') return this.month; return null;; }
+    get dayLo() { if (!this.qualifier || this.qualifier != 'before') return this.day; return null;; }
+    get yearLo() { if (!this.qualifier || this.qualifier != 'before') return this.year; return null;; }
+    get monthLo() { if (!this.qualifier || this.qualifier != 'before') return this.month; return null;; }
 
     get dayString() { return this.day ? _getXdigitNr(this.day, 2) : ''; }
     get monthString() { return this.month ? _getXdigitNr(this.month, 2) : ''; }
@@ -98,7 +98,7 @@ class QDate {
                 break;
             }
             case 'world': {
-                if (this.qualifier) ret += i18n.__(this.qualifier) + ' ';
+                if (this.qualifier) ret += global.i18n.__(this.qualifier) + ' ';
                 if (this.day)   ret += this.dayString + '-';
                 if (this.month) ret += this.monthString + '-';
                 if (this.year)  ret += this.yearString;
@@ -106,7 +106,7 @@ class QDate {
             }
             case 'us':
             default: {
-                if (this.qualifier) ret += i18n.__(this.qualifier) + ' ';
+                if (this.qualifier) ret += global.i18n.__(this.qualifier) + ' ';
                 if (this.day)   ret += this.dayString + ' ';
                 if (this.month) ret += _monthAbrevs[this.month - 1] + ' ';
                 if (this.year)  ret += this.yearString;

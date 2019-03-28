@@ -15,9 +15,9 @@ function _age(aYear, aMonth, aDay, bYear, bMonth, bDay) {
 
     const months = Math.floor(days * 12 / 365.25);
     const years = Math.floor(months / 12);
-    if (Math.abs(days) < 60)  return Math.floor(days) + i18n.__(' days');
-    if (Math.abs(months) < 24) return Math.floor(months) + i18n.__(' months');
-    return years + i18n.__(' years');
+    if (Math.abs(days) < 60)  return Math.floor(days) + global.i18n.__(' days');
+    if (Math.abs(months) < 24) return Math.floor(months) + global.i18n.__(' months');
+    return years + global.i18n.__(' years');
 }
 
 let _birthday;
@@ -35,7 +35,7 @@ module.exports = {
             switch (format) {
                 case 'year':
                     return fqdate.year;
-                case 'age':
+                case 'age': {
                     let birth = module.exports.birthday;
                     if (birth && fqdate.isValid && birth.isValid && !fqdate.qualifier && !birth.qualifier) {
                         let ageLo = _age(fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
@@ -43,14 +43,15 @@ module.exports = {
                         if (ageLo == ageHi) {
                             return ageLo;
                         } else if (!ageHi.length) {
-                            return i18n.__('minimaal') + ' ' + ageLo;
+                            return global.i18n.__('minimaal') + ' ' + ageLo;
                         } else if (!ageLo.length) {
-                            return i18n.__('maximaal') + ' ' + ageHi;
+                            return global.i18n.__('maximaal') + ' ' + ageHi;
                         } else {
-                            return i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
+                            return global.i18n.__('between') + ' ' + ageLo + ' ' + global.i18n.__('and') + ' ' + ageHi;
                         }
                     }
                     break;
+                }
                 case 'original':
                     return obj[0].value;
                 case 'gedcomx':
@@ -75,18 +76,19 @@ module.exports = {
             place = place.replace(/^S-/g, "'s-"); // FTM Place Authority incorrectly changes 's Hertogenbosch to S-Hertogenbosch, undo that here
             switch (format) {
                 case "full": return place;
-                default:
+                default: {
                     place = place.replace('Multnomah, Oregon', 'Oregon');
                     place = place.replace('Fairfield, Connecticut', 'Connecticut');
                     place = place.replace(', Bergen op Zoom', '');
                     place = place.replace(', Tholen', '');
                     let endings = ['Noord-Brabant, Netherlands', 'Zeeland, Netherlands', 'USA', 'Netherlands'];
-                    for (ending of endings) {
+                    for (let ending of endings) {
                         if (place.endsWith(', ' + ending)) {
                             return place.substring(0, place.length - ending.length - 2);
                         }
                     }
                     return place;
+                }
             }
         }
     },
@@ -112,9 +114,9 @@ module.exports = {
             //idx %= formats.length;
             if (found) {
                 switch (sex) {
-                    case 'M': return i18n.__(formats[idx][1]);
-                    case 'F': return i18n.__(formats[idx][2]);
-                    default: return i18n.__(formats[idx][3]);
+                    case 'M': return global.i18n.__(formats[idx][1]);
+                    case 'F': return global.i18n.__(formats[idx][2]);
+                    default: return global.i18n.__(formats[idx][3]);
                 }
             }
             return sex;

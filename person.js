@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /** @module person write/read key facts about gedcom individuals */
 /** @author Coert Vonk <coert vonk at gmail> */
 
@@ -93,8 +94,7 @@ module.exports = {
         fs.writeFile(fname, 'module.exports = ' + JSON.stringify(persons, null, 2), (err) => {
             if (err) {
                 throw err;
-                return;
-            };
+            }
         });
     },
 

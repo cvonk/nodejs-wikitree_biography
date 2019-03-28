@@ -95,7 +95,7 @@ module.exports = {
                 if (!(obj instanceof Array)) {
                     obj = [obj];
                 }
-                for (idx in obj) {
+                for (let idx in obj) {
                     obj[idx] = _resolveIndirects(gedcom, obj[idx]);
                 }
                 return obj;
@@ -144,7 +144,7 @@ module.exports = {
                     if (oo && oo[0]) {
                         const text = _fieldValue(gedcom, oo, refs, fieldName);
                         if (text.length) {
-                            ret += i18n.__(pre) + text + i18n.__(post);
+                            ret += global.i18n.__(pre) + text + global.i18n.__(post);
                         }
                     }
                 } else {
@@ -164,7 +164,7 @@ module.exports = {
                 if (s.REPO) {
                     let r = module.exports.byId(gedcom, s.REPO.id);
                     if (r && r.NAME) {
-                        ret += ' '  + i18n.__('accessed through') + ' ' + r.NAME.value;
+                        ret += ' '  + global.i18n.__('accessed through') + ' ' + r.NAME.value;
                     }
                 }
                 ret += NL;

@@ -14,7 +14,7 @@
     xmlhttp.open("POST", '/gedcomId-wtUsername', true);
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            console.log('gedcomId =', gedcomId, 'wtUsername =', wtUsername);
+            //console.log('gedcomId =', gedcomId, 'wtUsername =', wtUsername);
         }
     }
     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
@@ -184,13 +184,13 @@ $(document).ready(function () {
     document.getElementById("step3").setAttribute('tv', 'off');
 
     // button and input listeners
-    document.getElementById('individuals').addEventListener('input', function (e) { _pullIndividualDetails(_individualsListId, _individualsInputId) });
-    document.getElementById('individualsNext').addEventListener('click', function (e) { _nextIndividual(_individualsListId, _individualsInputId, 1) });
-    document.getElementById('individualsPrev').addEventListener('click', function (e) { _nextIndividual(_individualsListId, _individualsInputId, -1) });
-    document.getElementById('individualsSearch').addEventListener('click', function (e) { _pullIndividualDetails(_individualsListId, _individualsInputId) });
+    document.getElementById('individuals').addEventListener('input', function (_e) { _pullIndividualDetails(_individualsListId, _individualsInputId) });
+    document.getElementById('individualsNext').addEventListener('click', function (_e) { _nextIndividual(_individualsListId, _individualsInputId, 1) });
+    document.getElementById('individualsPrev').addEventListener('click', function (_e) { _nextIndividual(_individualsListId, _individualsInputId, -1) });
+    document.getElementById('individualsSearch').addEventListener('click', function (_e) { _pullIndividualDetails(_individualsListId, _individualsInputId) });
     document.getElementById('mergeForm').addEventListener('submit', function (e) {_reqWtMergeForm(e) });
     document.getElementById('mergeForm').addEventListener('keypress', function (e) { _enterListener(_reqWtMergeForm(e))});
-    document.getElementById('copyBtn').addEventListener('click', function (e) { _copyToClipboard('biography')} );
+    document.getElementById('copyBtn').addEventListener('click', function (_e) { _copyToClipboard('biography')} );
 
     // perpare for Step 1 by populating the individuals list
     _pullIndividualsList(_individualsListId);

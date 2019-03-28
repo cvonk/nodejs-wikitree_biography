@@ -37,7 +37,7 @@ class FQDate {
 
     string(format) {
         if (this.qualifier) {
-            return i18n.__(this.qualifier);
+            return global.i18n.__(this.qualifier);
         }
         if (this.qdates.length == 1) {
             return this.qdates[0].string(format);
@@ -47,14 +47,14 @@ class FQDate {
             case 'iso': inbetween = '/'; break;
             case 'world': 
             case 'us':
-            default: pre = i18n.__('between') + ' '; inbetween = ' ' + i18n.__('and') + ' ';
+            default: pre = global.i18n.__('between') + ' '; inbetween = ' ' + global.i18n.__('and') + ' ';
         }
         return pre + this.qdates[0].string(format) + inbetween + this.qdates[1].string(format);
     }
 
     get year() {
         if (this.qualifier) {
-            return i18n.__(this.qualifier);
+            return global.i18n.__(this.qualifier);
         }
         if (this.qdates.length == 1) {
             return this.qdates[0].year;

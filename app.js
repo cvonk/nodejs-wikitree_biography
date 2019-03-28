@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * @abstract Imports GEDCOM, generates biography that can be pasted in corresponding WikiTree profile
  * @license GPL
@@ -20,8 +21,8 @@ var app = express();
 
 // localization
 global.i18n = new (require('i18n-2'))({locales: ['en', 'nl']}); 
-i18n.devMode = true;
-i18n.setLocale('nl');  // test Netherlands locale
+global.i18n.devMode = true;
+global.i18n.setLocale('nl');  // test Netherlands locale
 
 // get path to GEDCOM file from command line argument
 
@@ -95,20 +96,18 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
         let persondetail = person.get(gedcom, indi)[0];
         let wtUsername = person.getWtUsername(persons, id);
 
-        if (false /*|| err !== null*/) {
-            res.status(500).send("An error has occurred -- " + err);
-        } else {
-            res.status(200).json({
-                'status': 'success', 
-                'gedcomId': indi.id,      // client returns this with wtUsername in '/gedcom-wtUsername' AJAX call
-                'wtUsername': wtUsername, // client uses it to prepopupate WikiTree Id field
-                'person': persondetail,   // 2BD client uses this to find the matching wikitree profile id
-                'gedcomx': gedcomx,       // client uses this to initiate a wikitree merge
-                'biography': biography    // client copy'n'pasts this in merge bio form
-            });
-        }
+        //res.status(500).send("An error has occurred -- " + err);
+        res.status(200).json({
+            'status': 'success', 
+            'gedcomId': indi.id,      // client returns this with wtUsername in '/gedcom-wtUsername' AJAX call
+            'wtUsername': wtUsername, // client uses it to prepopupate WikiTree Id field
+            'person': persondetail,   // 2BD client uses this to find the matching wikitree profile id
+            'gedcomx': gedcomx,       // client uses this to initiate a wikitree merge
+            'biography': biography    // client copy'n'pasts this in merge bio form
+        });
     });    
-    app.post('/gedcomId-wtUsername', function(req, res) { 
+    // eslint-disable-next-line no-unused-vars
+    app.post('/gedcomId-wtUsername', function(req) { 
         var gedcomId = req.param('gedcomId');
         var wtUsername = req.param('wtUsername');
         if (gedcomId && wtUsername) {
