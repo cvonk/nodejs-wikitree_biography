@@ -1,5 +1,8 @@
-# nodejs-wikitree_biography
+# GEDCOM to WikiTree Biography
+
 Imports a GEDCOM to write biographies, and helps you in applying them to corresponding WikiTree profiles.
+
+![screenshot](media/screenshot.png)
 
 ## Installing
 
