@@ -7,34 +7,16 @@ cache:
     - node_modules
 before_install:
   # Configure npm
-  - |
-    # Skip updating shrinkwrap / lock
-    npm config set shrinkwrap false
-  # Remove all non-test dependencies
-  - |
-    # Remove example dependencies
-    npm rm --silent --save-dev connect-redis
-  # Setup Node.js version-specific dependencies
-  - |
-    # mocha for testing
-    # - use 3.x for Node.js < 6
-    if [[ "$(cut -d. -f1 <<< "$TRAVIS_NODE_VERSION")" -lt 6 ]]; then
-      npm install --silent --save-dev mocha@3.5.3
-    fi
-  # Update Node.js modules
-  - |
-    # Prune and rebuild node_modules
-    if [[ -d node_modules ]]; then
+  - npm config set shrinkwrap false
+  - npm rm --silent --save-dev connect-redis
+  - npm install lint
+  - if [[ -d node_modules ]]; then
       npm prune
       npm rebuild
     fi
 script:
-  # Run test script
   - npm run test-ci
-  # Run linting
   - npm run lint
 after_script:
-  - |
-    # Upload coverage to coveralls sdf
-    npm install --save-dev coveralls@2.10.0
+  - npm install --save-dev coveralls@2.10.0
     coveralls < ./coverage/lcov.info
