@@ -64,3 +64,5 @@ typings/
 .vscode
 person-dump.js
 package-lock.json
+locales/de.1.js
+locales/nl.1.js
