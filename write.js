@@ -234,7 +234,7 @@ let about = {
             }    
             if (indi.ADDR || indi.EVEN) {
                 ret += ' ' + NL + "'''" + i18n.__('Childhood') + "'''" + NL + ' ' + NL;
-                ret += get.byTemplate(i18n, gedcom, indi, refs, '[SEX:hijzij] ' + i18n.__('lived at') + ':') + NL;
+                ret += get.byTemplate(i18n, gedcom, indi, refs, '[SEX:hijzij] ' + ':') + NL;
                 for (let src of ['ADDR', 'EVEN']) {
                     if (indi[src]) {
                         let objs = get.byName(gedcom, indi, src);
