@@ -26,14 +26,14 @@ Run the following in a terminal window, assuming you have already installed [nod
 
 The general flow:
  - This code parses the GEDCOM file, and serves a web page at `http://localhost:8080/`.
- - A web browser opens that webpage, sends a request for a list of names (`GET /individuals`)
+ - A web browser opens that webpage, sends a request for a list of names (`GET /getIndividualsList`)
  - This code replies with the names and associated GEDCOM identifiers.
  - Using the browser, the user selects a name from that list.
- - The browser uses the GEDCOM identifier to request the details (`POST /individual`).
+ - The browser uses the GEDCOM identifier to request the details (`POST /getIndividualDetails`).
  - This code replies with the details, including a Person description, a GEDCOMX description (and the WikiTree username if available).
  - The browser uses the Person details to a request the matches from WikiTree (`POST Special:SearchPerson`).
  - The user copies the WikiTree username of the matching entry back on the left panel in the web browser.
- - The browser sends the GEDCOM identifier along with the WikiTree username back to this code (`POST /gedcomId-wtUsername`).
+ - The browser sends the GEDCOM identifier along with the WikiTree username back to this code (`POST /putGedcomId2WtUsername`).
  - This code updates the Persons list on disk. (really only used for the GEDCOM id - WikiTree username mapping)
  - The webbrowser sends a request to WikiTree to request a merge form (`POST Special:MergeEdit`).
  - The user verifies the facts, and copies the prepared biography from the left panel to the WikiTree bio field, enriches it, previews it, and presses `Merge` to complete
