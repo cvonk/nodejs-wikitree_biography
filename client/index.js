@@ -174,7 +174,7 @@ function _reqWtmergeEditForm(evt) {  // called when mergeEditForm is completed
     const wtUsername = mergeEditForm.wtUsername.value;
     if (!wtUsername.length) {
         evt.preventDefault();  // prevent submit
-        alert("WikiTree Profile Name missing");
+        alert("Copy the name of the matching WikiTree profile to the panel on the left.\nThe name can be found in the list of search results, just before where it says \"managed by\".");
         return;
     }
     document.getElementById("step3").setAttribute('tv', 'on');

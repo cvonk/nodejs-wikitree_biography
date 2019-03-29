@@ -95,6 +95,17 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
             if (nameA > nameB) return 1;
             return 0;
         });
+        // make names unique, so the prev/next bottons on the client work as expected
+        let prevName = ''; let ii = 1;
+        for (let idx in individuals) {
+            if (individuals[idx].name == prevName) {
+                individuals[Number(idx)-1].name += '-' + (ii);
+                individuals[idx].name += '-' + (++ii);
+            } else {
+                ii = 1;
+                prevName = individuals[idx].name;
+            }
+        }
         res.render('individuals.pug', {individuals: individuals });
     });    
     app.post('/getIndividualDetails', function (req, res) {

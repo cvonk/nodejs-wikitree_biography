@@ -40,5 +40,14 @@
 	"brother": "brother",
 	" \"": " \"",
 	"\"": "\"",
-	"between": "between"
+	"between": "between",
+	"": "",
+	"months": "months",
+	"married on": "married on",
+	"Childhood": "Childhood",
+	"lived at": "lived at",
+	"arrival": "arrival",
+	"at most": "at most",
+	"before": "before",
+	"at least": "at least"
 }

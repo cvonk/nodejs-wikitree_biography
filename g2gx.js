@@ -129,8 +129,12 @@ module.exports = {
     principal: function(gedcom, indi) {
         if (indi) {
             let i18n = new I18n({ locales: ['en'] });  // English is fine for this purpose
-            let father = get.byName(gedcom, indi, 'FAMC.HUSB');
-            let mother = get.byName(gedcom, indi, 'FAMC.WIFE');
+
+// 2BD: deal with child part of two families ...
+            let famc = get.byName(gedcom, indi, 'FAMC');
+            if (famc instanceof Array) famc = famc[0]; // only first parents
+            let father = get.byName(gedcom, famc, 'HUSB');
+            let mother = get.byName(gedcom, famc, 'WIFE');
             father = father ? father[0] : undefined;
             mother = mother ? mother[0] : undefined;
 

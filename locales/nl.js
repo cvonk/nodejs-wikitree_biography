@@ -65,5 +65,6 @@
 	":": ":",
 	"geboren te": "geboren te",
 	"dies at age": "dies at age",
-	"": ""
+	"": "",
+	"Woonde op": "Woonde op"
 }
