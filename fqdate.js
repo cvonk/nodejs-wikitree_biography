@@ -35,27 +35,24 @@ class FQDate {
         }
     }
 
-    string(format) {
+    string(i18n, format) {
         if (this.qualifier) {
             return global.i18n.__(this.qualifier);
         }
         if (this.qdates.length == 1) {
-            return this.qdates[0].string(format);
+            return this.qdates[0].string(i18n, format);
         }
         let pre = '', inbetween = '';
         switch (format) {
             case 'iso': inbetween = '/'; break;
             case 'world': 
             case 'us':
-            default: pre = global.i18n.__('between') + ' '; inbetween = ' ' + global.i18n.__('and') + ' ';
+            default: pre = i18n.__('between') + ' '; inbetween = ' ' + global.i18n.__('and') + ' ';
         }
-        return pre + this.qdates[0].string(format) + inbetween + this.qdates[1].string(format);
+        return pre + this.qdates[0].string(i18n, format) + inbetween + this.qdates[1].string(i18n, format);
     }
 
     get year() {
-        if (this.qualifier) {
-            return global.i18n.__(this.qualifier);
-        }
         if (this.qdates.length == 1) {
             return this.qdates[0].year;
         }

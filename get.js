@@ -28,7 +28,7 @@ function _resolveIndirects(gedcom, obj) {
     }
 }
 
-function _fieldValue(gedcom, obj, refs, fields) {
+function _fieldValue(i18n, gedcom, obj, refs, fields) {
     let ret = "";
     if (obj && fields) {
         const field = fields.split('.').slice(-1)[0];  // last entry separated by '.'
@@ -36,20 +36,34 @@ function _fieldValue(gedcom, obj, refs, fields) {
         if (obj) {
             switch (type) {
                 case 'NAME': ret += value.name(obj, format); break;
-                case 'SEX': ret += value.sex(obj, format); break;
+                case 'SEX': ret += value.sex(i18n, obj, format); break;
                 case 'BIRT':
                 case 'DEAT':
-                case 'MARR': ret += module.exports.byTemplate(gedcom, obj[0], refs, '[DATE:' + format + ']| in [PLAC]'); break;
+                case 'MARR': ret += module.exports.byTemplate(i18n, gedcom, obj[0], refs, '[DATE:' + format + ']| in [PLAC]'); break;
                 case 'PLAC': ret += value.place(obj, format); break;
-                case 'DATE': ret += value.date(obj, format); break;
+                case 'DATE': ret += value.date(i18n, obj, format); break;
                 default: if (obj[0]) ret += obj[0].value;
             }
         }
         if (refs && ret.length) {
-            ret += refs.add(gedcom, obj[0] && obj[0].SOUR);
+            ret += refs.add(i18n, gedcom, obj[0] && obj[0].SOUR);
         }
     }
     return ret;
+}
+
+function _trimmedI18n(i18n, s) {
+    if (s) {
+        const middleStart = s.length - s.replace(/^[^\w]+/, '').length;
+        let middleEnd = s.replace(/[^\w]+$/, '').length;
+        if (middleEnd <= middleStart) middleEnd = middleStart;  // in case theer are no letters
+        const pre = s.substring(0, middleStart);
+        const middle = s.substring(middleStart, middleEnd);
+        const post = s.substring(middleEnd, s.length);
+        //console.log(s + '|' + pre + '|' + middle + '|' + post + '|');
+        return pre + i18n.__(middle) + post;
+    }
+    return s;
 }
 
 module.exports = {
@@ -119,8 +133,8 @@ module.exports = {
      * @param {Object} indi  object of the individual whose spouse we're looking for
      * @returns {Object}     the requested object, or undefined if not found
      */
-    spouse: function(gedcom, fams, indi) {
-        if (gedcom && fams && indi) {
+    spouse: function(i18n, gedcom, fams, indi) {
+        if (i18n, gedcom && fams && indi) {
             const husbIds = this.byName(gedcom, fams, 'HUSB');
             const wifeIds = this.byName(gedcom, fams, 'WIFE');
             if (husbIds && husbIds[0] && wifeIds && wifeIds[0]) {
@@ -132,7 +146,7 @@ module.exports = {
         }
     },
 
-    byTemplate: function (gedcom, obj, refs, templatesStr) {
+    byTemplate: function (i18n, gedcom, obj, refs, templatesStr) {
         let ret = "";
         if (obj && templatesStr) {
             const templates = templatesStr.split('|');
@@ -142,9 +156,11 @@ module.exports = {
                 if (fieldName) {
                     const oo = module.exports.byName(gedcom, obj, fieldName);
                     if (oo && oo[0]) {
-                        const text = _fieldValue(gedcom, oo, refs, fieldName);
+                        const text = _fieldValue(i18n, gedcom, oo, refs, fieldName);
                         if (text.length) {
-                            ret += global.i18n.__(pre) + text + global.i18n.__(post);
+                            pre
+
+                            ret += _trimmedI18n(i18n, pre) + text + _trimmedI18n(i18n, post);
                         }
                     }
                 } else {
@@ -155,7 +171,7 @@ module.exports = {
         return ret;
     },
 
-    sourceTitle: function(gedcom, id) {
+    sourceTitle: function(i18n, gedcom, id) {
         let ret = '';
         if (id) {
             let s = module.exports.byId(gedcom, id);
@@ -164,7 +180,7 @@ module.exports = {
                 if (s.REPO) {
                     let r = module.exports.byId(gedcom, s.REPO.id);
                     if (r && r.NAME) {
-                        ret += ' ' + global.i18n.__('accessed via') + r.NAME.value + '.';
+                        ret += ' ' + i18n.__('accessed via') + ' ' + r.NAME.value + '.';
                     }
                 }
                 ret += NL;

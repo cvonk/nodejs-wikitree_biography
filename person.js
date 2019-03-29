@@ -3,28 +3,38 @@
 /** @author Coert Vonk <coert vonk at gmail> */
 
 var get = require('./get.js'),
-    //value = require('./value.js'),
-    fs = require("fs");
+    value = require('./value.js'),
+    fs = require("fs"),
+    I18n = require('i18n-2');
 
 function _writePerson(gedcom, indi, recursions) {
 
+    const name = indi.NAME instanceof Array ? indi.NAME : [indi.NAME];
     let person = {
         gedcomId: indi.id,
         name: {
-            given: get.byTemplate(gedcom, indi, undefined, '[NAME:given]'),
-            last: get.byTemplate(gedcom, indi, undefined, '[NAME:last]')
+            given: name ? value.name(name, 'given') : 'unknown',
+            last: name ? value.name(name, 'last') : 'unknown'
         },
-        gender: get.byTemplate(gedcom, indi, undefined, '[SEX]')
+        gender: indi.SEX ? indi.SEX : 'Unknown'
     };
 
-    let tags = { birth: 'BIRT', death: 'DEAT'};
-    for (let tag in tags) {
-        const tags2 = { date: 'DATE:us', place: 'PLAC:full'};
-        for (let tag2 in tags2) {
-            let v = get.byTemplate(gedcom, indi, undefined, '[' + tags[tag] + '.' + tags2[tag2] + ']');
-            if (v) {
-                if (!person[tag]) person[tag] = {};
-                person[tag][tag2] = v;
+    let events = { birth: 'BIRT', death: 'DEAT'};
+    for (let eventKey in events) {
+        const eventVal = events[eventKey];
+        const event = indi[eventVal] instanceof Array ? indi[eventVal][0] : indi[eventVal];
+        if (event) {
+            const facts = { date: 'DATE', place: 'PLAC'};
+            for (let factKey in facts) {
+                const factVal = facts[factKey];
+                if (event[factVal]) {
+                    const fact = event[factVal] instanceof Array ? event[factVal] : [event[factVal]];
+                    const v = fact[0].value;
+                    if (v) {
+                        if (!person[eventKey]) person[eventKey] = {};
+                        person[eventKey][factKey] = v;
+                    }
+                }
             }
         }
     }

@@ -62,6 +62,18 @@ function _enterListener(func) {
     };
 }
 
+function _simpleDate(v) {  // search form only seems to handle the simple case
+    if (v) {
+        switch (v.substr(0, 3)) {  
+            case 'BET': v = v.split(/\s+(?:AND)\s+/)[0];  // only take first date; fall through to next
+            case 'ABT': 
+            case 'BEF': 
+            case 'AFT': v = v.slice(4);
+        }
+        return v;
+    }
+}
+
 /**
  * Prepare for Step 1: the page was loaded, now pull a list of individuals from the NodeJS server
  */
@@ -107,11 +119,14 @@ function _getIndividualDetails(listId, inputId) {
                 document.getElementById("step2").setAttribute('tv', 'on');
                 document.getElementById("step3").setAttribute('tv', 'off');
                 const person = resp.person;
+
+
+
                 const ids = {  // the WikiTree search form doesn't support all the fields at once
                     wpFirst: person.name && person.name.given,
                     wpLast: person.name && person.name.last,
-                    wpBirthDate: person.birth && person.birth.date,
-                    //birth_location, person.birth && person.birth.place,
+                    wpBirthDate: person.birth && _simpleDate(person.birth.date),
+                    //birth_location, person.birth && _simpleDate(person.birth.place),
                     wpDeathDate: person.death && person.death.date,
                     //death_location, person.death && person.death.place,
                     //father_first_name: person.father && person.father.name && person.father.name.given,

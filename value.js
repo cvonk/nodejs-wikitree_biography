@@ -3,7 +3,7 @@
 
 var FQDate = require('./fqdate.js');
 
-function _age(aYear, aMonth, aDay, bYear, bMonth, bDay) {
+function _age(i18n, aYear, aMonth, aDay, bYear, bMonth, bDay) {
     if (!aYear || !bYear) return '';  // need at least two years
     let days = 0;
     if (aDay) days += aDay;
@@ -15,9 +15,9 @@ function _age(aYear, aMonth, aDay, bYear, bMonth, bDay) {
 
     const months = Math.floor(days * 12 / 365.25);
     const years = Math.floor(months / 12);
-    if (Math.abs(days) < 60)  return Math.floor(days) + global.i18n.__(' days');
-    if (Math.abs(months) < 24) return Math.floor(months) + global.i18n.__(' months');
-    return years + global.i18n.__(' years');
+    if (Math.abs(days) < 60)  return Math.floor(days) + ' ' + i18n.__('days');
+    if (Math.abs(months) < 24) return Math.floor(months) + ' ' + i18n.__('months');
+    return years + ' ' + i18n.__('years');
 }
 
 let _birthday;
@@ -26,28 +26,33 @@ module.exports = {
 
     birthday: _birthday,
 
-    date: function (obj, format) {
+    date: function (i18n, obj, format) {
         if (obj && obj[0]) {
             const fqdate = new FQDate(obj[0].value);
             if (fqdate instanceof String) {
                 return fqdate;
             }
             switch (format) {
-                case 'year':
-                    return fqdate.year;
+                case 'year': {
+                    const year = fqdate.year;
+                    if (year instanceof String) {
+                        return i18n.__(this.qualifier);
+                    }
+                    return year;
+                }
                 case 'age': {
                     let birth = module.exports.birthday;
                     if (birth && fqdate.isValid && birth.isValid && !fqdate.qualifier && !birth.qualifier) {
-                        let ageLo = _age(fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
-                        let ageHi = _age(fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
+                        let ageLo = _age(i18n, fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
+                        let ageHi = _age(i18n, fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
                         if (ageLo == ageHi) {
                             return ageLo;
                         } else if (!ageHi.length) {
-                            return global.i18n.__('at least') + ' ' + ageLo;
+                            return i18n.__('at least') + ' ' + ageLo;
                         } else if (!ageLo.length) {
-                            return global.i18n.__('at most') + ' ' + ageHi;
+                            return i18n.__('at most') + ' ' + ageHi;
                         } else {
-                            return global.i18n.__('between') + ' ' + ageLo + ' ' + global.i18n.__('and') + ' ' + ageHi;
+                            return i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
                         }
                     }
                     break;
@@ -58,7 +63,7 @@ module.exports = {
                 case 'wtgedcomx':
                 case 'us':
                 default:
-                    return fqdate.string(format);
+                    return fqdate.string(i18n, format);
             }
         }
         return '';
@@ -93,7 +98,7 @@ module.exports = {
         }
     },
 
-    sex: function (obj, format) {
+    sex: function (i18n, obj, format) {
         if (obj && obj[0]) {
             const sex = obj[0].value;
             const formats = [
@@ -114,9 +119,9 @@ module.exports = {
             //idx %= formats.length;
             if (found) {
                 switch (sex) {
-                    case 'M': return global.i18n.__(formats[idx][1]);
-                    case 'F': return global.i18n.__(formats[idx][2]);
-                    default: return global.i18n.__(formats[idx][3]);
+                    case 'M': return i18n.__(formats[idx][1]);
+                    case 'F': return i18n.__(formats[idx][2]);
+                    default: return i18n.__(formats[idx][3]);
                 }
             }
             return sex;

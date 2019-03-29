@@ -33,12 +33,6 @@ var get = require('./get.js'),
 
 var app = express();
 
-// localization
-
-global.i18n = new (require('i18n-2'))({ locales: ['en', 'nl'] });
-global.i18n.locales = ['en', 'nl'];  // try it here, param above didn't work, later we set the locale based on where the person is born
-global.i18n.devMode = true;
-
 // get path to GEDCOM file from command line argument
 
 const gedcomFname = process.argv[2];
@@ -132,11 +126,10 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
         }
     });
     
-    app.listen(8080);    
-    console.log("App listening on http://localhost/index.html");
-
-    // enable next line to test biographies testing
+    // to test biographies writing on all individuals, enable the next line and disable the app.listen()
     //write.biography(gedcom); //  get.byId(gedcom, indi_)
+    app.listen(8080);
+    console.log("App listening on http://localhost/index.html");
 });
 
 app.use(bodyParser.json());

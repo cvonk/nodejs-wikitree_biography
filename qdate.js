@@ -71,7 +71,7 @@ class QDate {
     get monthString() { return this.month ? _getXdigitNr(this.month, 2) : ''; }
     get yearString() { return this.year ? _getXdigitNr(this.year, 4) : ''; }
 
-    string(format) {
+    string(i18n, format) {
         let ret = '';
         switch(format) {
             case 'wtgedcomx': { // doesn't appear to understand qualifiers
@@ -98,7 +98,7 @@ class QDate {
                 break;
             }
             case 'world': {
-                if (this.qualifier) ret += global.i18n.__(this.qualifier) + ' ';
+                if (this.qualifier) ret += i18n.__(this.qualifier) + ' ';
                 if (this.day)   ret += this.dayString + '-';
                 if (this.month) ret += this.monthString + '-';
                 if (this.year)  ret += this.yearString;
@@ -106,7 +106,7 @@ class QDate {
             }
             case 'us':
             default: {
-                if (this.qualifier) ret += global.i18n.__(this.qualifier) + ' ';
+                if (this.qualifier) ret += i18n.__(this.qualifier) + ' ';
                 if (this.day)   ret += this.dayString + ' ';
                 if (this.month) ret += _monthAbrevs[this.month - 1] + ' ';
                 if (this.year)  ret += this.yearString;

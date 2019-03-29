@@ -3,88 +3,94 @@
 
 var get = require('./get.js'),
     value = require('./value.js'),
-    FQDate = require('./fqdate.js');
+    FQDate = require('./fqdate.js'),
+    I18n = require('i18n-2');
 
 const NL = "\n";
 
-function _getNameYearsOcc(gedcom, indi, refs) {
+function _getNameYearsOcc(i18n, gedcom, indi, refs) {
     let ret = '';
-    if (gedcom && indi) {
-        ret += get.byTemplate(gedcom, indi, refs, ' [NAME:full]');
+    if (i18n && gedcom && indi) {
+        ret += get.byTemplate(i18n, gedcom, indi, refs, ' [NAME:full]');
         const brackets = (indi.BIRT && indi.BIRT.DATE) || (indi.DEAT && indi.DEAT.DATE);
         if (brackets) ret += ' (';
-        ret += get.byTemplate(gedcom, indi, refs, '[BIRT.DATE:year]|-[DEAT.DATE:year]|');
+        ret += get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]|-[DEAT.DATE:year]|');
         if (brackets) ret += ')';
-        ret += get.byTemplate(gedcom, indi, refs, ' [OCCU]| ' + global.i18n.__('from') + ' [BIRT.PLAC]');
+        ret += get.byTemplate(i18n, gedcom, indi, refs, ' [OCCU]| ' + i18n.__('from') + ' [BIRT.PLAC]');
     }
     return ret;
 }
 
-function _getParentsFirstNames(gedcom, fam, refs) {
+function _getParentsFirstNames(i18n, gedcom, fam, refs) {
     let ret = '';
     if (fam.HUSB) {
-        ret += get.byTemplate(gedcom, fam, refs, ' [HUSB.NAME:first]');
+        ret += get.byTemplate(i18n, gedcom, fam, refs, ' [HUSB.NAME:first]');
     }
     if (fam.HUSB && fam.WIFE) {
-        ret += ' ' + global.i18n.__('and');
+        ret += ' ' + i18n.__('and');
     }
     if (fam.WIFE) {
-        ret += get.byTemplate(gedcom, fam, refs, ' [WIFE.NAME:first]');
+        ret += get.byTemplate(i18n, gedcom, fam, refs, ' [WIFE.NAME:first]');
     }
     return ret;
 }
 
-function _aboutSibling(gedcom, sibling, refs, half) {
+function _aboutSibling(i18n, gedcom, sibling, refs, half) {
     let yrs = '';
-    let yrsYounger = get.byTemplate(gedcom, sibling, refs, '[BIRT.DATE:age]');
+    let yrsYounger = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
     if (yrsYounger.length) {
         if (yrsYounger[1] == '-') {  // has a ~, <, > in front of the minus
             yrs += yrsYounger[0];
             yrsYounger = yrsYounger.slice(1);
         }
-        yrs += ', ' + yrsYounger.startsWith('-') ? yrsYounger.slice(1) +  global.i18n.__(' older') : yrsYounger +  global.i18n.__(' younger');
+        yrs += ', ';
+        if (yrsYounger.startsWith('-')) {
+            yrs += yrsYounger.slice(1) +  ' ' + i18n.__('older')
+        } else {
+            yrs += yrsYounger + ' ' + i18n.__('younger');
+        }
     }
-    let ret = get.byTemplate(gedcom, sibling, refs, '* ' + half + '[SEX:broerzus]| [NAME:given]| "[NAME:aka]"') + ", " + yrs;
-    ret += get.byTemplate(gedcom, sibling, refs, ', [OCCU]');
+    let ret = get.byTemplate(i18n, gedcom, sibling, refs, '* ' + half + '[SEX:broerzus]| [NAME:given]| "[NAME:aka]"') + ", " + yrs;
+    ret += get.byTemplate(i18n, gedcom, sibling, refs, ', [OCCU]');
     if (sibling.BIRT && sibling.BIRT.DATE ) {
         const saved = value.birthday;
         value.birthday = new FQDate(sibling.BIRT.DATE.value);
-        ret += get.byTemplate(gedcom, sibling, refs, ', ' + global.i18n.__('dies at age') + ' [DEAT.DATE:age]');
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, ', ' + i18n.__('died at age') + ' [DEAT.DATE:age]');
         value.birthday = saved;
     }
     return ret;
 }
 
-function _aboutAddress(gedcom, obj, refs) {
-    let ret = get.byTemplate(gedcom, obj, refs, '[DATE],');
+function _aboutAddress(i18n, gedcom, obj, refs) {
+    let ret = get.byTemplate(i18n, gedcom, obj, refs, '[DATE],');
     if (obj.TYPE) {
         switch (obj.TYPE.value) {
-            case 'Arrival': ret += ' ' + global.i18n.__('arrival'); break;
-            case 'Departure': ret += ' ' + global.i18n.__('departure'); break;
+            case 'Arrival': ret += ' ' + i18n.__('arrival'); break;
+            case 'Departure': ret += ' ' + i18n.__('departure'); break;
             default: ret += obj.TYPE.value;
         }
     }
-    ret += get.byTemplate(gedcom, obj, refs, ' in [PLAC]');
+    ret += get.byTemplate(i18n, gedcom, obj, refs, ' in [PLAC]');
     if (obj.value) {
         ret += ', ' + obj.value;
     }
     return ret;
 }
 
-function _aboutSpouse(gedcom, spouse, refs, mar) {
+function _aboutSpouse(i18n, gedcom, spouse, refs, mar) {
     let ret = '';
-    if (gedcom && spouse) {
+    if (i18n && gedcom && spouse) {
         const saved = value.birthday;
         value.birthday = new FQDate(spouse.BIRT && spouse.BIRT.DATE ? spouse.BIRT.DATE.value : undefined);
         {
-            ret += get.byTemplate(gedcom, spouse, refs, ' ' + global.i18n.__('with') + ' [NAME:full]');
-            ret += get.byTemplate(gedcom, mar, refs, ' ([DATE:age])');
-            ret += get.byTemplate(gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]|.');
-            ret += about.parents(gedcom, spouse);
-            let death = get.byTemplate(gedcom, spouse, refs, '[NAME:first]| ' + global.i18n.__('died on') + ' [DEAT]| ([DEAT.DATE:age])| ' + global.i18n.__('due to') + ' [DEAT.CAUS]|.');
+            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' ' + i18n.__('with') + ' [NAME:full]');
+            ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])');
+            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]|.');
+            ret += about.parents(i18n, gedcom, spouse);
+            let death = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]| ' + i18n.__('died on') + ' [DEAT]| ([DEAT.DATE:age])| ' + i18n.__('due to') + ' [DEAT.CAUS]|.');
             if (death.length) {
                 //ret += ' ' + NL;
-                ret += get.byTemplate(gedcom, spouse, refs, '[NAME:first]|') + death;
+                ret += get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]|') + death;
             }
         }
         value.birthday = saved;
@@ -92,41 +98,41 @@ function _aboutSpouse(gedcom, spouse, refs, mar) {
     return ret;
 }
 
-function _getDeath(gedcom, indi, refs, long) {
+function _getDeath(i18n, gedcom, indi, refs, long) {
     let ret = '';
-    if (gedcom && indi && indi.DEAT) {
+    if (i18n && gedcom && indi && indi.DEAT) {
         if (indi.BIRT && indi.BIRT.DATE) {
             const saved = value.birthday;
             value.birthday = new FQDate(indi.BIRT.DATE.value);
             {
                 if (long) {
-                    ret += get.byTemplate(gedcom, indi, refs, '[NAME:first]| ' + global.i18n.__('died on') + ' [DEAT]| ([DEAT.DATE:age])| ' + global.i18n.__('due to') + ' [DEAT.CAUS]|');
+                    ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| ' + i18n.__('died on') + ' [DEAT]| ([DEAT.DATE:age])| ' + i18n.__('due to') + ' [DEAT.CAUS]|');
                 } else {
-                    ret += get.byTemplate(gedcom, indi, refs, ', ' + global.i18n.__('dies at age') + ' [DEAT.DATE:age]');
+                    ret += get.byTemplate(i18n, gedcom, indi, refs, ', ' + i18n.__('dies at age') + ' [DEAT.DATE:age]');
                 }
             }
             value.birthday = saved;
         } else {
-            ret += get.byTemplate(gedcom, indi, refs, ', ' + global.i18n.__('died on') + ' [DEAT.DATE]');
+            ret += get.byTemplate(i18n, gedcom, indi, refs, ', ' + i18n.__('died on') + ' [DEAT.DATE]');
         }
     }
     return ret;
 }
 
-function _aboutChild(gedcom, child, refs) {
+function _aboutChild(i18n, gedcom, child, refs) {
     let ret = ''
-    if (gedcom && child) {
-        ret += get.byTemplate(gedcom, child, refs, ' [SEX:zoondochter]| [NAME:given]|, ' + global.i18n.__('born in') + ' [BIRT.DATE:year]|, [OCCU]');
+    if (i18n && gedcom && child) {
+        ret += get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:given]|, ' + i18n.__('born in') + ' [BIRT.DATE:year]|, [OCCU]');
 
-        ret += _getDeath(gedcom, child, false);
+        ret += _getDeath(i18n, gedcom, child, false);
     }
     return ret;
 }
 
-function _aboutOld(gedcom, indi, refs) {
+function _aboutOld(i18n, gedcom, indi, refs) {
     let ret = '';
-    if (gedcom && indi) {
-        ret += _getDeath(gedcom, indi, refs, true) + '.' + NL;
+    if (i18n && gedcom && indi) {
+        ret += _getDeath(i18n, gedcom, indi, refs, true) + '.' + NL;
     }
     return ret;
 }
@@ -134,39 +140,45 @@ function _aboutOld(gedcom, indi, refs) {
 let about = {
 
     init: function(gedcom, indi) {
+        let locale = 'en';
         if (gedcom && indi) {
-            const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en'};
+            const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en', 'Germany': 'de'}; // add locales here
             let birth = indi.BIRT && indi.BIRT.PLAC ? indi.BIRT.PLAC.value : undefined;
             let death = indi.DEAT && indi.DEAT.PLAC ? indi.DEAT.PLAC.value : undefined;
             for (let key in locales) {
                 if (birth && birth.endsWith(key) || death && death.endsWith(key)) {
-                    global.i18n.locale = locales[key];
-                    global.i18n.defaultLocale = locales[key];
+                    locale = locales[key];
+                    break;
                 }
             }
             if (indi.BIRT && indi.BIRT.DATE) {
                 value.birthday = new FQDate(indi.BIRT.DATE.value);  // for calculating ages later
             }
         }
-    },
+        let i18n = new I18n({ locales: [locale] });
+        //i18n.locales = [locale];  // try it here, param above didn't work, later we set the locale based on where the person is born
+        //i18n.locale = locale;
+        //i18n.defaultLocale = locale;
+        return i18n;
+},
 
-    parents: function (gedcom, indi, refs) {
-        if (gedcom && indi) {
+    parents: function (i18n, gedcom, indi, refs) {
+        if (i18n && gedcom && indi) {
             let ret = '';
             let fams = get.byName(gedcom, indi, 'FAMC');
             if (fams[0]) {
-                ret += get.byTemplate(gedcom, indi, refs, ' [SEX:hijzij]| ' + global.i18n.__('is a') + ' [SEX:zoondochter] ' + global.i18n.__('of'));
+                ret += get.byTemplate(i18n, gedcom, indi, refs, ' [SEX:hijzij]| ' + i18n.__('is a') + ' [SEX:zoondochter] ' + i18n.__('of'));
                 for (let fam of fams) {  // for children that were latter assigned a father
                     if (fam) {
                         if (fam.HUSB || fam.WIFE) {
                             if (fam.HUSB) {
-                                ret += _getNameYearsOcc(gedcom, get.byName(gedcom, fam, 'HUSB')[0], refs);
+                                ret += _getNameYearsOcc(i18n, gedcom, get.byName(gedcom, fam, 'HUSB')[0], refs);
                             }
                             if (fam.HUSB && fam.WIFE) {
-                                ret += ' ' + global.i18n.__('and');
+                                ret += ' ' + i18n.__('and');
                             }
                             if (fam.WIFE){
-                                ret += _getNameYearsOcc(gedcom, get.byName(gedcom, fam, 'WIFE')[0], refs);
+                                ret += _getNameYearsOcc(i18n, gedcom, get.byName(gedcom, fam, 'WIFE')[0], refs);
                             }
                         }
                         ret += '.' + NL;
@@ -177,22 +189,22 @@ let about = {
         }       
     },
 
-    introduction: function (gedcom, indi, refs) {
-        if (gedcom && indi) {
+    introduction: function (i18n, gedcom, indi, refs) {
+        if (i18n && gedcom && indi) {
             let ret = "";
-            ret += get.byTemplate(gedcom, indi, refs, '[NAME:full]| ' + global.i18n.__('is born on') + ' [BIRT]|.');
-            ret += this.parents(gedcom, indi);
+            ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]| ' + i18n.__('is born on') + ' [BIRT]|.');
+            ret += this.parents(i18n, gedcom, indi);
             if (indi.FAMC) {
                 ret += ' ' + NL;
                 let fams = get.byName(gedcom, indi, 'FAMC');
                 for (let fam of fams) {  // for children that were latter assigned a father
                     if (fam.HUSB || fam.WIFE) {
-                        ret +=  global.i18n.__('Other children of') + _getParentsFirstNames(gedcom, fam, refs) + ':' + NL;                        
+                        ret +=  i18n.__('Other children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':' + NL;                        
                     } else {
-                        ret += global.i18n.__("Half siblings:") + NL;
+                        ret += i18n.__("Half siblings") + ":" + NL;
                     }
                     let siblings = get.byName(gedcom, fam, 'CHIL');
-                    let half = global.i18n.__('half');
+                    let half = i18n.__('half');
                     if (siblings) {
                         for (let sibling of siblings) {
                             if (sibling.id == indi.id) {
@@ -203,7 +215,7 @@ let about = {
                     if (siblings) {
                         for (let sibling of siblings) {
                             if (sibling.id != indi.id) { //exclude self
-                                ret += _aboutSibling(gedcom, sibling, refs, half) + '.' + NL;
+                                ret += _aboutSibling(i18n, gedcom, sibling, refs, half) + '.' + NL;
                             }
                         }
                     }
@@ -214,20 +226,20 @@ let about = {
         }
     },
 
-    childhood: function (gedcom, indi, refs) {
-        if (gedcom && indi) {
+    childhood: function (i18n, gedcom, indi, refs) {
+        if (i18n && gedcom && indi) {
             let ret = ""
             if (indi.OCCU) {
-                ret += get.byTemplate(gedcom, indi, refs, '[NAME:first]| ' + global.i18n.__('worked as') + ' [OCCU]') + '.' + NL;
+                ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| ' + i18n.__('worked as') + ' [OCCU]') + '.' + NL;
             }    
             if (indi.ADDR || indi.EVEN) {
-                ret += ' ' + NL + "'''" + global.i18n.__('Childhood') + "'''" + NL + ' ' + NL;
-                ret += get.byTemplate(gedcom, indi, refs, '[SEX:hijzij] ' + global.i18n.__('lived at') + ':') + NL;
+                ret += ' ' + NL + "'''" + i18n.__('Childhood') + "'''" + NL + ' ' + NL;
+                ret += get.byTemplate(i18n, gedcom, indi, refs, '[SEX:hijzij] ' + i18n.__('lived at') + ':') + NL;
                 for (let src of ['ADDR', 'EVEN']) {
                     if (indi[src]) {
                         let objs = get.byName(gedcom, indi, src);
                         for (let obj of objs) {
-                            ret += '* ' + _aboutAddress(gedcom, obj, refs) + '.' + NL;
+                            ret += '* ' + _aboutAddress(i18n, gedcom, obj, refs) + '.' + NL;
                         }
                     }
                 }
@@ -236,32 +248,32 @@ let about = {
         }
     },
 
-    relationships: function (gedcom, indi, refs) {
+    relationships: function (i18n, gedcom, indi, refs) {
         let ret = "";
-        if (gedcom && indi && indi.FAMS) {
-            ret += ' ' + NL +  "'''" + global.i18n.__('Relationships') + "'''" + NL;
+        if (i18n && gedcom && indi && indi.FAMS) {
+            ret += ' ' + NL +  "'''" + i18n.__('Relationships') + "'''" + NL;
             let fams = get.byName(gedcom, indi, 'FAMS');
             for (let fam of fams) {
                 ret += ' ' + NL;
-                ret += get.byTemplate(gedcom, indi, refs, '[NAME:first]');
+                ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]');
                 
                 let mars = get.byName(gedcom, fam, 'MARR');  // some people are married at 2 different churches
                 if (mars[0]) {
                     for (let mar of mars) {
-                        ret += get.byTemplate(gedcom, mar, refs, ' ([DATE:age])|, ' + global.i18n.__('married on') + ' [DATE]');
+                        ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])|, ' + i18n.__('married on') + ' [DATE]');
                     }
                 }
-                let spouse = get.spouse(gedcom, fam, indi);
-                ret += _aboutSpouse(gedcom, spouse, refs, mars[0]);
+                let spouse = get.spouse(i18n, gedcom, fam, indi);
+                ret += _aboutSpouse(i18n, gedcom, spouse, refs, mars[0]);
                 if (fam.CHIL) {
                     ret += ' ';
-                    ret += get.byTemplate(gedcom, indi, refs, global.i18n.__('Children of') + ' [NAME:first]');
-                    ret += get.byTemplate(gedcom, spouse, refs, ' ' + global.i18n.__('and') + ' [NAME:first]:') + NL;
+                    ret += get.byTemplate(i18n, gedcom, indi, refs, i18n.__('Children of') + ' [NAME:first]');
+                    ret += get.byTemplate(i18n, gedcom, spouse, refs, ' ' + i18n.__('and') + ' [NAME:first]:') + NL;
                     let childIds = get.byName(gedcom, fam, 'CHIL');
                     for (let childId of childIds) {
                         if (childId.id != indi.id) { //exclude self
                             let child = get.byId(gedcom, childId.id);
-                            ret += '* ' + _aboutChild(gedcom, child, refs) + '.' + NL;
+                            ret += '* ' + _aboutChild(i18n, gedcom, child, refs) + '.' + NL;
                         }
                     }
                 }
@@ -270,11 +282,11 @@ let about = {
         return ret;
     },
 
-    oldday: function (gedcom, indi, refs) {
+    oldday: function (i18n, gedcom, indi, refs) {
         let ret = '';
-        if (gedcom && indi && indi.DEAT) {
-            ret += ' ' +  NL + "'''" + global.i18n.__('The old day') + "'''" + NL + ' ' + NL;
-            ret += _aboutOld(gedcom, indi, refs);
+        if (i18n && gedcom && indi && indi.DEAT) {
+            ret += ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + ' ' + NL;
+            ret += _aboutOld(i18n, gedcom, indi, refs);
         }
         return ret;
     }
@@ -284,7 +296,7 @@ let References = class {
     constructor () {
         this.alreadyReferenced = [];
     }
-    add(gedcom, sours) {
+    add(i18n, gedcom, sours) {
         let ret = "";
         if (sours) {
             if (!(sours instanceof Array)) {
@@ -300,7 +312,7 @@ let References = class {
                 } else {
                     this.alreadyReferenced.push(shortId);
                     ret += '<ref name="' + shortId + '">';
-                    ret += get.sourceTitle(gedcom, sour.id) + '<BR />' + NL;
+                    ret += get.sourceTitle(i18n, gedcom, sour.id) + '<BR />' + NL;
                     if (sour.PAGE) {
                         if (sour._LINK) {
                             ret += "'''[" + sour._LINK.value + ' ' + sour.PAGE.value + "]'''";
@@ -327,16 +339,18 @@ module.exports = {
         let indis = indi_ ? [indi_] : get.byName(gedcom, gedcom, 'INDI');
 
         for (let indi of indis) {            
-            console.log(indi.id)
-            about.init(gedcom, indi);
+            if (!indi_) console.log(indi.id);
+            const i18n = about.init(gedcom, indi);
             let ret = "== Biography ==" + NL;
-            ret += about.introduction(gedcom, indi, refs);
-            ret += about.childhood(gedcom, indi, refs);
-            ret += about.relationships(gedcom, indi, refs);
-            ret += about.oldday(gedcom, indi, refs);
-            ret += '== Sources ==\n<references />';
+            ret += about.introduction(i18n, gedcom, indi, refs);
+            ret += about.childhood(i18n, gedcom, indi, refs);
+            ret += about.relationships(i18n, gedcom, indi, refs);
+            ret += about.oldday(i18n, gedcom, indi, refs);
+            ret += NL + '== Sources ==\n<references />';
             if (indi_) {
                 return ret;
+            } else {
+                console.log(ret);
             }
         }
     }
