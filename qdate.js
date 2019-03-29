@@ -1,5 +1,5 @@
 /** @module qdate qualified date class */
-/** @author Coert Vonk <my name at gmail> */
+/** @author Coert Vonk <MY.NAME@gmail.com> */
 /**
  * Interprets single GEDCOM dates such as 'Apr 2019', or 'ABT 12 Nov 2010'
  * Does not handle 'BET 2010 2011`, use fqdate.js for that.

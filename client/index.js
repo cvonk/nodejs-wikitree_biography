@@ -1,7 +1,7 @@
 /**
  * @abstract Client page part of a project that imports GEDCOM, generates biography that can be pasted in corresponding WikiTree profile
  * @license GPL
- * @author Coert Vonk <my.name@gmail.com>
+ * @author Coert Vonk <MY.NAME@gmail.com>
  * @url https://github.com/cvonk/nodejs-wikitree_biography
  */
 

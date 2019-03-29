@@ -1,11 +1,10 @@
 /* eslint-disable no-console */
 /** @module person write/read key facts about gedcom individuals */
-/** @author Coert Vonk <coert vonk at gmail> */
+/** @author Coert Vonk <MY.NAME@gmail.com> */
 
 var get = require('./get.js'),
     value = require('./value.js'),
-    fs = require("fs"),
-    I18n = require('i18n-2');
+    fs = require("fs");
 
 function _writePerson(gedcom, indi, recursions) {
 

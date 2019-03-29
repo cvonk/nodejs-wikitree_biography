@@ -1,5 +1,5 @@
 /** @module fqdate fully qualified date class */
-/** @author Coert Vonk <my name at gmail> */
+/** @author Coert Vonk <MY.NAME@gmail.com> */
 /**
  * Interprets single and double GEDCOM dates such as 'Apr 2019', 'ABT 12 Nov 2010' and 'BET 2010 2011`
  * */
@@ -37,7 +37,7 @@ class FQDate {
 
     string(i18n, format) {
         if (this.qualifier) {
-            return global.i18n.__(this.qualifier);
+            return i18n.__(this.qualifier);
         }
         if (this.qdates.length == 1) {
             return this.qdates[0].string(i18n, format);
@@ -47,7 +47,7 @@ class FQDate {
             case 'iso': inbetween = '/'; break;
             case 'world': 
             case 'us':
-            default: pre = i18n.__('between') + ' '; inbetween = ' ' + global.i18n.__('and') + ' ';
+            default: pre = i18n.__('between') + ' '; inbetween = ' ' + i18n.__('and') + ' ';
         }
         return pre + this.qdates[0].string(i18n, format) + inbetween + this.qdates[1].string(i18n, format);
     }

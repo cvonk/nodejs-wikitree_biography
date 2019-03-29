@@ -1,10 +1,11 @@
 /** @module g2gx converts parsed GEDCOM to GedcomX */
-/** @author Coert Vonk <my name at gmail> */
+/** @author Coert Vonk <MY.NAME@gmail.com> */
 
 var GedcomX = require('gedcomx-js');  // install using 'npm install', details at https://github.com/rootsdev/gedcomx-js
 
 var get = require('./get.js'),
-    value = require('./value.js');
+    value = require('./value.js'),
+    I18n = require('i18n-2');
 
     // Enable the RS and Records extensions
 GedcomX.enableRsExtensions();
@@ -69,7 +70,7 @@ GedcomX.Root.prototype.generateId = function(){
     return ++this._nextId + '';
 };
 
-GedcomX.Root.prototype.addPersonGedcom = function(gedcom, indi, relationshipType) {
+GedcomX.Root.prototype.addPersonGedcom = function(i18n, gedcom, indi, relationshipType) {
     if (indi) {
         let id = 'coertvonk.com as ' + indi.id.replace(/^@|@$/g, '');
         let person = GedcomX.Person({id: id, // this.generateId(),
@@ -77,17 +78,17 @@ GedcomX.Root.prototype.addPersonGedcom = function(gedcom, indi, relationshipType
                                     resourceId: 'https://coertvonk.com/genealogy/' + indi.id,  // 2BD: maybe resource and resourceId need to be swapped
                                     principal: relationshipType == undefined,
                                     identifiers: {'genscrape': indi.id}})
-            .setGender({type: 'http://gedcomx.org/' + get.byTemplate(gedcom, indi, undefined, '[SEX:gedcomx]')})
-            .addNameFromParts({'http://gedcomx.org/Given': get.byTemplate(gedcom, indi, undefined, '[NAME:given]'),
-                               //'http://gedcomx.org/Middle': get.byTemplate(gedcom, indi, undefined, '[NAME:middle]'),
-                               'http://gedcomx.org/Preferred': get.byTemplate(gedcom, indi, undefined, '[NAME:given]'),
-                               'http://gedcomx.org/Surname': get.byTemplate(gedcom, indi, undefined, '[NAME:last]')})
+            .setGender({type: 'http://gedcomx.org/' + get.byTemplate(i18n, gedcom, indi, undefined, '[SEX:gedcomx]')})
+            .addNameFromParts({'http://gedcomx.org/Given': get.byTemplate(i18n, gedcom, indi, undefined, '[NAME:given]'),
+                               //'http://gedcomx.org/Middle': get.byTemplate(i18n, gedcom, indi, undefined, '[NAME:middle]'),
+                               'http://gedcomx.org/Preferred': get.byTemplate(i18n, gedcom, indi, undefined, '[NAME:given]'),
+                               'http://gedcomx.org/Surname': get.byTemplate(i18n, gedcom, indi, undefined, '[NAME:last]')})
             .addTypeDatePlace('http://gedcomx.org/Birth', 
-                get.byTemplate(gedcom, indi, undefined, '[BIRT.DATE:wtgedcomx]'), 
-                get.byTemplate(gedcom, indi, undefined, '[BIRT.PLAC:full]'))
+                get.byTemplate(i18n, gedcom, indi, undefined, '[BIRT.DATE:wtgedcomx]'), 
+                get.byTemplate(i18n, gedcom, indi, undefined, '[BIRT.PLAC:full]'))
             .addTypeDatePlace('http://gedcomx.org/Death', 
-                get.byTemplate(gedcom, indi, undefined, '[DEAT.DATE:wtgedcomx]'), 
-                get.byTemplate(gedcom, indi, undefined, '[DEAT.PLAC:full]'));
+                get.byTemplate(i18n, gedcom, indi, undefined, '[DEAT.DATE:wtgedcomx]'), 
+                get.byTemplate(i18n, gedcom, indi, undefined, '[DEAT.PLAC:full]'));
 
         this.addPerson(person);
         if (relationshipType) {
@@ -116,8 +117,8 @@ module.exports = {
             .setHomepage({resource: 'https://coertvonk.com'});
         return agent;
     },
-    sourceDescription: function (gedcom, indi) {
-        let name = get.byTemplate(gedcom, indi, undefined, '[NAME:full]');
+    sourceDescription: function (i18n, gedcom, indi) {
+        let name = get.byTemplate(i18n, gedcom, indi, undefined, '[NAME:full]');
         let sourceDescription = GedcomX.SourceDescription()
             .setAbout("https://coertvonk.com/genealogy")
             .addTitle({value: name + ' from GEDCOM'})
@@ -127,6 +128,7 @@ module.exports = {
     },
     principal: function(gedcom, indi) {
         if (indi) {
+            let i18n = new I18n({ locales: ['en'] });  // English is fine for this purpose
             let father = get.byName(gedcom, indi, 'FAMC.HUSB');
             let mother = get.byName(gedcom, indi, 'FAMC.WIFE');
             father = father ? father[0] : undefined;
@@ -134,11 +136,11 @@ module.exports = {
 
             let sourceDescription = module.exports.sourceDescription(gedcom, indi);
             let gedcomx = new GedcomX()
-                .addPersonGedcom(gedcom, indi)
-                .addPersonGedcom(gedcom, father, 'http://gedcomx.org/ParentChild')
-                .addPersonGedcom(gedcom, mother, 'http://gedcomx.org/ParentChild')
+                .addPersonGedcom(i18n, gedcom, indi)
+                .addPersonGedcom(i18n, gedcom, father, 'http://gedcomx.org/ParentChild')
+                .addPersonGedcom(i18n, gedcom, mother, 'http://gedcomx.org/ParentChild')
                 .addAgent()
-                .addSourceDescription(sourceDescription);
+                .addSourceDescription(i18n, sourceDescription);
             //console.log(JSON.stringify(gedcomx));
             return gedcomx;
         }

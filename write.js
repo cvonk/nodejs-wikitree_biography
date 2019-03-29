@@ -1,5 +1,5 @@
 /** @module write write about individual based on parsed GEDCOM */
-/** @author Coert Vonk <coert vonk at gmail> */
+/** @author Coert Vonk <MY.NAME@gmail.com> */
 
 var get = require('./get.js'),
     value = require('./value.js'),

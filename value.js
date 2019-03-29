@@ -1,5 +1,5 @@
 /** @module values support functions for GEDCOM app */
-/** @author Coert Vonk <coert vonk at gmail> */
+/** @author Coert Vonk <MY.NAME@gmail.com> */
 
 var FQDate = require('./fqdate.js');
 

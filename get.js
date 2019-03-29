@@ -1,5 +1,5 @@
 /** @module get retrieve selected GEDCOM records */
-/** @author Coert Vonk <coert vonk at gmail> */
+/** @author Coert Vonk <MY.NAME@gmail.com> */
 
 var value = require('./value.js');
 const NL = "\n";
