@@ -58,10 +58,13 @@ function _trimmedI18n(i18n, s) {
         let middleEnd = s.replace(/[^\w]+$/, '').length;
         if (middleEnd <= middleStart) middleEnd = middleStart;  // in case theer are no letters
         const pre = s.substring(0, middleStart);
-        const middle = s.substring(middleStart, middleEnd);
+        let middle = s.substring(middleStart, middleEnd);
         const post = s.substring(middleEnd, s.length);
         //console.log(s + '|' + pre + '|' + middle + '|' + post + '|');
-        return pre + i18n.__(middle) + post;
+        if (middle.length) {
+            middle = i18n.__(middle);
+        }
+        return pre + middle + post;
     }
     return s;
 }
