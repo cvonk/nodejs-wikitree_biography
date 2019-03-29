@@ -4,6 +4,20 @@
  * @license GPL
  * @author Coert Vonk <MY.NAME@gmail.com>
  * @url https://github.com/cvonk/nodejs-wikitree_biography
+ * 
+ * The general flow:
+ *   A. This code parses the GEDCOM file, and serves a web page at http://localhost:8080/.
+ *   B. A web browser opens that webpage, sends a request for a list of names (GET /individuals)
+ *   C. This code replies with the names and associated GEDCOM identifiers.
+ *   D. Using the browser, the user selects a name from that list.
+ *   E. The browser uses the GEDCOM identifier to request the details (POST /individual).
+ *   F. This code replies with the details, including a Person description, a GEDCOMX description (and the WikiTree username if available).
+ *   G. The browser uses the Person details to a request the matches from WikiTree (POST Special:SearchPerson).
+ *   H. The user copies the WikiTree username of the matching entry back on the left panel in the web browser.
+ *   I. The browser sends the GEDCOM identifier along with the WikiTree username back to this code (POST /gedcomId-wtUsername).
+ *   J. This code updates the Persons list on disk. (really only used for the GEDCOM id - WikiTree username mapping)
+ *   K. The webbrowser sends a request to WikiTree to request a merge form (POST Special:MergeEdit).
+ *   L. The user verifies the facts, and copies the prepared biography from the left panel to the WikiTree bio field, enriches it, previews it, and presses "Merge" to complete
  */
 
 var gedcomFile = require('./dcapwell-gedcom/gedcom.js'),  // local modified version of https://github.com/dcapwell/gedcom.js
@@ -15,7 +29,7 @@ var get = require('./get.js'),
     write = require('./write.js'),
     g2gx = require('./g2gx.js'),
     fs = require("fs"),
-    person = require('./person.js');
+    person = require('../person.js');
 
 var app = express();
 
@@ -106,7 +120,6 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
             'biography': biography    // client copy'n'pasts this in merge bio form
         });
     });    
-    // eslint-disable-next-line no-unused-vars
     app.post('/gedcomId-wtUsername', function(req) { 
         var gedcomId = req.param('gedcomId');
         var wtUsername = req.param('wtUsername');
