@@ -34,9 +34,10 @@ var get = require('./get.js'),
 var app = express();
 
 // localization
-global.i18n = new (require('i18n-2'))({locales: ['en', 'nl']}); 
+
+global.i18n = new (require('i18n-2'))({ locales: ['en', 'nl'] });
+global.i18n.locales = ['en', 'nl'];  // try it here, param above didn't work, later we set the locale based on where the person is born
 global.i18n.devMode = true;
-//global.i18n.setLocale('nl');  // use 'nl' to test Netherlands locale
 
 // get path to GEDCOM file from command line argument
 

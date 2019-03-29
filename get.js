@@ -164,7 +164,7 @@ module.exports = {
                 if (s.REPO) {
                     let r = module.exports.byId(gedcom, s.REPO.id);
                     if (r && r.NAME) {
-                        ret += ' '  + global.i18n.__('accessed through') + ' ' + r.NAME.value + '.';
+                        ret += ' ' + global.i18n.__('accessed via') + r.NAME.value + '.';
                     }
                 }
                 ret += NL;

@@ -133,6 +133,23 @@ function _aboutOld(gedcom, indi, refs) {
 
 let about = {
 
+    init: function(gedcom, indi) {
+        if (gedcom && indi) {
+            const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en'};
+            let birth = indi.BIRT && indi.BIRT.PLAC ? indi.BIRT.PLAC.value : undefined;
+            let death = indi.DEAT && indi.DEAT.PLAC ? indi.DEAT.PLAC.value : undefined;
+            for (let key in locales) {
+                if (birth && birth.endsWith(key) || death && death.endsWith(key)) {
+                    global.i18n.locale = locales[key];
+                    global.i18n.defaultLocale = locales[key];
+                }
+            }
+            if (indi.BIRT && indi.BIRT.DATE) {
+                value.birthday = new FQDate(indi.BIRT.DATE.value);  // for calculating ages later
+            }
+        }
+    },
+
     parents: function (gedcom, indi, refs) {
         if (gedcom && indi) {
             let ret = '';
@@ -283,7 +300,7 @@ let References = class {
                 } else {
                     this.alreadyReferenced.push(shortId);
                     ret += '<ref name="' + shortId + '">';
-                    ret += get.sourceTitle(gedcom, sour.id) + '<BR />';
+                    ret += get.sourceTitle(gedcom, sour.id) + '<BR />' + NL;
                     if (sour.PAGE) {
                         if (sour._LINK) {
                             ret += "'''[" + sour._LINK.value + ' ' + sour.PAGE.value + "]'''";
@@ -310,10 +327,8 @@ module.exports = {
         let indis = indi_ ? [indi_] : get.byName(gedcom, gedcom, 'INDI');
 
         for (let indi of indis) {            
-            //console.log(indi.id)
-            if (gedcom && indi && indi.BIRT && indi.BIRT.DATE) {
-                value.birthday = new FQDate(indi.BIRT.DATE.value);  // for calculating ages later
-            }
+            console.log(indi.id)
+            about.init(gedcom, indi);
             let ret = "== Biography ==" + NL;
             ret += about.introduction(gedcom, indi, refs);
             ret += about.childhood(gedcom, indi, refs);

@@ -43,9 +43,9 @@ module.exports = {
                         if (ageLo == ageHi) {
                             return ageLo;
                         } else if (!ageHi.length) {
-                            return global.i18n.__('minimaal') + ' ' + ageLo;
+                            return global.i18n.__('at least') + ' ' + ageLo;
                         } else if (!ageLo.length) {
-                            return global.i18n.__('maximaal') + ' ' + ageHi;
+                            return global.i18n.__('at most') + ' ' + ageHi;
                         } else {
                             return global.i18n.__('between') + ' ' + ageLo + ' ' + global.i18n.__('and') + ' ' + ageHi;
                         }
