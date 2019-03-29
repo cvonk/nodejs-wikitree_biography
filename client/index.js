@@ -9,14 +9,9 @@
  * various support functions
  */
 
- function _pushGedcomToWtUsername(gedcomId, wtUsername) {
+ function _putGedcomId2WtUsername(gedcomId, wtUsername) {
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("POST", '/gedcomId-wtUsername', true);
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            //console.log('gedcomId =', gedcomId, 'wtUsername =', wtUsername);
-        }
-    }
+    xmlhttp.open("POST", '/putGedcomId2WtUsername', true);
     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
     xmlhttp.send("gedcomId=" + gedcomId + '&wtUsername=' + wtUsername);
 }
@@ -46,7 +41,7 @@ function _selectNextInDataList(listId, inputId, step) {
 
 function _nextIndividual(listId, inputId, step) {
     _selectNextInDataList(listId, inputId, step);
-    _pullIndividualDetails(listId, inputId);
+    _getIndividualDetails(listId, inputId);
 }
 
 function _copyToClipboard(srcId) {
@@ -70,17 +65,17 @@ function _enterListener(func) {
 /**
  * Prepare for Step 1: the page was loaded, now pull a list of individuals from the NodeJS server
  */
-function _pullIndividualsList(listId) {
+function _getIndividualsList(listId) {
     var xmlhttp = new XMLHttpRequest();
     const list = document.getElementById(listId);
     list.innerHTML = "<p>Loading ...</p>";
-    xmlhttp.open("GET", "individuals", true);
+    xmlhttp.open("GET", "getIndividualsList", true);
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 
             /**
              * The NodeJS server supplied the list, now use it to populate the data list.
-             * Once the user selects a name, continue at _pullIndividualDetails()
+             * Once the user selects a name, continue at _getIndividualDetails()
              */
             list.setAttribute('tv', 'on');
             list.innerHTML = xmlhttp.responseText;    
@@ -92,14 +87,14 @@ function _pullIndividualsList(listId) {
 /**
  * Prepare for Step 2: a name was selected, now pull his/her details. Then use these to find a match on WikiTree
  */
-function _pullIndividualDetails(listId, inputId) {
+function _getIndividualDetails(listId, inputId) {
 
     let gedcomId = _getcomIdFromDataList(listId, inputId);
     if (!gedcomId) {
         return;
     }
     const xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("POST", "individual", true);
+    xmlhttp.open("POST", "getIndividualDetails", true);
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 
@@ -124,8 +119,8 @@ function _pullIndividualDetails(listId, inputId) {
                     //mother_first_name: person.mother && person.mother.name && person.mother.name.given,
                     //mother_last_name: person.mother && person.mother.name && person.mother.name.last
                 }
-                const searchForm = document.getElementById('searchForm');
-                searchForm.reset();    
+                const searchPersonForm = document.getElementById('searchPersonForm');
+                searchPersonForm.reset();    
                 for (let id in ids) {
                     document.getElementById(id).value = ids[id] ? ids[id] : '';
                 }
@@ -133,16 +128,17 @@ function _pullIndividualDetails(listId, inputId) {
                     let gender = person.gender;
                     if (gender == 'M' || gender == 'F') document.getElementById('gender_' + gender).checked = true;
                 }
-                // store some details in the 'mergeForm' used in Step 3  
+                // store some details in the 'mergeEditForm' used in Step 3  
                 document.getElementById('gedcomId').value = resp.gedcomId;
                 document.getElementById('wtUsername').value = resp.wtUsername ? resp.wtUsername : '';
                 document.getElementById('biography').value = resp.biography;
-                document.getElementById('postData').value = JSON.stringify(resp.gedcomx);  // details as GEDCOMX data              
-                searchForm.submit();
+                document.getElementById('postData').value = JSON.stringify(resp.gedcomx);  // details as GEDCOMX data       
+                searchPersonForm.action = 'https://www.wikitree.com/wiki/Special:SearchPerson';
+                searchPersonForm.submit();
 
                 /**
-                 * The user finds the matching WikiTree Username, and enters it on the on the 'mergeForm'.
-                 * When that mergeForm is completed, processing continues at _reqWtMergeForm()
+                 * The user finds the matching WikiTree Username, and enters it on the on the 'mergeEditForm'.
+                 * When that mergeEditForm is completed, processing continues at _reqWtmergeEditForm()
                  */
             }
         }
@@ -154,13 +150,13 @@ function _pullIndividualDetails(listId, inputId) {
 
 /**
  * Prepare for Step 3: A WikiTree Username was entered, now use that along with the details we stored as
- * GEDCOMX data we stored in _pullIndividualDetails() populate a merge form on WikiTree.  The user then
+ * GEDCOMX data we stored in _getIndividualDetails() populate a merge form on WikiTree.  The user then
  * verifies the fields and copies over, enriches the bio, previews it, and commits the changes.
  */
-function _reqWtMergeForm(evt) {  // called when mergeForm is completed
+function _reqWtmergeEditForm(evt) {  // called when mergeEditForm is completed
 
-    const mergeForm = document.getElementById('mergeForm');  // or use evt
-    const wtUsername = mergeForm.wtUsername.value;
+    const mergeEditForm = document.getElementById('mergeEditForm');  // or use evt
+    const wtUsername = mergeEditForm.wtUsername.value;
     if (!wtUsername.length) {
         evt.preventDefault();  // prevent submit
         alert("WikiTree Profile Name missing");
@@ -168,13 +164,13 @@ function _reqWtMergeForm(evt) {  // called when mergeForm is completed
     }
     document.getElementById("step3").setAttribute('tv', 'on');
     const gedcomId = document.getElementById('gedcomId').value;
-    _pushGedcomToWtUsername(gedcomId, wtUsername);
+    _putGedcomId2WtUsername(gedcomId, wtUsername);
     
-    mergeForm.action = 'https://www.wikitree.com/wiki/Special:MergeEdit';
-    mergeForm.submit();
+    mergeEditForm.action = 'https://www.wikitree.com/wiki/Special:MergeEdit';
+    mergeEditForm.submit();
 }
 
-$(document).ready(function () {
+document.addEventListener("DOMContentLoaded", function () {
 
     const _individualsInputId = "individuals";
     const _individualsListId = "individualsList";
@@ -184,14 +180,14 @@ $(document).ready(function () {
     document.getElementById("step3").setAttribute('tv', 'off');
 
     // button and input listeners
-    document.getElementById('individuals').addEventListener('input', function (_e) { _pullIndividualDetails(_individualsListId, _individualsInputId) });
-    document.getElementById('individualsNext').addEventListener('click', function (_e) { _nextIndividual(_individualsListId, _individualsInputId, 1) });
-    document.getElementById('individualsPrev').addEventListener('click', function (_e) { _nextIndividual(_individualsListId, _individualsInputId, -1) });
-    document.getElementById('individualsSearch').addEventListener('click', function (_e) { _pullIndividualDetails(_individualsListId, _individualsInputId) });
-    document.getElementById('mergeForm').addEventListener('submit', function (e) {_reqWtMergeForm(e) });
-    document.getElementById('mergeForm').addEventListener('keypress', function (e) { _enterListener(_reqWtMergeForm(e))});
-    document.getElementById('copyBtn').addEventListener('click', function (_e) { _copyToClipboard('biography')} );
+    document.getElementById('individuals').addEventListener('input', function () { _getIndividualDetails(_individualsListId, _individualsInputId) });
+    document.getElementById('individualsNext').addEventListener('click', function () { _nextIndividual(_individualsListId, _individualsInputId, 1) });
+    document.getElementById('individualsPrev').addEventListener('click', function () { _nextIndividual(_individualsListId, _individualsInputId, -1) });
+    document.getElementById('individualsSearch').addEventListener('click', function () { _getIndividualDetails(_individualsListId, _individualsInputId) });
+    document.getElementById('mergeEditForm').addEventListener('submit', function (e) {_reqWtmergeEditForm(e) });
+    document.getElementById('mergeEditForm').addEventListener('keypress', function (e) { _enterListener(_reqWtmergeEditForm(e))});
+    document.getElementById('copyBtn').addEventListener('click', function () { _copyToClipboard('biography')} );
 
     // perpare for Step 1 by populating the individuals list
-    _pullIndividualsList(_individualsListId);
+    _getIndividualsList(_individualsListId);
 })

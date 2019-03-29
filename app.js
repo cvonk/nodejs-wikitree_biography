@@ -7,14 +7,14 @@
  * 
  * The general flow:
  *   A. This code parses the GEDCOM file, and serves a web page at http://localhost:8080/.
- *   B. A web browser opens that webpage, sends a request for a list of names (GET /individuals)
+ *   B. A web browser opens that webpage, sends a request for a list of names (GET /getIndividualsList)
  *   C. This code replies with the names and associated GEDCOM identifiers.
  *   D. Using the browser, the user selects a name from that list.
- *   E. The browser uses the GEDCOM identifier to request the details (POST /individual).
+ *   E. The browser uses the GEDCOM identifier to request the details (POST /getIndividualDetails).
  *   F. This code replies with the details, including a Person description, a GEDCOMX description (and the WikiTree username if available).
  *   G. The browser uses the Person details to a request the matches from WikiTree (POST Special:SearchPerson).
  *   H. The user copies the WikiTree username of the matching entry back on the left panel in the web browser.
- *   I. The browser sends the GEDCOM identifier along with the WikiTree username back to this code (POST /gedcomId-wtUsername).
+ *   I. The browser sends the GEDCOM identifier along with the WikiTree username back to this code (POST /putGedcomId2WtUsername).
  *   J. This code updates the Persons list on disk. (really only used for the GEDCOM id - WikiTree username mapping)
  *   K. The webbrowser sends a request to WikiTree to request a merge form (POST Special:MergeEdit).
  *   L. The user verifies the facts, and copies the prepared biography from the left panel to the WikiTree bio field, enriches it, previews it, and presses "Merge" to complete
@@ -29,14 +29,14 @@ var get = require('./get.js'),
     write = require('./write.js'),
     g2gx = require('./g2gx.js'),
     fs = require("fs"),
-    person = require('../person.js');
+    person = require('./person.js');
 
 var app = express();
 
 // localization
 global.i18n = new (require('i18n-2'))({locales: ['en', 'nl']}); 
 global.i18n.devMode = true;
-global.i18n.setLocale('nl');  // test Netherlands locale
+//global.i18n.setLocale('nl');  // use 'nl' to test Netherlands locale
 
 // get path to GEDCOM file from command line argument
 
@@ -82,7 +82,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
     });
 
     // serve AJAX data requests
-    app.get('/individuals', function(req, res) {
+    app.get('/getIndividualsList', function(req, res) {
         let individuals = [];
         let indis = get.byName(gedcom, gedcom, 'INDI');
         for (let indi of indis) {
@@ -102,7 +102,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
         });
         res.render('individuals.pug', {individuals: individuals });
     });    
-    app.post('/individual', function (req, res) {
+    app.post('/getIndividualDetails', function (req, res) {
         var id = req.param('gedcomId'); //req.body.id;
         let indi = get.byId(gedcom, id);  // I1, I24, I13, I240
         let biography = write.biography(gedcom, indi);  //'== Test ==\n\n1,2,3';
@@ -120,7 +120,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
             'biography': biography    // client copy'n'pasts this in merge bio form
         });
     });    
-    app.post('/gedcomId-wtUsername', function(req) { 
+    app.post('/putGedcomId2WtUsername', function(req) { 
         var gedcomId = req.param('gedcomId');
         var wtUsername = req.param('wtUsername');
         if (gedcomId && wtUsername) {

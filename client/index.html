@@ -31,7 +31,7 @@
                     <input type="button" class="button" id='individualsSearch' value="Search" >
                     <input type="button" class="button" id='individualsNext' value='>' >
                 </div>
-                <form id="searchForm" action="https://www.wikitree.com/wiki/Special:SearchPerson" method="POST"
+                <form id="searchPersonForm" method="POST"
                     accept-charset="UTF-8" target="iframe" style="display: none;">
                     <input type="hidden" name="wpSearch" value="1">
                     <input type="text" id="wpFirst" name="wpFirst" value="" placeholder="First Name">
@@ -86,13 +86,13 @@
             <h2>2. Enter profile id</h2>
             <div id="step2" class="old-tv-effect">
                 <p>Copy the profile id from search result on the right.</p>
-                <form id="mergeForm" method="POST" target="iframe">
+                <form id="mergeEditForm" method="POST" target="iframe">
                     <input type="hidden" id="wtId" name="id">
                     <input type="hidden" id="gedcomId" name="gedcom_id">
                     <input type="text" id="wtUsername" name="user_name" placeholder="WikiTree-ProfileName">
                     <input type="hidden" id="postData" name="data">
                     <div class="botton-group">
-                        <input type="submit" id="mergeFormBtn" class="button" name="compare" value="Merge Form" title="Click here to bring up the WikiTree merge form">
+                        <input type="submit" id="mergeEditFormBtn" class="button" name="compare" value="Merge Form" title="Click here to bring up the WikiTree merge form">
                     </div>
                 </form>
             </div>

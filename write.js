@@ -283,11 +283,17 @@ let References = class {
                 } else {
                     this.alreadyReferenced.push(shortId);
                     ret += '<ref name="' + shortId + '">';
-                    ret += get.sourceTitle(gedcom, sour.id);
-                    if (sour.PAGE) ret += sour.PAGE.value;
+                    ret += get.sourceTitle(gedcom, sour.id) + '<BR />';
+                    if (sour.PAGE) {
+                        if (sour._LINK) {
+                            ret += "'''[" + sour._LINK.value + ' ' + sour.PAGE.value + "]'''";
+                        } else {
+                            ret += "'''" + sour.PAGE.value + "'''";
+                        }
+                    }
                     if (sour.QUAY) ret += ', quality ' + sour.QUAY.value + '/4';
-                    if (sour.NOTE) ret += ' [' + sour.NOTE.value + ']';
-                    if (sour.DATA && sour.DATA.TEXT) ret += NL + sour.DATA.TEXT.value;
+                    if (sour.NOTE) ret += ' (' + sour.NOTE.value + ')';
+                    if (sour.DATA && sour.DATA.TEXT) ret += '.' + NL + sour.DATA.TEXT.value;
                     ret += '</ref>';
                 }
             }

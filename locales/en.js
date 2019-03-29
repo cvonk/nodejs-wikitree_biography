@@ -61,5 +61,11 @@
 	"born in": "born in",
 	"The old day": "The old day",
 	"Male": "Male",
-	"Female": "Female"
+	"Female": "Female",
+	"dies at age": "dies at age",
+	", dies at age ": ", dies at age ",
+	"about": "about",
+	"between": "between",
+	"maximaal": "maximaal",
+	"before": "before"
 }

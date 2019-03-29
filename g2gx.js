@@ -51,15 +51,6 @@ GedcomX.Person.prototype.addTypeDatePlace = function(type, date, place) {
             .setOriginal(place));
     }
     this.addFact(fact);
-/*
-   this.addFact(GedcomX.Fact()
-        .setType(type)
-        .setDate(GedcomX.Date()
-            .setOriginal(date)
-            .setFormal(date))
-        .setPlace(GedcomX.PlaceReference()
-            .setOriginal(place)));
-*/
     return this;
 };
 
@@ -89,6 +80,7 @@ GedcomX.Root.prototype.addPersonGedcom = function(gedcom, indi, relationshipType
             .setGender({type: 'http://gedcomx.org/' + get.byTemplate(gedcom, indi, undefined, '[SEX:gedcomx]')})
             .addNameFromParts({'http://gedcomx.org/Given': get.byTemplate(gedcom, indi, undefined, '[NAME:given]'),
                                //'http://gedcomx.org/Middle': get.byTemplate(gedcom, indi, undefined, '[NAME:middle]'),
+                               'http://gedcomx.org/Preferred': get.byTemplate(gedcom, indi, undefined, '[NAME:given]'),
                                'http://gedcomx.org/Surname': get.byTemplate(gedcom, indi, undefined, '[NAME:last]')})
             .addTypeDatePlace('http://gedcomx.org/Birth', 
                 get.byTemplate(gedcom, indi, undefined, '[BIRT.DATE:wtgedcomx]'), 

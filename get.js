@@ -19,7 +19,7 @@ function _id2typeName(id) {
 function _resolveIndirects(gedcom, obj) {
     if (gedcom && obj) {
         let lastId = undefined;  // to stop self-reference loop
-        // can't just go by Object.keys(obj).length == 1, because occational there are additional fields (such as  _FREL or _MREL in CHIL)
+        // can't just go by Object.keys(obj).length == 1, 'cause occational there are additional fields (such as  _FREL or _MREL in CHIL)
         while (obj.id != lastId) {
             lastId = obj.id;
             obj = module.exports.byId(gedcom, obj.id);
@@ -31,7 +31,7 @@ function _resolveIndirects(gedcom, obj) {
 function _fieldValue(gedcom, obj, refs, fields) {
     let ret = "";
     if (obj && fields) {
-        const field = fields.split('.').slice(-1)[0]; // last entry separated by '.'
+        const field = fields.split('.').slice(-1)[0];  // last entry separated by '.'
         const [type, format] = field.split(':');
         if (obj) {
             switch (type) {
@@ -164,7 +164,7 @@ module.exports = {
                 if (s.REPO) {
                     let r = module.exports.byId(gedcom, s.REPO.id);
                     if (r && r.NAME) {
-                        ret += ' '  + global.i18n.__('accessed through') + ' ' + r.NAME.value;
+                        ret += ' '  + global.i18n.__('accessed through') + ' ' + r.NAME.value + '.';
                     }
                 }
                 ret += NL;
