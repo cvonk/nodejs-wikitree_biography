@@ -225,7 +225,7 @@ let about = {
                     }
                 }
             }
-            ret += ' ' + NL;
+            //ret += ' ' + NL;
         }
         return ret;
     },
@@ -280,6 +280,8 @@ let about = {
                             ret += '* ' + _aboutChild(i18n, gedcom, child, refs) + '.' + NL;
                         }
                     }
+                } else {
+                    ret += NL;
                 }
             }
         }
@@ -319,9 +321,9 @@ let References = class {
                     ret += get.sourceTitle(i18n, gedcom, sour.id) + '<BR />' + NL;
                     if (sour.PAGE) {
                         if (sour._LINK) {
-                            ret += "'''[" + sour._LINK.value + ' ' + sour.PAGE.value + "]'''";
+                            ret += "'[" + sour._LINK.value + ' ' + sour.PAGE.value + "]'";
                         } else {
-                            ret += "'''" + sour.PAGE.value + "'''";
+                            ret += "''" + sour.PAGE.value + "'";
                         }
                     }
                     if (sour.QUAY) ret += ', quality ' + sour.QUAY.value + '/4';

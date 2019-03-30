@@ -78,7 +78,7 @@ module.exports = {
         if (obj && obj[0]) {
             let place = obj[0].value;
             place = place.replace(" Op ", " op "); // FTM Place Authority incorrectly changes 'Bergen op Zoom' to 'Bergen Op Zoom', undo that here
-            place = place.replace(/^S-/g, "'s-"); // FTM Place Authority incorrectly changes 's Hertogenbosch to S-Hertogenbosch, undo that here
+            place = place.replace(/S-/g, "'s-"); // FTM Place Authority incorrectly changes 's Hertogenbosch to S-Hertogenbosch, undo that here
             switch (format) {
                 case "full": return place;
                 default: {
