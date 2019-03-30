@@ -10,7 +10,7 @@
 	"months": "maanden",
 	"days": "dagen",
 	"accessed via": "toegang via",
-	"in": "in",
+	"in": "te",
 	"is a": "is een",
 	"of": "van",
 	"from": "uit",
@@ -30,7 +30,7 @@
 	"lived at": "woonde op",
 	"arrival": "aankomst",
 	"departure": "vertrek",
-	"born in": "geboren te",
+	"born in": "geboren in",
 	"at most": "ten meeste",
 	"at least": "ten minste",
 	"about": "ongeveer",
@@ -42,5 +42,8 @@
 	"stillborn": "doodgeboren",
 	"Childhood": "Kindertijd",
 	"The old day": "De oude dag",
-	"Relationships": "Relaties"
+	"Relationships": "Relaties",
+	"is geboren op": "is geboren op",
+	"dies at age": "overlijdt op",
+	"year": "jaar"
 }

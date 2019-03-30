@@ -17,7 +17,7 @@ function _age(i18n, aYear, aMonth, aDay, bYear, bMonth, bDay) {
     const years = Math.floor(months / 12);
     if (Math.abs(days) < 60)  return Math.floor(days) + ' ' + i18n.__('days');
     if (Math.abs(months) < 24) return Math.floor(months) + ' ' + i18n.__('months');
-    return years + ' ' + i18n.__('years');
+    return years + ' ' + i18n.__('year');
 }
 
 let _birthday;

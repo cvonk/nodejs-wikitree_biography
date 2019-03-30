@@ -161,8 +161,6 @@ module.exports = {
                     if (oo && oo[0]) {
                         const text = _fieldValue(i18n, gedcom, oo, refs, fieldName);
                         if (text.length) {
-                            pre
-
                             ret += _trimmedI18n(i18n, pre) + text + _trimmedI18n(i18n, post);
                         }
                     }
@@ -190,6 +188,23 @@ module.exports = {
             }
         }
         return ret;
-    }
+    },
+
+    lifeSpan: function(i18n, gedcom, indi, refs) {
+        let ret = '';
+        if (gedcom && indi) {
+            let birth = module.exports.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]');
+            if (!birth.length) birth = module.exports.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
+            const death = module.exports.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:year]');
     
+            if (birth.length || death.length) {
+                ret += ' (';
+                if (birth.length) ret += birth;
+                ret += '-';
+                if (death.length) ret += death;
+                ret += ')';
+            }
+        }
+        return ret;
+    }
 }

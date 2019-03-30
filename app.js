@@ -27,6 +27,7 @@ var gedcomFile = require('./dcapwell-gedcom/gedcom.js'),  // local modified vers
 var get = require('./get.js'),
     value = require('./value.js'),
     write = require('./write.js'),
+    get = require('./get.js'),
     g2gx = require('./g2gx.js'),
     fs = require("fs"),
     person = require('./person.js');
@@ -82,9 +83,9 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
         let indis = get.byName(gedcom, gedcom, 'INDI');
         for (let indi of indis) {
             let obj = get.byName(gedcom, indi, 'NAME:full');
-            let name = value.name(obj, 'full')
+            let name = value.name(obj, 'full') + get.lifeSpan(undefined, gedcom, indi, undefined);
             if (indi.wtUsername) {
-                name += ' (' + indi.wtUsername + ')';
+                name += ' [' + indi.wtUsername + ']';
             }
             individuals.push({id: indi.id, name: name});
         }

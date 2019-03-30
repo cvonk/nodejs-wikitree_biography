@@ -53,10 +53,14 @@ class FQDate {
     }
 
     get year() {
-        if (this.qdates.length == 1) {
-            return this.qdates[0].year;
+        if (this.qualifier) return this.qualifier;
+        if (this.qdates) {
+            if (this.qdates && this.qdates.length == 1) {
+                return this.qdates[0].year;
+            }
+            return this.qdates[0].year + '-' + this.qdates[1].year;
         }
-        return this.qdates[0].year + '-' + this.qdates[1].year;
+        return 0;
     }
 
     get isRange() { return this.qdates.length > 1; }

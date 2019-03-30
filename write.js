@@ -12,10 +12,7 @@ function _getNameYearsOcc(i18n, gedcom, indi, refs) {
     let ret = '';
     if (i18n && gedcom && indi) {
         ret += get.byTemplate(i18n, gedcom, indi, refs, ' [NAME:full]');
-        const brackets = (indi.BIRT && indi.BIRT.DATE) || (indi.DEAT && indi.DEAT.DATE);
-        if (brackets) ret += ' (';
-        ret += get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]|-[DEAT.DATE:year]|');
-        if (brackets) ret += ')';
+        ret += get.lifeSpan(i18n, gedcom, indi, refs);
         ret += get.byTemplate(i18n, gedcom, indi, refs, ' [OCCU]| from [BIRT.PLAC]');
     }
     return ret;
@@ -144,9 +141,10 @@ let about = {
         if (gedcom && indi) {
             const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en', 'Germany': 'de'}; // add locales here
             let birth = indi.BIRT && indi.BIRT.PLAC ? indi.BIRT.PLAC.value : undefined;
+            let baptized = indi.BAPT && indi.BAPT.PLAC ? indi.BAPT.PLAC.value : undefined;
             let death = indi.DEAT && indi.DEAT.PLAC ? indi.DEAT.PLAC.value : undefined;
             for (let key in locales) {
-                if (birth && birth.endsWith(key) || death && death.endsWith(key)) {
+                if (birth && birth.endsWith(key) || baptized && baptized.endsWith(key) || death && death.endsWith(key)) {
                     locale = locales[key];
                     break;
                 }
