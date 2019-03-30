@@ -51,7 +51,7 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
         }
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus], ');
     } else {
-        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ').toLowerCase();
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ');
     }
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
     if (prefix != 'self') {
@@ -247,7 +247,7 @@ let about = {
             }    
             if (indi.ADDR || indi.EVEN) {
                 ret += ' ' + NL + "'''" + i18n.__('Childhood') + "'''" + NL + ' ' + NL;
-                ret += get.byTemplate(i18n, gedcom, indi, refs, '[SEX:hijzij] lived at:') + NL;
+                ret += get.byTemplate(i18n, gedcom, indi, refs, 'Other facts about [SEX:hemhaar]:') + NL;
                 for (let src of ['ADDR', 'EVEN']) {
                     if (indi[src]) {
                         let objs = get.byName(gedcom, indi, src);

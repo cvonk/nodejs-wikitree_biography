@@ -105,7 +105,8 @@ module.exports = {
                 ['m/v', 'male', 'female', 'unknown'],
                 ['zoondochter', 'son', 'daughter', 'child'],
                 ['broerzus', 'brother', 'sister', 'sibling'],
-                ['hijzij', 'He', 'She', 'He/She'],
+                ['hijzij', 'he', 'she', 'he/she'],
+                ['hemhaar', 'him', 'her', 'him/her'],
                 ['gedcomx', 'Male', 'Female', 'Unknown' ]
             ];
             let idx;

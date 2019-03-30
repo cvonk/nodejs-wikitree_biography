@@ -1,6 +1,11 @@
 {
+	"he": "hij",
 	"He": "Hij",
+	"she": "zij",
 	"She": "Zij",
+	"him": "hem",
+	"her": "her",
+	"him/her": "hem/haar",
 	"He/She": "Hij/Zij",
 	"son": "zoon",
 	"daughter": "dochter",
@@ -49,5 +54,6 @@
 	"and/or": "en/of",
 	"born on": "geboren op",
 	"baptized on": "gedoopt op",
-	"zelf": "zelf"
+	"zelf": "zelf",
+	"Other facts about": "Andere wetenswaardigheden over"
 }
