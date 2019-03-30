@@ -199,7 +199,6 @@ let about = {
     introduction: function (i18n, gedcom, indi, refs) {
         let ret = "";
         if (i18n && gedcom && indi) {
-
             const birth = get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]');
             const baptized = get.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
             ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]');
@@ -234,19 +233,18 @@ let about = {
                     }
                 }
             }
-            //ret += ' ' + NL;
+            ret += NL;
         }
         return ret;
     },
 
     childhood: function (i18n, gedcom, indi, refs) {
+        let ret = ""
         if (i18n && gedcom && indi) {
-            let ret = ""
             if (indi.OCCU) {
                 ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| worked as [OCCU]') + '.' + NL;
             }    
             if (indi.ADDR || indi.EVEN) {
-                ret += ' ' + NL + "'''" + i18n.__('Childhood') + "'''" + NL + ' ' + NL;
                 ret += get.byTemplate(i18n, gedcom, indi, refs, 'Other facts about [SEX:hemhaar]:') + NL;
                 for (let src of ['ADDR', 'EVEN']) {
                     if (indi[src]) {
@@ -257,14 +255,14 @@ let about = {
                     }
                 }
             }
-            return ret;
         }
+        if (ret.length) return ' ' + NL + "'''" + i18n.__('Childhood') + "'''" + NL + ret;
+        return ret;
     },
 
     relationships: function (i18n, gedcom, indi, refs) {
-        let ret = "";
+        let ret = '';
         if (i18n && gedcom && indi && indi.FAMS) {
-            ret += ' ' + NL +  "'''" + i18n.__('Relationships') + "'''" + NL;
             let fams = get.byName(gedcom, indi, 'FAMS');
             for (let fam of fams) {
                 ret += ' ' + NL;
@@ -294,15 +292,16 @@ let about = {
                 }
             }
         }
+        if (ret.length) return ' ' + NL +  "'''" + i18n.__('Relationships') + "'''" + NL + ret;
         return ret;
     },
 
     oldday: function (i18n, gedcom, indi, refs) {
         let ret = '';
         if (i18n && gedcom && indi && indi.DEAT) {
-            ret += ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + ' ' + NL;
             ret += _aboutOld(i18n, gedcom, indi, refs);
         }
+        if (ret.length) return ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + ret;
         return ret;
     }
 }

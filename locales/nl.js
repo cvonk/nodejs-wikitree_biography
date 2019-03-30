@@ -23,7 +23,7 @@
 	"older": "ouder",
 	"younger": "jonger",
 	"child": "kind",
-	"married on": "getrouwd op",
+	"married on": "trouwde op",
 	"with": "met",
 	"is born on": "is geboren op",
 	"died on": "is overleden op",
