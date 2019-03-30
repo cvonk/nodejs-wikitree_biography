@@ -51,7 +51,7 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
         }
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus], ');
     } else {
-        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ');
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ').toLowerCase();
     }
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ', [OCCU]');
@@ -220,8 +220,7 @@ let about = {
                     }
                     if (siblings) {
                         for (let sibling of siblings) {
-                            if (sibling.id == indi.id) prefix = 'self';
-                            ret += _aboutSibling(i18n, gedcom, sibling, refs, prefix) + '.' + NL;
+                            ret += _aboutSibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix) + '.' + NL;
                         }
                     }
                 }
