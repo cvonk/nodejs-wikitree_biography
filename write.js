@@ -24,7 +24,7 @@ function _getParentsFirstNames(i18n, gedcom, fam, refs) {
         ret += get.byTemplate(i18n, gedcom, fam, refs, ' [HUSB.NAME:first]');
     }
     if (fam.HUSB && fam.WIFE) {
-        ret += ' ' + i18n.__('and');
+        ret += ' ' + i18n.__('and/or');
     }
     if (fam.WIFE) {
         ret += get.byTemplate(i18n, gedcom, fam, refs, ' [WIFE.NAME:first]');
@@ -32,24 +32,30 @@ function _getParentsFirstNames(i18n, gedcom, fam, refs) {
     return ret;
 }
 
-function _aboutSibling(i18n, gedcom, sibling, refs, half) {
+function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
     let yrs = '';
-    let yrsYounger = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
-    if (yrsYounger.length) {
-        if (yrsYounger[1] == '-') {  // has a ~, <, > in front of the minus
-            yrs += yrsYounger[0];
-            yrsYounger = yrsYounger.slice(1);
+    let ret = '* '; 
+    if (prefix != 'self') {
+        let yrsYounger = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
+        if (yrsYounger.length) {
+            if (yrsYounger[1] == '-') {  // has a ~, <, > in front of the minus
+                yrs += yrsYounger[0];
+                yrsYounger = yrsYounger.slice(1);
+            }
+            yrs += ', ';
+            if (yrsYounger.startsWith('-')) {
+                yrs += yrsYounger.slice(1) +  ' ' + i18n.__('older')
+            } else {
+                yrs += yrsYounger + ' ' + i18n.__('younger');
+            }
         }
-        yrs += ', ';
-        if (yrsYounger.startsWith('-')) {
-            yrs += yrsYounger.slice(1) +  ' ' + i18n.__('older')
-        } else {
-            yrs += yrsYounger + ' ' + i18n.__('younger');
-        }
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus]');
+    } else {
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ');
     }
-    let ret = get.byTemplate(i18n, gedcom, sibling, refs, '* ' + half + '[SEX:broerzus]| [NAME:given]| "[NAME:aka]"') + ", " + yrs;
+    ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ', [OCCU]');
-    if (sibling.BIRT && sibling.BIRT.DATE ) {
+    if (prefix != 'self' && sibling.BIRT && sibling.BIRT.DATE ) {
         const saved = value.birthday;
         value.birthday = new FQDate(sibling.BIRT.DATE.value);
         ret += get.byTemplate(i18n, gedcom, sibling, refs, ', died at age [DEAT.DATE:age]');
@@ -169,15 +175,9 @@ let about = {
                 for (let fam of fams) {  // for children that were latter assigned a father
                     if (fam) {
                         if (fam.HUSB || fam.WIFE) {
-                            if (fam.HUSB) {
-                                ret += _getNameYearsOcc(i18n, gedcom, get.byName(gedcom, fam, 'HUSB')[0], refs);
-                            }
-                            if (fam.HUSB && fam.WIFE) {
-                                ret += ' ' + i18n.__('and');
-                            }
-                            if (fam.WIFE){
-                                ret += _getNameYearsOcc(i18n, gedcom, get.byName(gedcom, fam, 'WIFE')[0], refs);
-                            }
+                            if (fam.HUSB) { ret += _getNameYearsOcc(i18n, gedcom, get.byName(gedcom, fam, 'HUSB')[0], refs); }
+                            if (fam.HUSB && fam.WIFE) { ret += ' ' + i18n.__('and'); }
+                            if (fam.WIFE) { ret += _getNameYearsOcc(i18n, gedcom, get.byName(gedcom, fam, 'WIFE')[0], refs); }
                         }
                         ret += '.' + NL;
                     }
@@ -193,28 +193,27 @@ let about = {
             ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]| ' + i18n.__('is born on') + ' [BIRT]|.');
             ret += this.parents(i18n, gedcom, indi);
             if (indi.FAMC) {
-                ret += ' ' + NL;
+                //ret += ' ' + NL;
                 let fams = get.byName(gedcom, indi, 'FAMC');
                 for (let fam of fams) {  // for children that were latter assigned a father
                     if (fam.HUSB || fam.WIFE) {
-                        ret +=  i18n.__('Other children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':' + NL;                        
-                    } else {
-                        ret += i18n.__("Half siblings") + ":" + NL;
+                        ret +=  ' ' + i18n.__('Children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':' + NL;                        
+                    //} else {
+                    //    ret += i18n.__("Half siblings") + ":" + NL;
                     }
                     let siblings = get.byName(gedcom, fam, 'CHIL');
-                    let half = i18n.__('half');
+                    let prefix = i18n.__('half');
                     if (siblings) {
                         for (let sibling of siblings) {
                             if (sibling.id == indi.id) {
-                                half = '';
+                                prefix = '';
                             }
                         }
                     }
                     if (siblings) {
                         for (let sibling of siblings) {
-                            if (sibling.id != indi.id) { //exclude self
-                                ret += _aboutSibling(i18n, gedcom, sibling, refs, half) + '.' + NL;
-                            }
+                            if (sibling.id == indi.id) prefix = 'self';
+                            ret += _aboutSibling(i18n, gedcom, sibling, refs, prefix) + '.' + NL;
                         }
                     }
                 }

@@ -38,12 +38,14 @@
 	"after": "na",
 	"between": "tussen",
 	"Children of": "Kinderen van",
-	"Other children of": "Andere kinderen van",
 	"stillborn": "doodgeboren",
-	"Childhood": "Kindertijd",
+	"Childhood": "Jeugd",
 	"The old day": "De oude dag",
 	"Relationships": "Relaties",
 	"is geboren op": "is geboren op",
 	"dies at age": "overlijdt op",
-	"year": "jaar"
+	"year": "jaar",
+	"self": "zelf",
+	"and/or": "en/of",
+	"zelf": "zelf"
 }
