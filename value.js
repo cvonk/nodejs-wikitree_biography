@@ -5,14 +5,9 @@ var FQDate = require('./fqdate.js');
 
 function _age(i18n, aYear, aMonth, aDay, bYear, bMonth, bDay) {
     if (!aYear || !bYear) return '';  // need at least two years
-    let days = 0;
-    if (aDay) days += aDay;
-    if (aMonth) days += aMonth * 12;
-    if (aYear) days += aYear * 365.25;  // close enough for now
-    if (bDay) days -= bDay;
-    if (bMonth) days -= bMonth * 12;
-    if (bYear) days -= bYear * 365.25;  // close enough for now
-
+    const end = new Date(aYear && aYear, aMonth && aMonth - 1, aDay && aDay);
+    const start = new Date(bYear && bYear, bMonth && bMonth - 1, bDay && bDay);
+    const days = Math.floor((end - start) / (1000 * 3600 * 24));
     const months = Math.floor(days * 12 / 365.25);
     const years = Math.floor(months / 12);
     if (Math.abs(days) < 60)  return Math.floor(days) + ' ' + i18n.__('days');
