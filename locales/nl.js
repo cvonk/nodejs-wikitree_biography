@@ -54,8 +54,11 @@
 	"and/or": "en/of",
 	"born on": "geboren op",
 	"baptized on": "gedoopt op",
-	"zelf": "zelf",
 	"Other facts about": "Andere wetenswaardigheden over",
 	"residence on": "woonde op",
-	"purchase": "purchase"
+	"purchase": "aankoop",
+	"baptism witness": "doopgetuige",
+	"Biography": "Biografie",
+	"zelf": "zelf",
+	"Sources": "Bronnen"
 }

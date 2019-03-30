@@ -51,7 +51,7 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
         }
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus], ');
     } else {
-        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ');
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij]zelf, ');
     }
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
     if (prefix != 'self') {
@@ -360,12 +360,12 @@ module.exports = {
         for (let indi of indis) {            
             if (!indi_) console.log(indi.id);
             const i18n = about.init(gedcom, indi);
-            let ret = "== Biography ==" + NL;
+            let ret = '== ' + i18n.__('Biography') + ' ==' + NL;
             ret += about.introduction(i18n, gedcom, indi, refs);
             ret += about.childhood(i18n, gedcom, indi, refs);
             ret += about.relationships(i18n, gedcom, indi, refs);
             ret += about.oldday(i18n, gedcom, indi, refs);
-            ret += NL + '== Sources ==\n<references />';
+            ret += NL + '== ' + i18n.__('Sources') + ' ==\n<references />';
             if (indi_) {
                 return ret;
             } else {

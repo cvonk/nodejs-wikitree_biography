@@ -57,8 +57,10 @@ class FQDate {
         if (this.isValid) {
             if (this.qualifier) return this.qualifier;
             if (this.qdates) {
-                const lo = this.yearLo;
-                const hi = this.yearHi;
+                let lo = this.yearLo;
+                let hi = this.yearHi;
+                if (!lo) lo = hi;
+                if (!hi) hi = lo;
                 if (lo == hi) {
                     const loQual = this.qdates[0].qualifierString(i18n);
                     if (loQual) return loQual + ' ' + lo; // e.g. 'about 20-02-2002'

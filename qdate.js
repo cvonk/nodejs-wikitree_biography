@@ -60,12 +60,12 @@ class QDate {
         }
     }
 
-    get dayHi() { if (!this.qualifier || this.qualifier != 'after') return this.day; return null; }
-    get yearHi() { if (!this.qualifier || this.qualifier != 'after') return this.year; return null;; }
-    get monthHi() { if (!this.qualifier || this.qualifier != 'after') return this.month; return null;; }
-    get dayLo() { if (!this.qualifier || this.qualifier != 'before') return this.day; return null;; }
-    get yearLo() { if (!this.qualifier || this.qualifier != 'before') return this.year; return null;; }
-    get monthLo() { if (!this.qualifier || this.qualifier != 'before') return this.month; return null;; }
+    get dayHi() { if (!this.qualifier || this.qualifier != 'after') return this.day; return undefined; }
+    get yearHi() { if (!this.qualifier || this.qualifier != 'after') return this.year; return undefined; }
+    get monthHi() { if (!this.qualifier || this.qualifier != 'after') return this.month; return undefined; }
+    get dayLo() { if (!this.qualifier || this.qualifier != 'before') return this.day; return undefined; }
+    get yearLo() { if (!this.qualifier || this.qualifier != 'before') return this.year; return undefined; }
+    get monthLo() { if (!this.qualifier || this.qualifier != 'before') return this.month; return undefined; }
 
     get dayString() { return this.day ? _getXdigitNr(this.day, 2) : ''; }
     get monthString() { return this.month ? _getXdigitNr(this.month, 2) : ''; }

@@ -29,6 +29,7 @@ var get = require('./get.js'),
     write = require('./write.js'),
     g2gx = require('./g2gx.js'),
     fs = require("fs"),
+    I18n = require('i18n-2'),
     person = require('./person.js');
 
 var app = express();
@@ -80,9 +81,13 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
     app.get('/getIndividualsList', function(req, res) {
         let individuals = [];
         let indis = get.byName(gedcom, gedcom, 'INDI');
+        let i18n = new I18n({ locales: ['xx'] }); // all we need here
         for (let indi of indis) {
             let obj = get.byName(gedcom, indi, 'NAME:full');
-            let name = value.name(obj, 'full') + get.lifeSpan(undefined, gedcom, indi, undefined);
+            //if (value.name(obj, 'full') == 'Adriana Kunst') {
+            //    dbg = get.lifeSpan(i18n, gedcom, indi, undefined);
+            //}
+            let name = value.name(obj, 'full') + get.lifeSpan(i18n, gedcom, indi, undefined);
             if (indi.wtUsername) {
                 name += ' [' + indi.wtUsername + ']';
             }

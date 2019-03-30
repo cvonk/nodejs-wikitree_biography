@@ -59,5 +59,9 @@
 	"she": "she",
 	"after": "after",
 	"him": "him",
-	"Other facts about": "Other facts about"
+	"Other facts about": "Other facts about",
+	"Biography": "Biography",
+	"Sources": "Sources",
+	"her": "her",
+	"residence on": "residence on"
 }
