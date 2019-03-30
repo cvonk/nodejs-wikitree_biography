@@ -34,7 +34,7 @@ function _getParentsFirstNames(i18n, gedcom, fam, refs) {
 
 function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
     let yrs = '';
-    let ret = '* '; 
+    let ret = NL + '* '; 
     if (prefix != 'self') {
         let yrsYounger = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
         if (yrsYounger.length) {
@@ -73,15 +73,9 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
     return ret;
 }
 
-function _aboutAddress(i18n, gedcom, obj, refs) {
-    let ret = get.byTemplate(i18n, gedcom, obj, refs, '[DATE],');
-    if (obj.TYPE) {
-        switch (obj.TYPE.value) {
-            case 'Arrival': ret += ' ' + i18n.__('arrival'); break;
-            case 'Departure': ret += ' ' + i18n.__('departure'); break;
-            default: ret += obj.TYPE.value;
-        }
-    }
+function _aboutFact(i18n, gedcom, obj, refs) {
+    let ret = get.byTemplate(i18n, gedcom, obj, refs, ' [DATE]');
+    if (obj.TYPE) ret += ' ' + i18n.__(obj.TYPE.value.toLowerCase());
     ret += get.byTemplate(i18n, gedcom, obj, refs, ' in [PLAC]');
     if (obj.value) {
         ret += ', ' + obj.value;
@@ -119,7 +113,7 @@ function _getDeath(i18n, gedcom, indi, refs, long) {
             {
                 let death = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:age]');  // gets the age, or the date when there is 'about' or some other qualifier
                 if (long) {
-                    ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT]');
+                    ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT:world]');
                     if (death.length && death instanceof Number) {
                         ret += ' (' + death + ')';
                     }
@@ -161,7 +155,7 @@ let about = {
     init: function(gedcom, indi) {
         let locale = 'en';
         if (gedcom && indi) {
-            const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en', 'Germany': 'de'}; // add locales here
+            const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en', 'Germany': 'de', 'Belgium': 'nl'}; // add locales here
             let birth = indi.BIRT && indi.BIRT.PLAC ? indi.BIRT.PLAC.value : undefined;
             let baptized = indi.BAPT && indi.BAPT.PLAC ? indi.BAPT.PLAC.value : undefined;
             let death = indi.DEAT && indi.DEAT.PLAC ? indi.DEAT.PLAC.value : undefined;
@@ -222,7 +216,7 @@ let about = {
                 let fams = get.byName(gedcom, indi, 'FAMC');
                 for (let fam of fams) {  // for children that were latter assigned a father
                     if (fam.HUSB || fam.WIFE) {
-                        ret +=  ' ' + i18n.__('Children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':' + NL;                        
+                        ret +=  ' ' + i18n.__('Children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':';                        
                     }
                     let siblings = get.byName(gedcom, fam, 'CHIL');
                     let prefix = i18n.__('half');
@@ -235,7 +229,7 @@ let about = {
                     }
                     if (siblings) {
                         for (let sibling of siblings) {
-                            ret += _aboutSibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix) + '.' + NL;
+                            ret += _aboutSibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix) + '.';
                         }
                     }
                 }
@@ -255,9 +249,13 @@ let about = {
                 ret += get.byTemplate(i18n, gedcom, indi, refs, 'Other facts about [SEX:hemhaar]:') + NL;
                 for (let src of ['ADDR', 'EVEN']) {
                     if (indi[src]) {
-                        let objs = get.byName(gedcom, indi, src);
-                        for (let obj of objs) {
-                            ret += '* ' + _aboutAddress(i18n, gedcom, obj, refs) + '.' + NL;
+                        let facts = get.byName(gedcom, indi, src);
+                        for (let fact of facts) {
+                            ret += '*';
+                            if (src == 'ADDR') {
+                                ret += ' ' + i18n.__('residence on');
+                            }
+                            ret += _aboutFact(i18n, gedcom, fact, refs) + '.' + NL;
                         }
                     }
                 }

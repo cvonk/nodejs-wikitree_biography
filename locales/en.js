@@ -53,5 +53,11 @@
 	"year": "year",
 	"born on": "born on",
 	"and/or": "and/or",
-	"zelf": "zelf"
+	"zelf": "zelf",
+	"he": "he",
+	"stillborn": "stillborn",
+	"she": "she",
+	"after": "after",
+	"him": "him",
+	"Other facts about": "Other facts about"
 }

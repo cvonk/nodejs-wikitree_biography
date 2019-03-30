@@ -55,5 +55,7 @@
 	"born on": "geboren op",
 	"baptized on": "gedoopt op",
 	"zelf": "zelf",
-	"Other facts about": "Andere wetenswaardigheden over"
+	"Other facts about": "Andere wetenswaardigheden over",
+	"residence on": "woonde op",
+	"purchase": "purchase"
 }
