@@ -4,7 +4,7 @@
 	"she": "zij",
 	"She": "Zij",
 	"him": "hem",
-	"her": "her",
+	"her": "haar",
 	"him/her": "hem/haar",
 	"He/She": "Hij/Zij",
 	"son": "zoon",
