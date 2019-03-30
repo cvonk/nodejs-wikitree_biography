@@ -27,7 +27,6 @@ var gedcomFile = require('./dcapwell-gedcom/gedcom.js'),  // local modified vers
 var get = require('./get.js'),
     value = require('./value.js'),
     write = require('./write.js'),
-    get = require('./get.js'),
     g2gx = require('./g2gx.js'),
     fs = require("fs"),
     person = require('./person.js');
