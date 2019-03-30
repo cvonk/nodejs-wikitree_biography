@@ -32,6 +32,7 @@ function _selectNextInDataList(listId, inputId, step) {
     const childNodes = list.childNodes;
     for (let idx in childNodes) {
         let individual = childNodes[idx];
+        //console.log(individual.innerText.length, individual.innerText, input.value.length, input.value)
         if (individual.innerText === input.value) {
             input.value = childNodes[(Number(idx)+step) % childNodes.length].value;
             return;

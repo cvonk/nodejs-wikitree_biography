@@ -63,5 +63,6 @@
 	"Biography": "Biography",
 	"Sources": "Sources",
 	"her": "her",
-	"residence on": "residence on"
+	"residence on": "residence on",
+	"baptism witness": "baptism witness"
 }
