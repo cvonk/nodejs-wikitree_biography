@@ -47,5 +47,7 @@
 	"year": "jaar",
 	"self": "zelf",
 	"and/or": "en/of",
+	"born on": "geboren op",
+	"baptized on": "gedoopt op",
 	"zelf": "zelf"
 }

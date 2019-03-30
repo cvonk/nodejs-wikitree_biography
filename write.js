@@ -49,7 +49,7 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
                 yrs += yrsYounger + ' ' + i18n.__('younger');
             }
         }
-        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus]');
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus], ');
     } else {
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ');
     }
@@ -188,18 +188,26 @@ let about = {
     },
 
     introduction: function (i18n, gedcom, indi, refs) {
+        let ret = "";
         if (i18n && gedcom && indi) {
-            let ret = "";
-            ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]| ' + i18n.__('is born on') + ' [BIRT]|.');
+
+            const birth = get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]');
+            const baptized = get.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
+            ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]');
+            if (birth) {
+                ret += get.byTemplate(i18n, gedcom, indi, refs, ' born on [BIRT]');
+            }
+            if (birth && baptized) ret += " and"
+            if (baptized) {
+                ret += get.byTemplate(i18n, gedcom, indi, refs, ' baptized on [BAPT]');
+            }
+            ret += '.';
             ret += this.parents(i18n, gedcom, indi);
             if (indi.FAMC) {
-                //ret += ' ' + NL;
                 let fams = get.byName(gedcom, indi, 'FAMC');
                 for (let fam of fams) {  // for children that were latter assigned a father
                     if (fam.HUSB || fam.WIFE) {
                         ret +=  ' ' + i18n.__('Children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':' + NL;                        
-                    //} else {
-                    //    ret += i18n.__("Half siblings") + ":" + NL;
                     }
                     let siblings = get.byName(gedcom, fam, 'CHIL');
                     let prefix = i18n.__('half');
@@ -219,8 +227,8 @@ let about = {
                 }
             }
             ret += ' ' + NL;
-            return ret;
         }
+        return ret;
     },
 
     childhood: function (i18n, gedcom, indi, refs) {
