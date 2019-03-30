@@ -53,13 +53,19 @@ class FQDate {
         return pre + this.qdates[0].string(i18n, format) + inbetween + this.qdates[1].string(i18n, format);
     }
 
-    get year() {
-        if (this.qualifier) return this.qualifier;
-        if (this.qdates) {
-            if (this.qdates && this.qdates.length == 1) {
-                return this.qdates[0].year;
+    year(i18n) {
+        if (this.isValid) {
+            if (this.qualifier) return this.qualifier;
+            if (this.qdates) {
+                const lo = this.yearLo;
+                const hi = this.yearHi;
+                if (lo == hi) {
+                    const loQual = this.qdates[0].qualifierString(i18n);
+                    if (loQual) return loQual + ' ' + lo; // e.g. 'about 20-02-2002'
+                    return lo;  // the simple case where the year is a Number
+                }
+                return lo + '-' + hi;
             }
-            return this.qdates[0].year + '-' + this.qdates[1].year;
         }
         return 0;
     }

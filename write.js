@@ -117,15 +117,23 @@ function _getDeath(i18n, gedcom, indi, refs, long) {
             const saved = value.birthday;
             value.birthday = new FQDate(indi.BIRT.DATE.value);
             {
+                let death = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:age]');  // gets the age, or the date when there is 'about' or some other qualifier
                 if (long) {
-                    ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT]| ([DEAT.DATE:age])| due to [DEAT.CAUS]|');
+                    ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT]');
+                    if (death.length && death instanceof Number) {
+                        ret += ' (' + death + ')';
+                    }
+                    ret += get.byTemplate(i18n, gedcom, indi, refs, ' due to [DEAT.CAUS]|');
                 } else {
+                    if (death.length) {
+                        death = ', dies ' + (death instanceof Number ? 'at age' : 'on') + ' ' + death;
+                    }
                     ret += get.byTemplate(i18n, gedcom, indi, refs, ', dies at age [DEAT.DATE:age]');
                 }
             }
             value.birthday = saved;
         } else {
-            ret += get.byTemplate(i18n, gedcom, indi, refs, ', died on [DEAT.DATE]');
+            ret += get.byTemplate(i18n, gedcom, indi, refs, ', died on [DEAT.DATE:world]');
         }
     }
     return ret;
@@ -135,7 +143,6 @@ function _aboutChild(i18n, gedcom, child, refs) {
     let ret = ''
     if (i18n && gedcom && child) {
         ret += get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:given]|, born in [BIRT.DATE:year]|, [OCCU]');
-
         ret += _getDeath(i18n, gedcom, child, false);
     }
     return ret;
@@ -203,11 +210,11 @@ let about = {
             const baptized = get.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
             ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]');
             if (birth) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, ' born on [BIRT]');
+                ret += get.byTemplate(i18n, gedcom, indi, refs, ' born on [BIRT:world]');
             }
             if (birth && baptized) ret += " and"
             if (baptized) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, ' baptized on [BAPT]');
+                ret += get.byTemplate(i18n, gedcom, indi, refs, ' baptized on [BAPT:world]');
             }
             ret += '.';
             ret += this.parents(i18n, gedcom, indi);
@@ -256,7 +263,7 @@ let about = {
                 }
             }
         }
-        if (ret.length) return ' ' + NL + "'''" + i18n.__('Childhood') + "'''" + NL + ret;
+        if (ret.length) return ' ' + NL + "'''" + i18n.__('Childhood') + "'''" + NL + NL + ret;
         return ret;
     },
 
@@ -301,7 +308,7 @@ let about = {
         if (i18n && gedcom && indi && indi.DEAT) {
             ret += _aboutOld(i18n, gedcom, indi, refs);
         }
-        if (ret.length) return ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + ret;
+        if (ret.length) return ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + NL + ret;
         return ret;
     }
 }

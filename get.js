@@ -38,6 +38,7 @@ function _fieldValue(i18n, gedcom, obj, refs, fields) {
                 case 'NAME': ret += value.name(obj, format); break;
                 case 'SEX': ret += value.sex(i18n, obj, format); break;
                 case 'BIRT':
+                case 'BAPT':
                 case 'DEAT':
                 case 'MARR': ret += module.exports.byTemplate(i18n, gedcom, obj[0], refs, '[DATE:' + format + ']| in [PLAC]'); break;
                 case 'PLAC': ret += value.place(obj, format); break;

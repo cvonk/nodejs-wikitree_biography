@@ -5,8 +5,8 @@ var FQDate = require('./fqdate.js');
 
 function _age(i18n, aYear, aMonth, aDay, bYear, bMonth, bDay) {
     if (!aYear || !bYear) return '';  // need at least two years
-    const end = new Date(aYear && aYear, aMonth && aMonth - 1, aDay && aDay);
-    const start = new Date(bYear && bYear, bMonth && bMonth - 1, bDay && bDay);
+    const end = new Date(aYear ? aYear : 0, aMonth ? aMonth - 1 : 0, aDay ? aDay : 1);
+    const start = new Date(bYear ? bYear : 0, bMonth ? bMonth - 1 : 0, bDay ? bDay : 1);
     const days = Math.floor((end - start) / (1000 * 3600 * 24));
     const months = Math.floor(days * 12 / 365.25);
     const years = Math.floor(months / 12);
@@ -29,30 +29,28 @@ module.exports = {
             }
             switch (format) {
                 case 'year': {
-                    const year = fqdate.year;
-                    if (year instanceof String) {
-                        return i18n.__(this.qualifier);
+                    if (fqdate.isValid) {
+                        const year = fqdate.year(i18n);
+                        if (year instanceof String) return i18n.__(this.qualifier);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
+                        return year;  // an exact year is a Number
                     }
-                    return year;
+                    return 0;
                 }
                 case 'age': {
                     let birth = module.exports.birthday;
                     if (birth && birth.isValid && fqdate.isValid) {
-                        if (fqdate.qualifier) {
-                            return fqdate.qualifier;
+                        if (fqdate.qualifier) return fqdate.qualifier;
+                        if (birth.qualifier) return "Birth event shouldn't have qualifier (" + birth.qualifier + ").  Consider moving it to the death fact.";
+                        let ageLo = _age(i18n, fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
+                        let ageHi = _age(i18n, fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
+                        if (ageLo == ageHi) {
+                            return ageLo;
+                        } else if (!ageHi.length) {
+                            return i18n.__('at least') + ' ' + ageLo;
+                        } else if (!ageLo.length) {
+                            return i18n.__('at most') + ' ' + ageHi;
                         } else {
-                            if (birth.qualifier) return "Birth event shouldn't have qualifier (" + birth.qualifier + ").  Consider moving it to the death fact.";
-                            let ageLo = _age(i18n, fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
-                            let ageHi = _age(i18n, fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
-                            if (ageLo == ageHi) {
-                                return ageLo;
-                            } else if (!ageHi.length) {
-                                return i18n.__('at least') + ' ' + ageLo;
-                            } else if (!ageLo.length) {
-                                return i18n.__('at most') + ' ' + ageHi;
-                            } else {
-                                return i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
-                            }
+                            return i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
                         }
                     }
                 break;

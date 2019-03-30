@@ -70,6 +70,7 @@ class QDate {
     get dayString() { return this.day ? _getXdigitNr(this.day, 2) : ''; }
     get monthString() { return this.month ? _getXdigitNr(this.month, 2) : ''; }
     get yearString() { return this.year ? _getXdigitNr(this.year, 4) : ''; }
+    qualifierString(i18n) { return this.qualifier ? i18n.__(this.qualifier) : '';}
 
     string(i18n, format) {
         let ret = '';
