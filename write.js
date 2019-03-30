@@ -54,8 +54,8 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ').toLowerCase();
     }
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
-    ret += get.byTemplate(i18n, gedcom, sibling, refs, ', [OCCU]');
-    if (prefix != 'self' && sibling.BIRT && sibling.BIRT.DATE ) {
+    if (prefix != 'self') {
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, ', [OCCU]');
         const saved = value.birthday;
         value.birthday = new FQDate(sibling.BIRT.DATE.value);
         ret += get.byTemplate(i18n, gedcom, sibling, refs, ', died at age [DEAT.DATE:age]');
