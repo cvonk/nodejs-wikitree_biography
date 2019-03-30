@@ -50,5 +50,8 @@
 	"at most": "at most",
 	"before": "before",
 	"at least": "at least",
-	"year": "year"
+	"year": "year",
+	"born on": "born on",
+	"and/or": "and/or",
+	"zelf": "zelf"
 }

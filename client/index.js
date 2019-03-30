@@ -120,8 +120,6 @@ function _getIndividualDetails(listId, inputId) {
                 document.getElementById("step3").setAttribute('tv', 'off');
                 const person = resp.person;
 
-
-
                 const ids = {  // the WikiTree search form doesn't support all the fields at once
                     wpFirst: person.name && person.name.given,
                     wpLast: person.name && person.name.last,
@@ -171,10 +169,15 @@ function _getIndividualDetails(listId, inputId) {
 function _reqWtmergeEditForm(evt) {  // called when mergeEditForm is completed
 
     const mergeEditForm = document.getElementById('mergeEditForm');  // or use evt
-    const wtUsername = mergeEditForm.wtUsername.value;
+    const wtUsername = mergeEditForm.wtUsername.value.trim();
     if (!wtUsername.length) {
         evt.preventDefault();  // prevent submit
         alert("Copy the name of the matching WikiTree profile to the panel on the left.\nThe name can be found in the list of search results, just before where it says \"managed by\".");
+        return;
+    }
+    if (wtUsername.search('-') == -1) {
+        evt.preventDefault();  // prevent submit
+        alert("The WikiTree profile name should contain a '-' character\nThe name can be found in the list of search results, just before where it says \"managed by\".");
         return;
     }
     document.getElementById("step3").setAttribute('tv', 'on');
