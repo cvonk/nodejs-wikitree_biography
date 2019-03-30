@@ -12,6 +12,7 @@ class FQDate {
 
         if (gedcomDate == 'STILLBORN') { 
             this.qualifier = 'stillborn';
+            this.isValid = true;
             return;
         }
         this.qdates = [];

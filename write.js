@@ -56,11 +56,18 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
     if (prefix != 'self') {
         ret += get.byTemplate(i18n, gedcom, sibling, refs, ', [OCCU]');
-        if (sibling.BIRTH && sibling.BIRTH.DATE) {
+        if (sibling.BIRT && sibling.BIRT.DATE) {
             const saved = value.birthday;
-            value.birthday = new FQDate(sibling.BIRT.DATE.value);
-            ret += get.byTemplate(i18n, gedcom, sibling, refs, ', died at age [DEAT.DATE:age]');
-            value.birthday = saved;
+            {
+                value.birthday = new FQDate(sibling.BIRT.DATE.value);
+                const deathAge = get.byTemplate(i18n, gedcom, sibling, refs, '[DEAT.DATE:age]');
+                value.birthday = saved;
+                if (deathAge.length) {
+                    ret += ', ';
+                    if (deathAge == 'stillborn') { ret += i18n.__(deathAge); } 
+                    else { ret += i18n.__('died at age') + ' ' + deathAge; }
+                }
+            }
         }
     }
     return ret;

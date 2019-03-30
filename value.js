@@ -37,20 +37,25 @@ module.exports = {
                 }
                 case 'age': {
                     let birth = module.exports.birthday;
-                    if (birth && fqdate.isValid && birth.isValid && !fqdate.qualifier && !birth.qualifier) {
-                        let ageLo = _age(i18n, fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
-                        let ageHi = _age(i18n, fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
-                        if (ageLo == ageHi) {
-                            return ageLo;
-                        } else if (!ageHi.length) {
-                            return i18n.__('at least') + ' ' + ageLo;
-                        } else if (!ageLo.length) {
-                            return i18n.__('at most') + ' ' + ageHi;
+                    if (birth && birth.isValid && fqdate.isValid) {
+                        if (fqdate.qualifier) {
+                            return fqdate.qualifier;
                         } else {
-                            return i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
+                            if (birth.qualifier) return "Birth event shouldn't have qualifier (" + birth.qualifier + ").  Consider moving it to the death fact.";
+                            let ageLo = _age(i18n, fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
+                            let ageHi = _age(i18n, fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
+                            if (ageLo == ageHi) {
+                                return ageLo;
+                            } else if (!ageHi.length) {
+                                return i18n.__('at least') + ' ' + ageLo;
+                            } else if (!ageLo.length) {
+                                return i18n.__('at most') + ' ' + ageHi;
+                            } else {
+                                return i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
+                            }
                         }
                     }
-                    break;
+                break;
                 }
                 case 'original':
                     return obj[0].value;
