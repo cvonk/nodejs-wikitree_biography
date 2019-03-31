@@ -36,7 +36,7 @@
 	"arrival": "aankomst",
 	"departure": "vertrek",
 	"born in": "geboren in",
-	"at most": "ten meeste",
+	"at most": "ten hoogste",
 	"at least": "ten minste",
 	"about": "ongeveer",
 	"before": "voor",

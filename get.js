@@ -197,7 +197,6 @@ module.exports = {
             let birth = module.exports.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]');
             if (!birth.length) birth = module.exports.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
             const death = module.exports.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:year]');
-    
             if (birth.length || death.length) {
                 ret += ' (';
                 if (birth.length) ret += birth;

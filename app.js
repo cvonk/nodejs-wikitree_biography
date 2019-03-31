@@ -79,19 +79,11 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
 
     // serve AJAX data requests
     app.get('/getIndividualsList', function(req, res) {
-
         let individuals = [];
         let indis = get.byName(gedcom, gedcom, 'INDI');
-        let i18n = new I18n({ locales: ['xx'] }); // all we need here
+        let i18n = new I18n({ locales: ['xx'] }); // all we need here to shorten 'before', 'about', 'after' to '<', '~', '>'
         for (let indi of indis) {
             let obj = get.byName(gedcom, indi, 'NAME:full');
-            /*
-            if (value.name(obj, 'full') == 'Adriana Kunst') {
-                let name = value.name(obj, 'full');
-                let lifespan = _escapeHtml(get.lifeSpan(i18n, gedcom, indi, undefined));
-                console.log('|' + name + '|' + lifespan + '|');
-            }
-            */
             let name = value.name(obj, 'full') + get.lifeSpan(i18n, gedcom, indi, undefined);
             if (indi.wtUsername) {
                 name += ' [' + indi.wtUsername + ']';

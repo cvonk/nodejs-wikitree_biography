@@ -32,22 +32,22 @@ function _getParentsFirstNames(i18n, gedcom, fam, refs) {
     return ret;
 }
 
+function _youngerOlder(i18n, s) {
+    let firstDigit = s.length - s.replace(/^[^-0-9]+/, '').length;  // might have a prefix such as 'about' before the '-' sign
+    let pre = s.substring(0, firstDigit);
+    let remainder = s.substring(firstDigit, s.length);
+    //console.log('|' + pre + '|' + remainder + '|');
+    if (remainder[0] == '-') return pre + remainder.slice(1) + ' ' + i18n.__('older');
+    return s + ' ' + i18n.__('younger');
+}
+
 function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
     let yrs = '';
     let ret = NL + '* '; 
     if (prefix != 'self') {
         let yrsYounger = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
         if (yrsYounger.length) {
-            if (yrsYounger[1] == '-') {  // has a ~, <, > in front of the minus
-                yrs += yrsYounger[0];
-                yrsYounger = yrsYounger.slice(1);
-            }
-            yrs += ', ';
-            if (yrsYounger.startsWith('-')) {
-                yrs += yrsYounger.slice(1) +  ' ' + i18n.__('older')
-            } else {
-                yrs += yrsYounger + ' ' + i18n.__('younger');
-            }
+            yrs += ', ' + _youngerOlder(i18n, yrsYounger);
         }
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus], ');
     } else {

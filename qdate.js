@@ -23,9 +23,7 @@ class QDate {
     // e.g. 'ABT 12 Nov 2010' will return [qualifier: '~', year: 2010, month: 11, day: 12];
     constructor(gedcomSingleDate) {
 
-        if (!gedcomSingleDate) {
-            return;
-        }
+        if (!gedcomSingleDate) return;
         this.isValid = true;
         if (!(this instanceof QDate)) {  // protect against forgetting the new keyword when calling the constructor
             return new QDate(gedcomSingleDate);

@@ -152,7 +152,7 @@ function _getIndividualDetails(listId, inputId) {
 
                 /**
                  * The user finds the matching WikiTree Username, and enters it on the on the 'mergeEditForm'.
-                 * When that mergeEditForm is completed, processing continues at _reqWtmergeEditForm()
+                 * When that mergeEditForm is completed, processing continues at _reqMergeEditForm()
                  */
             }
         }
@@ -167,23 +167,18 @@ function _getIndividualDetails(listId, inputId) {
  * GEDCOMX data we stored in _getIndividualDetails() populate a merge form on WikiTree.  The user then
  * verifies the fields and copies over, enriches the bio, previews it, and commits the changes.
  */
-function _reqWtmergeEditForm(evt) {  // called when mergeEditForm is completed
+function _reqMergeEditForm(evt) {  // called when mergeEditForm is completed
 
     const mergeEditForm = document.getElementById('mergeEditForm');  // or use evt
     const wtUsername = mergeEditForm.wtUsername.value.trim();
-    if (!wtUsername.length) {
-        evt.preventDefault();  // prevent submit
-        alert("Copy the name of the matching WikiTree profile to the panel on the left.\nThe name can be found in the list of search results, just before where it says \"managed by\".");
-        return;
-    }
     if (wtUsername.search('-') == -1) {
         evt.preventDefault();  // prevent submit
         alert("The WikiTree profile name should contain a '-' character\nThe name can be found in the list of search results, just before where it says \"managed by\".");
         return;
     }
-    document.getElementById("step3").setAttribute('tv', 'on');
     const gedcomId = document.getElementById('gedcomId').value;
-    _putGedcomId2WtUsername(gedcomId, wtUsername);
+    _putGedcomId2WtUsername(gedcomId, wtUsername);  // store the gedcomId - wtUsername mapping on our server
+    document.getElementById("step3").setAttribute('tv', 'on');
     
     mergeEditForm.action = 'https://www.wikitree.com/wiki/Special:MergeEdit';
     mergeEditForm.submit();
@@ -203,9 +198,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('individualsNext').addEventListener('click', function () { _nextIndividual(_individualsListId, _individualsInputId, 1) });
     document.getElementById('individualsPrev').addEventListener('click', function () { _nextIndividual(_individualsListId, _individualsInputId, -1) });
     document.getElementById('individualsSearch').addEventListener('click', function () { _getIndividualDetails(_individualsListId, _individualsInputId) });
-    document.getElementById('mergeEditForm').addEventListener('submit', function (e) {_reqWtmergeEditForm(e) });
-    document.getElementById('mergeEditForm').addEventListener('keypress', function (e) { _enterListener(_reqWtmergeEditForm(e))});
-    document.getElementById('copyBtn').addEventListener('click', function () { _copyToClipboard('biography')} );
+    document.getElementById('mergeEditForm').addEventListener('submit', function (e) {_reqMergeEditForm(e) });
+    //document.getElementById('mergeEditForm').addEventListener('keypress', function (e) { _enterListener(_reqMergeEditForm(e))});
+    document.getElementById('bioCopyBtn').addEventListener('click', function () { _copyToClipboard('biography')} );
 
     // perpare for Step 1 by populating the individuals list
     _getIndividualsList(_individualsListId);

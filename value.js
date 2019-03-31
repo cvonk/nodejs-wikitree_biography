@@ -31,7 +31,7 @@ module.exports = {
                 case 'year': {
                     if (fqdate.isValid) {
                         const year = fqdate.year(i18n);
-                        if (year instanceof String) return i18n.__(this.qualifier);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
+                        if (year instanceof String) return i18n.__(fqdate.qualifier);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
                         return year;  // an exact year is a Number
                     }
                     return 0;
@@ -45,7 +45,7 @@ module.exports = {
                         let ageHi = _age(i18n, fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
                         if (ageLo == ageHi) {
                             return ageLo;
-                        } else if (!ageHi.length) {
+                        } else if (!ageHi.length) { 
                             return i18n.__('at least') + ' ' + ageLo;
                         } else if (!ageLo.length) {
                             return i18n.__('at most') + ' ' + ageHi;
