@@ -59,6 +59,6 @@
 	"purchase": "aankoop",
 	"baptism witness": "doopgetuige",
 	"Biography": "Biografie",
-	"zelf": "zelf",
-	"Sources": "Bronnen"
+	"Sources": "Bronnen",
+	"zelf": "zelf"
 }

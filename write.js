@@ -51,7 +51,7 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
         }
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus], ');
     } else {
-        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij]zelf, ');
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ');
     }
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
     if (prefix != 'self') {
@@ -91,12 +91,13 @@ function _aboutSpouse(i18n, gedcom, spouse, refs, mar) {
         {
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' with [NAME:full]');
             ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])');
-            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]|.');
+            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]') + '.';
             ret += about.parents(i18n, gedcom, spouse);
-            let death = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]| died on [DEAT]| ([DEAT.DATE:age])| due to [DEAT.CAUS]|.');
+            //const firstName = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]'); 
+            let death = get.byTemplate(i18n, gedcom, spouse, refs, ' died on [DEAT:world]| ([DEAT.DATE:age])| due to [DEAT.CAUS]|.');
             if (death.length) {
                 //ret += ' ' + NL;
-                ret += get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]|') + death;
+                ret += ' ' + get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]|') + death;
             }
         }
         value.birthday = saved;
