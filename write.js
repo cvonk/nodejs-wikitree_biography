@@ -51,7 +51,7 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
         }
         ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus], ');
     } else {
-        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzij] zelf, ');
+        ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hemhaar]self, ');
     }
     ret += get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"') + yrs;
     if (prefix != 'self') {
@@ -94,10 +94,9 @@ function _aboutSpouse(i18n, gedcom, spouse, refs, mar) {
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]') + '.';
             ret += about.parents(i18n, gedcom, spouse);
             //const firstName = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]'); 
-            let death = get.byTemplate(i18n, gedcom, spouse, refs, ' died on [DEAT:world]| ([DEAT.DATE:age])| due to [DEAT.CAUS]|.');
+            let death = get.byTemplate(i18n, gedcom, spouse, refs, ' died on [DEAT:world]| ([DEAT.DATE:age])| due to [DEAT.CAUS]');
             if (death.length) {
-                //ret += ' ' + NL;
-                ret += ' ' + get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]|') + death;
+                ret += ' ' + get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]|') + death + '.';
             }
         }
         value.birthday = saved;
@@ -114,7 +113,7 @@ function _getDeath(i18n, gedcom, indi, refs, long) {
             {
                 let death = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:age]');  // gets the age, or the date when there is 'about' or some other qualifier
                 if (long) {
-                    ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT:world]');
+                    ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT:us]');
                     if (death.length && death instanceof Number) {
                         ret += ' (' + death + ')';
                     }
@@ -128,7 +127,10 @@ function _getDeath(i18n, gedcom, indi, refs, long) {
             }
             value.birthday = saved;
         } else {
-            ret += get.byTemplate(i18n, gedcom, indi, refs, ', died on [DEAT.DATE:world]');
+            const death = get.byTemplate(i18n, gedcom, indi, refs, ' died on [DEAT.DATE:us]');
+            if (death.length) {
+                ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + death;
+            }
         }
     }
     return ret;
@@ -170,7 +172,7 @@ function _showSibling(i18n, gedcom, indi, fams, refs) {
             let listOfChildren = [];
             for (let sibling of siblings) {
                 const date = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
-                const text = _aboutSibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix) + '.';
+                const text = _aboutSibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix);
                 listOfChildren.push({date: date, text: text});
             }
             listOfChildren.sort(function(a, b) {
@@ -179,7 +181,7 @@ function _showSibling(i18n, gedcom, indi, fams, refs) {
                 return 0;
             });
             for (let child of listOfChildren) {
-                ret += NL + '* ' + child.text;
+                ret += NL + '* ' + child.text + '.';
             }
         }
     }
@@ -210,7 +212,7 @@ function _showFamily(i18n, gedcom, indi, fams, refs) {
                 if (childId.id != indi.id) { //exclude self
                     const child = get.byId(gedcom, childId.id);
                     const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
-                    const text = _aboutChild(i18n, gedcom, child, refs) + '.' + NL;
+                    const text = _aboutChild(i18n, gedcom, child, refs);
                     listOfChildren.push({date: date, text: text});
                 }
             }
@@ -220,11 +222,10 @@ function _showFamily(i18n, gedcom, indi, fams, refs) {
                 return 0;
             });
             for (let child of listOfChildren) {
-                ret += NL + '* ' + child.text;
+                ret += NL + '* ' + child.text + '.';
             }
-        } else {
-            ret += NL;
         }
+        ret += NL;
     }
     return ret;
 }
@@ -284,7 +285,7 @@ let about = {
             const baptized = get.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
             ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]');
             if (birth) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, ' born on [BIRT:world]');
+                ret += get.byTemplate(i18n, gedcom, indi, refs, ' born on [BIRT:us]');
             }
             if (birth && baptized) ret += " and"
             if (baptized) {

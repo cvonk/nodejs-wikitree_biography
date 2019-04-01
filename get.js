@@ -163,6 +163,7 @@ module.exports = {
                         const text = _fieldValue(i18n, gedcom, oo, refs, fieldName);
                         if (text.length) {
                             ret += _trimmedI18n(i18n, pre) + text + _trimmedI18n(i18n, post);
+                            //ret += value.localizeDateStr(i18n, pre) + text + value.localizeDateStr(i18n, post);
                         }
                     }
                 } else {

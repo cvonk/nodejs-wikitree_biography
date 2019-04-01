@@ -64,5 +64,20 @@
 	"Sources": "Sources",
 	"her": "her",
 	"residence on": "residence on",
-	"baptism witness": "baptism witness"
+	"baptism witness": "baptism witness",
+	"A": "A",
+	"Apr": "Apr",
+	"Sep": "Sep",
+	"self": "self",
+	"Jun": "Jun",
+	"Dec": "Dec",
+	"Feb": "Feb",
+	"May": "May",
+	"Nov": "Nov",
+	"Mar": "Mar",
+	"Aug": "Aug",
+	"Jan": "Jan",
+	"Jul": "Jul",
+	"Oct": "Oct",
+	"departure": "departure"
 }

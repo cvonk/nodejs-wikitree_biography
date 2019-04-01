@@ -24,14 +24,16 @@ module.exports = {
     date: function (i18n, obj, format) {
         if (obj && obj[0]) {
             const fqdate = new FQDate(obj[0].value);
-            if (fqdate instanceof String) {
+            if (typeof fqdate == 'string') {
                 return fqdate;
             }
             switch (format) {
                 case 'year': {
                     if (fqdate.isValid) {
                         const year = fqdate.year;
-                        if (year instanceof String) return module.exports.localizeDateStr(i18n, year);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
+                        if (typeof year == 'string') {
+                            return module.exports.localizeDateStr(i18n, year);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
+                        }
                         return year;  // an exact year is a Number
                     }
                     return 0;
@@ -103,7 +105,7 @@ module.exports = {
                 ['m/v', 'male', 'female', 'unknown'],
                 ['zoondochter', 'son', 'daughter', 'child'],
                 ['broerzus', 'brother', 'sister', 'sibling'],
-                ['hijzij', 'he', 'she', 'he/she'],
+                ['hijzij', 'her', 'she', 'he/she'],
                 ['HijZij', 'He', 'She', 'He/She'],
                 ['hemhaar', 'him', 'her', 'him/her'],
                 ['gedcomx', 'Male', 'Female', 'Unknown' ]
@@ -160,19 +162,20 @@ module.exports = {
 
     localizeDateStr: function(i18n, str) {
         function _hasLetters(str) {
-            return str.toUpperCase() != str.toLowerCase()
+            return str.toUpperCase() != str.toLowerCase();
         }
 
         if (str) {
+            //console.log('|' + str + '|');
             let parts = str.split(/( ?[^a-zA-Z ]+ ?)/);
             for (let ii in parts) {
                 const part = parts[ii];
                 if (_hasLetters(part)) {  // translate the phrases that contain letters
-                    // part = '>' + part + '<';
+                    //console.log('>' + part + '<');
                     parts[ii] = i18n.__(part);
                 }
             }
-/* OLD            
+/* OLD            good for nothing ;-)
             // split in thising in phrases containing letters and parts that do not contain letters
             // e.g. 'Jan en Piet 12 jaar' will separate in ['Jan en Piet', '12', 'jaar']
             let parts = str.split(' ');
@@ -194,7 +197,8 @@ module.exports = {
                 }
             }
 */            
-            return parts.join(' ');
+            return parts.join('');
         }
+        return '';
     }    
 }
