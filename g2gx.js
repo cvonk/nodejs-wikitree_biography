@@ -72,7 +72,7 @@ GedcomX.Root.prototype.generateId = function(){
 
 GedcomX.Root.prototype.addPersonGedcom = function(i18n, gedcom, indi, relationshipType) {
     if (indi) {
-        let id = 'coertvonk.com as ' + indi.id.replace(/^@|@$/g, '') + ' using nodejs-wikitree_biography from GitHub';
+        let id = 'coertvonk.com as ' + indi.id.replace(/^@|@$/g, '') + ' using nodejs-wikitree_biography';
         let person = GedcomX.Person({id: id, // this.generateId(),
                                     resource: indi.id,
                                     resourceId: 'https://coertvonk.com/genealogy/' + indi.id,  // 2BD: maybe resource and resourceId need to be swapped

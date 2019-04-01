@@ -80,5 +80,7 @@
 	"Jul": "Jul",
 	"Oct": "Oct",
 	"departure": "departure",
-	"Unknown": "Unknown"
+	"Unknown": "Unknown",
+	"born": "born",
+	"Relationship with": "Relationship with"
 }

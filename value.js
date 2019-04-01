@@ -6,7 +6,7 @@ var FQDate = require('./fqdate.js');
 function _age(i18n, aYear, aMonth, aDay, bYear, bMonth, bDay) {
     if (!aYear || !bYear) return '';  // need at least two years
     const end = new Date(aYear ? aYear : 0, aMonth ? aMonth - 1 : 0, aDay ? aDay : 1);
-    const start = new Date(bYear ? bYear : 0, bMonth ? bMonth - 1 : 0, bDay ? bDay : 1);
+    const start = new Date(bYear ? parseInt(bYear) : 0, bMonth ? bMonth - 1 : 0, bDay ? bDay : 1);  // parseInt, because of 1706/07 notation
     const days = Math.floor((end - start) / (1000 * 3600 * 24));
     const months = Math.floor(days * 12 / 365.25);
     const years = Math.floor(months / 12);
