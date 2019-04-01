@@ -43,7 +43,7 @@ function _youngerOlder(i18n, s) {
 
 function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
     let yrs = '';
-    let ret = NL + '* '; 
+    let ret = ''; 
     if (prefix != 'self') {
         let yrsYounger = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
         if (yrsYounger.length) {
@@ -74,7 +74,7 @@ function _aboutSibling(i18n, gedcom, sibling, refs, prefix) {
 }
 
 function _aboutFact(i18n, gedcom, obj, refs) {
-    let ret = get.byTemplate(i18n, gedcom, obj, refs, ' [DATE]');
+    let ret = get.byTemplate(i18n, gedcom, obj, refs, ' [DATE]');    
     if (obj.TYPE) ret += ' ' + i18n.__(obj.TYPE.value.toLowerCase());
     ret += get.byTemplate(i18n, gedcom, obj, refs, ' in [PLAC]');
     if (obj.value) {
@@ -151,6 +151,85 @@ function _aboutOld(i18n, gedcom, indi, refs) {
     return ret;
 }
 
+function _showSibling(i18n, gedcom, indi, fams, refs) {
+    let ret = '';
+    for (let fam of fams) {  // for children that were latter assigned a father
+        if (fam.HUSB || fam.WIFE) {
+            ret +=  ' ' + i18n.__('Children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':';                        
+        }
+        let siblings = get.byName(gedcom, fam, 'CHIL');
+        let prefix = i18n.__('half');
+        if (siblings) {
+            for (let sibling of siblings) {
+                if (sibling.id == indi.id) {
+                    prefix = '';
+                }
+            }
+        }
+        if (siblings) {
+            let listOfChildren = [];
+            for (let sibling of siblings) {
+                const date = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
+                const text = _aboutSibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix) + '.';
+                listOfChildren.push({date: date, text: text});
+            }
+            listOfChildren.sort(function(a, b) {
+                if (a.date < b.date) return -1;
+                if (a.date > b.date) return 1;
+                return 0;
+            });
+            for (let child of listOfChildren) {
+                ret += NL + '* ' + child.text;
+            }
+        }
+    }
+    return ret;
+}
+
+function _showFamily(i18n, gedcom, indi, fams, refs) {
+    let ret = '';
+    for (let fam of fams) {
+        ret += ' ' + NL;
+        ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]');
+        
+        let mars = get.byName(gedcom, fam, 'MARR');  // some people are married at 2 different churches
+        if (mars[0]) {
+            for (let mar of mars) {
+                ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])|, married on [DATE]');
+            }
+        }
+        let spouse = get.spouse(i18n, gedcom, fam, indi);
+        ret += _aboutSpouse(i18n, gedcom, spouse, refs, mars[0]);
+        if (fam.CHIL) {
+            ret += get.byTemplate(i18n, gedcom, indi, refs, ' Children of [NAME:first]');
+            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]:') + NL;
+            let childIds = get.byName(gedcom, fam, 'CHIL');
+
+            let listOfChildren = [];
+            for (let childId of childIds) {
+                if (childId.id != indi.id) { //exclude self
+                    const child = get.byId(gedcom, childId.id);
+                    const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
+                    const text = _aboutChild(i18n, gedcom, child, refs) + '.' + NL;
+                    listOfChildren.push({date: date, text: text});
+                }
+            }
+            listOfChildren.sort(function(a, b) {
+                if (a.date < b.date) return -1;
+                if (a.date > b.date) return 1;
+                return 0;
+            });
+            for (let child of listOfChildren) {
+                ret += NL + '* ' + child.text;
+            }
+        } else {
+            ret += NL;
+        }
+    }
+    return ret;
+}
+
+
 let about = {
 
     init: function(gedcom, indi) {
@@ -182,7 +261,7 @@ let about = {
             let ret = '';
             let fams = get.byName(gedcom, indi, 'FAMC');
             if (fams[0]) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, ' [SEX:hijzij]| is a [SEX:zoondochter] of');
+                ret += get.byTemplate(i18n, gedcom, indi, refs, ' [SEX:HijZij]| is a [SEX:zoondochter] of');
                 for (let fam of fams) {  // for children that were latter assigned a father
                     if (fam) {
                         if (fam.HUSB || fam.WIFE) {
@@ -215,25 +294,7 @@ let about = {
             ret += this.parents(i18n, gedcom, indi);
             if (indi.FAMC) {
                 let fams = get.byName(gedcom, indi, 'FAMC');
-                for (let fam of fams) {  // for children that were latter assigned a father
-                    if (fam.HUSB || fam.WIFE) {
-                        ret +=  ' ' + i18n.__('Children of') + _getParentsFirstNames(i18n, gedcom, fam, refs) + ':';                        
-                    }
-                    let siblings = get.byName(gedcom, fam, 'CHIL');
-                    let prefix = i18n.__('half');
-                    if (siblings) {
-                        for (let sibling of siblings) {
-                            if (sibling.id == indi.id) {
-                                prefix = '';
-                            }
-                        }
-                    }
-                    if (siblings) {
-                        for (let sibling of siblings) {
-                            ret += _aboutSibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix) + '.';
-                        }
-                    }
-                }
+                ret += _showSibling(i18n, gedcom, indi, fams, refs);
             }
             ret += NL;
         }
@@ -253,9 +314,7 @@ let about = {
                         let facts = get.byName(gedcom, indi, src);
                         for (let fact of facts) {
                             ret += '*';
-                            if (src == 'ADDR') {
-                                ret += ' ' + i18n.__('residence on');
-                            }
+                            if (src == 'ADDR') ret += ' ' + i18n.__('residence on');
                             ret += _aboutFact(i18n, gedcom, fact, refs) + '.' + NL;
                         }
                     }
@@ -270,33 +329,7 @@ let about = {
         let ret = '';
         if (i18n && gedcom && indi && indi.FAMS) {
             let fams = get.byName(gedcom, indi, 'FAMS');
-            for (let fam of fams) {
-                ret += ' ' + NL;
-                ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]');
-                
-                let mars = get.byName(gedcom, fam, 'MARR');  // some people are married at 2 different churches
-                if (mars[0]) {
-                    for (let mar of mars) {
-                        ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])|, married on [DATE]');
-                    }
-                }
-                let spouse = get.spouse(i18n, gedcom, fam, indi);
-                ret += _aboutSpouse(i18n, gedcom, spouse, refs, mars[0]);
-                if (fam.CHIL) {
-                    ret += ' ';
-                    ret += get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');
-                    ret += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]:') + NL;
-                    let childIds = get.byName(gedcom, fam, 'CHIL');
-                    for (let childId of childIds) {
-                        if (childId.id != indi.id) { //exclude self
-                            let child = get.byId(gedcom, childId.id);
-                            ret += '* ' + _aboutChild(i18n, gedcom, child, refs) + '.' + NL;
-                        }
-                    }
-                } else {
-                    ret += NL;
-                }
-            }
+            ret += _showFamily(i18n, gedcom, indi, fams, refs)
         }
         if (ret.length) return ' ' + NL +  "'''" + i18n.__('Relationships') + "'''" + NL + ret;
         return ret;

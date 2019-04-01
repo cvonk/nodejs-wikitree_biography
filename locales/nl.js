@@ -60,5 +60,11 @@
 	"baptism witness": "doopgetuige",
 	"Biography": "Biografie",
 	"Sources": "Bronnen",
-	"zelf": "zelf"
+	"zelf": "zelf",
+	"Oct": "Oct",
+	"Jun": "Jun",
+	"Jul": "Jul",
+	"Apr": "Apr",
+	"A+1944-02": "A+1944-02",
+	"A": "A"
 }

@@ -31,7 +31,7 @@ module.exports = {
                 case 'year': {
                     if (fqdate.isValid) {
                         const year = fqdate.year;
-                        if (year instanceof String) return module.exports.localizeDateStr(year);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
+                        if (year instanceof String) return module.exports.localizeDateStr(i18n, year);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
                         return year;  // an exact year is a Number
                     }
                     return 0;
@@ -61,7 +61,7 @@ module.exports = {
                 case 'wtgedcomx':
                 case 'us':
                 default:
-                    return fqdate.string(format);
+                    return module.exports.localizeDateStr(i18n, fqdate.string(format));
             }
         }
         return '';
@@ -104,6 +104,7 @@ module.exports = {
                 ['zoondochter', 'son', 'daughter', 'child'],
                 ['broerzus', 'brother', 'sister', 'sibling'],
                 ['hijzij', 'he', 'she', 'he/she'],
+                ['HijZij', 'He', 'She', 'He/She'],
                 ['hemhaar', 'him', 'her', 'him/her'],
                 ['gedcomx', 'Male', 'Female', 'Unknown' ]
             ];
@@ -161,7 +162,17 @@ module.exports = {
         function _hasLetters(str) {
             return str.toUpperCase() != str.toLowerCase()
         }
+
         if (str) {
+            let parts = str.split(/( ?[^a-zA-Z ]+ ?)/);
+            for (let ii in parts) {
+                const part = parts[ii];
+                if (_hasLetters(part)) {  // translate the phrases that contain letters
+                    // part = '>' + part + '<';
+                    parts[ii] = i18n.__(part);
+                }
+            }
+/* OLD            
             // split in thising in phrases containing letters and parts that do not contain letters
             // e.g. 'Jan en Piet 12 jaar' will separate in ['Jan en Piet', '12', 'jaar']
             let parts = str.split(' ');
@@ -182,6 +193,7 @@ module.exports = {
                     parts[ii] = i18n.__(part);
                 }
             }
+*/            
             return parts.join(' ');
         }
     }    

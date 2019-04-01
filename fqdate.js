@@ -49,7 +49,7 @@ module.exports = class FQDate {
             case 'us':
             default: pre = 'between '; inbetween = ' and ';
         }
-        return pre + this.qdates[0].string + inbetween + this.qdates[1].string;
+        return pre + this.qdates[0].string(format) + inbetween + this.qdates[1].string(format);
     }
 
     get year() {
