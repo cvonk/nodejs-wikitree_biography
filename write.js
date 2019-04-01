@@ -139,7 +139,7 @@ function _getDeath(i18n, gedcom, indi, refs, long) {
 function _aboutChild(i18n, gedcom, child, refs) {
     let ret = ''
     if (i18n && gedcom && child) {
-        ret += get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:given]|, born in [BIRT.DATE:year]|, [OCCU]');
+        ret += get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:givenaka]|, born in [BIRT.DATE:year]|, [OCCU]');
         ret += _getDeath(i18n, gedcom, child, false);
     }
     return ret;

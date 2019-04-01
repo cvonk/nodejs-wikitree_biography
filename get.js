@@ -200,9 +200,13 @@ module.exports = {
             const death = module.exports.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:year]');
             if (birth.length || death.length) {
                 ret += ' (';
-                if (birth.length) ret += birth;
+                if (birth.length) {
+                    ret += birth.replace('~ ', '~').replace('< ', '<').replace('> ', '>');
+                }
                 ret += '-';
-                if (death.length) ret += death;
+                if (death.length) {
+                    ret += death.replace('~ ', '~').replace('< ', '<').replace('> ', '>');
+                }
                 ret += ')';
             }
         }

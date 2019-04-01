@@ -149,6 +149,7 @@ module.exports = {
             switch (format) {
                 case "given": return given;
                 case "given1st": return given1st;
+                case "givenaka": return given + akaLong;
                 case "middle": return middle;
                 case "last": return last;
                 case "full": return given + akaLong + ' ' + last;

@@ -1,5 +1,6 @@
 {
 	"about": "~",
 	"after": ">",
-	"before": "<"
+	"before": "<",
+	"stillborn": "stillborn"
 }
