@@ -39,9 +39,9 @@ function _ageDiff(i18n, gedcom, sibling, refs) {
         const remainder = ret.substring(firstDigit, ret.length);
         if (remainder[0] == '-') {
             const pre = ret.substring(0, firstDigit);
-            ret = pre + remainder.slice(1) + ' ' + i18n.__('older');
+            ret = ', ' + pre + remainder.slice(1) + ' ' + i18n.__('older');
         } else {
-            ret += ' ' + i18n.__('younger');
+            ret = ', ' + ret + i18n.__('younger');
         }
     } else {  // perhaps the indi has a birthday in a date range or so ..
         const birthDate = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:world]');
@@ -133,7 +133,7 @@ let _detailsOf = {
         return ret;
     },
 
-    spouse: function(i18n, gedcom, spouse, refs, mar) {
+    spouse: function(i18n, gedcom, spouse, refs) {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] ); // 'mar' is optional
 
         let ret = '';
@@ -141,10 +141,9 @@ let _detailsOf = {
         value.birthday = new FQDate(spouse.BIRT && spouse.BIRT.DATE ? spouse.BIRT.DATE.value : undefined);
         {
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' with [NAME:full]');
-            ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])');
+            //ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])');
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]') + '.';
             ret += _detailsOf.parent(i18n, gedcom, spouse, refs);
-            //const firstName = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]'); 
             ret += _detailsOf.death(i18n, gedcom, spouse, refs, true);
         }
         value.birthday = saved;
@@ -234,6 +233,32 @@ let _list = {
             ret += NL + '* ' + child.text + '.';
         }
         return ret;
+    },
+
+    marriages: function(i18n, gedcom, refs, fam) {        
+        util.assertTypes( arguments, ['object', 'object', 'object', 'object']);
+
+        let ret = '';
+        let mars = get.byName(gedcom, fam, 'MARR');  // some people are married at 2 different churches
+        if (mars.length) {
+            for (let mar of mars) {
+                ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])|, married [DATE]');
+            }
+        }
+        return ret;
+    },
+
+    divorces: function(i18n, gedcom, refs, fam) {        
+        util.assertTypes( arguments, ['object', 'object', 'object', 'object']);
+
+        let ret = '';
+        let divs = get.byName(gedcom, fam, 'DIV');
+        if (divs.length) {
+            for (let div of divs) {
+                ret += get.byTemplate(i18n, gedcom, div, refs, ', divorced [DATE]');
+            }
+        }
+        return ret;
     }
 };
 
@@ -313,33 +338,26 @@ let _about = {
         if (indi.FAMS) {
             const fams = get.byName(gedcom, indi, 'FAMS');
             for (let fam of fams) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]');            
+                let spouse = get.spouse(i18n, gedcom, fam, indi);
+                let spouseName = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]');
+                if (!spouseName.length) spouseName = i18n.__('unknown partner');
 
-                let mars = get.byName(gedcom, fam, 'MARR');  // some people are married at 2 different churches
-                if (mars[0]) {
-                    for (let mar of mars) {
-                        ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])|, married on [DATE]');
-                    }
-                }
-                let divs = get.byName(gedcom, fam, 'DIV');  // some people are married at 2 different churches
-                if (divs[0]) {
-                    for (let div of divs) {
-                        ret += get.byTemplate(i18n, gedcom, div, refs, ', divorced [DATE]');
-                    }
-                }
-                let spouse = get.spouse(i18n, gedcom, fam, indi);              
+                let text = '';
                 if (spouse) {
-                    ret += _detailsOf.spouse(i18n, gedcom, spouse, refs, mars[0]);
-                }        
+                    let partnerText = _list.marriages(i18n, gedcom, indi, refs, fam) + _list.divorces(i18n, gedcom, indi, refs, fam);
+                    partnerText += _detailsOf.spouse(i18n, gedcom, spouse, refs);
+                    if (partnerText.length)  {
+                        text += NL + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + partnerText;
+                    }
+                }       
                 if (fam.CHIL) {
-                    ret += get.byTemplate(i18n, gedcom, indi, refs, ' Children of [NAME:first]');
-                    ret += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]:') + NL;
-                    ret += _list.children(i18n, gedcom, indi, refs, fam);
+                    text += NL;
+                    text += get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');
+                    text += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]:') + NL;
+                    text += _list.children(i18n, gedcom, indi, refs, fam);
                 }
-                if (ret.length) {
-                    let spouseName = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]');
-                    if (!spouseName.length) spouseName = i18n.__('unknown partner');
-                    ret = NL + ' ' + NL +  "'''" + i18n.__('Relationship with') + ' ' + spouseName + "'''" + NL + NL + ret;
+                if (text.length) {
+                    ret += NL + ' ' + NL +  "'''" + i18n.__('Relationship with') + ' ' + spouseName + "'''" + NL + text;
                 }
             }
         }

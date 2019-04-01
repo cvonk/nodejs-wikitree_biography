@@ -82,5 +82,6 @@
 	"departure": "departure",
 	"Unknown": "Unknown",
 	"born": "born",
-	"Relationship with": "Relationship with"
+	"Relationship with": "Relationship with",
+	"Siblings": "Siblings"
 }
