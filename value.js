@@ -30,8 +30,8 @@ module.exports = {
             switch (format) {
                 case 'year': {
                     if (fqdate.isValid) {
-                        const year = fqdate.year(i18n);
-                        if (year instanceof String) return i18n.__(fqdate.qualifier);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
+                        const year = fqdate.year;
+                        if (year instanceof String) return module.exports.localizeDateStr(year);  // e.g. 'stillborn', 'about 2012' or '1910-1912'
                         return year;  // an exact year is a Number
                     }
                     return 0;
@@ -61,7 +61,7 @@ module.exports = {
                 case 'wtgedcomx':
                 case 'us':
                 default:
-                    return fqdate.string(i18n, format);
+                    return fqdate.string(format);
             }
         }
         return '';
@@ -149,10 +149,40 @@ module.exports = {
                 case "middle": return middle;
                 case "last": return last;
                 case "full": return given + akaLong + ' ' + last;
+                case "givenlast": return given + ' ' + last;
                 case "aka": return aka;
                 case "first": return first;
                 default: return given + ' ' + last;
             }
         }
     },
+
+    localizeDateStr: function(i18n, str) {
+        function _hasLetters(str) {
+            return str.toUpperCase() != str.toLowerCase()
+        }
+        if (str) {
+            // split in thising in phrases containing letters and parts that do not contain letters
+            // e.g. 'Jan en Piet 12 jaar' will separate in ['Jan en Piet', '12', 'jaar']
+            let parts = str.split(' ');
+            let prevPartHasLetters = false;
+            for (let ii = 0; ii < parts.length; ii++) {
+                const part = parts[ii];
+                const partHasLetters = _hasLetters(part);
+                if (partHasLetters && prevPartHasLetters) {
+                    parts[ii-1] = parts[ii-1] + ' ' + parts[ii];
+                    parts.splice(ii--, 1);  // -- because the for-loop will have to step back
+                }
+                prevPartHasLetters = partHasLetters;
+            }
+            // call the function 'fnc' for the phrases that contain letters (e.g. for translation using i18n)
+            for (let ii in parts) {
+                const part = parts[ii];
+                if (_hasLetters(part)) {
+                    parts[ii] = i18n.__(part);
+                }
+            }
+            return parts.join(' ');
+        }
+    }    
 }

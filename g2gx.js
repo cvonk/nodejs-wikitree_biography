@@ -145,7 +145,6 @@ module.exports = {
                 .addPersonGedcom(i18n, gedcom, mother, 'http://gedcomx.org/ParentChild')
                 .addAgent()
                 .addSourceDescription(i18n, sourceDescription);
-            //console.log(JSON.stringify(gedcomx));
             return gedcomx;
         }
     }

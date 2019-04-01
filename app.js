@@ -38,12 +38,12 @@ var app = express();
 
 const gedcomFname = process.argv[2];
 if (process.argc >= 2 || !gedcomFname) {
-    console.log("No GEDCOM file specified.")
-    return -1;
+    console.log("No GEDCOM file specified.");
+    return;
 }
 if (!fs.existsSync(gedcomFname)) {
     console.log("GEDCOM file (" + gedcomFname + ') doesn\'t exist');
-    return -2;
+    return;
 }
 
 // parse the GEDCOM file, and make it accessible through a web server instance at http:///localhost:8080
@@ -83,8 +83,8 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
         let indis = get.byName(gedcom, gedcom, 'INDI');
         let i18n = new I18n({ locales: ['xx'] }); // all we need here to shorten 'before', 'about', 'after' to '<', '~', '>'
         for (let indi of indis) {
-            let obj = get.byName(gedcom, indi, 'NAME:full');
-            let name = value.name(obj, 'full') + get.lifeSpan(i18n, gedcom, indi, undefined);
+            let obj = get.byName(gedcom, indi, 'NAME');
+            let name = value.name(obj, 'givenlast') + get.lifeSpan(i18n, gedcom, indi, undefined);
             if (indi.wtUsername) {
                 name += ' [' + indi.wtUsername + ']';
             }

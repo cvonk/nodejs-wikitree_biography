@@ -6,17 +6,16 @@
 
 var QDate = require('./qdate.js');
 
-class FQDate {
+module.exports = class FQDate {
 
     constructor(gedcomDate) {    
-
-        if (gedcomDate == 'STILLBORN') { 
-            this.qualifier = 'stillborn';
-            this.isValid = true;
-            return;
-        }
-        this.qdates = [];
         if (gedcomDate) {
+            if (!/\d/.test(gedcomDate)) {  // e.g. 'STILLBORN' doesn't contain a digit
+                this.qualifier = gedcomDate.toLowerCase();
+                this.isValid = true;
+                return;
+            }
+            this.qdates = [];
             let singleDates = [gedcomDate];
             if (gedcomDate.substr(0, 3) == 'BET') {
                 let valid = true;
@@ -36,24 +35,24 @@ class FQDate {
         }
     }
 
-    string(i18n, format) {
+    string(format) {
         if (this.qualifier) {
-            return i18n.__(this.qualifier);
+            return this.qualifier;
         }
         if (this.qdates.length == 1) {
-            return this.qdates[0].string(i18n, format);
+            return this.qdates[0].string(format);
         }
         let pre = '', inbetween = '';
         switch (format) {
             case 'iso': inbetween = '/'; break;
             case 'world': 
             case 'us':
-            default: pre = i18n.__('between') + ' '; inbetween = ' ' + i18n.__('and') + ' ';
+            default: pre = 'between '; inbetween = ' and ';
         }
-        return pre + this.qdates[0].string(i18n, format) + inbetween + this.qdates[1].string(i18n, format);
+        return pre + this.qdates[0].string + inbetween + this.qdates[1].string;
     }
 
-    year(i18n) {
+    get year() {
         if (this.isValid) {
             if (this.qualifier) return this.qualifier;
             if (this.qdates) {
@@ -62,7 +61,7 @@ class FQDate {
                 if (!lo) lo = hi;
                 if (!hi) hi = lo;
                 if (lo == hi) {
-                    const loQual = this.qdates[0].qualifierString(i18n);
+                    const loQual = this.qdates[0].qualifierString;
                     if (loQual) return loQual + ' ' + lo; // e.g. 'about 20-02-2002'
                     return lo;  // the simple case where the year is a Number
                 }
@@ -81,5 +80,3 @@ class FQDate {
     get yearHi()  { return this.qdates[this.isRange ? 1 : 0].yearHi; }
     get monthHi() { return this.qdates[this.isRange ? 1 : 0].monthHi; }
 }
-
-module.exports = FQDate;
