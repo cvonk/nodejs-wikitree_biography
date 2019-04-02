@@ -117,8 +117,8 @@ function _getIndividualDetails(listId, inputId) {
              */
             const resp = JSON.parse(xmlhttp.responseText);
             if (resp.status == 'success') {
-                document.getElementById("step2").setAttribute('tv', 'on');
-                document.getElementById("step3").setAttribute('tv', 'off');
+                document.getElementById("step2-detail").setAttribute('tv', 'on');
+                document.getElementById("step3-detail").setAttribute('tv', 'off');
                 const person = resp.person;
 
                 const ids = {  // the WikiTree search form doesn't support all the fields at once
@@ -178,7 +178,7 @@ function _reqMergeEditForm(evt) {  // called when mergeEditForm is completed
     }
     const gedcomId = document.getElementById('gedcomId').value;
     _putGedcomId2WtUsername(gedcomId, wtUsername);  // store the gedcomId - wtUsername mapping on our server
-    document.getElementById("step3").setAttribute('tv', 'on');
+    document.getElementById("step3-detail").setAttribute('tv', 'on');
     
     mergeEditForm.action = 'https://www.wikitree.com/wiki/Special:MergeEdit';
     mergeEditForm.submit();
@@ -189,9 +189,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const _individualsInputId = "individuals";
     const _individualsListId = "individualsList";
 
-    document.getElementById("step1").setAttribute('tv', 'on');
-    document.getElementById("step2").setAttribute('tv', 'off');
-    document.getElementById("step3").setAttribute('tv', 'off');
+    document.getElementById("step1-detail").setAttribute('tv', 'on');
+    document.getElementById("step2-detail").setAttribute('tv', 'off');
+    document.getElementById("step3-detail").setAttribute('tv', 'off');
 
     // button and input listeners
     document.getElementById('individuals').addEventListener('input', function () { _getIndividualDetails(_individualsListId, _individualsInputId) });

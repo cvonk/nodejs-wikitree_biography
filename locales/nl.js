@@ -90,5 +90,7 @@
 	"naturalization": "inburgering",
 	"event": "gebeurtenis",
 	"religion": "gezinte",
-	"baptized": "gedoopt"
+	"baptized": "gedoopt",
+	"additional info": "aanvullende info",
+	"address": "adres"
 }

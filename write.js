@@ -161,9 +161,10 @@ let _detailsOf = {
         {
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' with [NAME:full]');
             //ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])');
-            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]') + '.';
-            ret += _detailsOf.parent(i18n, gedcom, spouse, refs);
+            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]') + '. ';
+            ret += _detailsOf.parent(i18n, gedcom, spouse, refs) + ' ';
             ret += _detailsOf.death(i18n, gedcom, spouse, refs, true);
+            ret += '.';
         }
         value.birthday = saved;
         return ret;
@@ -173,6 +174,9 @@ let _detailsOf = {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = _detailsOf.death(i18n, gedcom, indi, refs, true);
+        //if (ret.length) {
+        //    return get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + ret;
+        //}
         return ret;
     },
 
@@ -301,9 +305,7 @@ let _about = {
                 break;
             }
         }
-        //if (indi.BIRT && indi.BIRT.DATE) {
-            value.birthday = new FQDate(_birthOrBaptDate(indi));  // for calculating ages later
-        //}
+        value.birthday = new FQDate(_birthOrBaptDate(indi));  // for calculating ages later
         let i18n = new I18n({ locales: [locale] });
         return i18n;
     },
@@ -349,14 +351,16 @@ let _about = {
             'ENGA': 'engagement',
             'GRAD': 'graduation',
             'IMML': 'immigration',
+            'LOAN': 'loan',
             'NATU': 'naturalization',
-            'NOTE': 'additional information',
+            //'NOTE': 'additional info',
             'RELI': 'religion'};
         for (let key in tags) {
             if (indi[key]) {
                 const facts = get.byName(gedcom, indi, key);
                 for (let fact of facts) {
-                    ret += NL + "* ''" + i18n.__(tags[key]) + "'',";
+                    const label = (key == 'EVEN' && fact.TYPE) ? fact.TYPE.value : tags[key];
+                    ret += NL + "* ''" + i18n.__(label.toLowerCase()) + "'',";
                     ret += _detailsOf.fact(i18n, gedcom, fact, refs) + '.';
                 }
             }
@@ -385,7 +389,7 @@ let _about = {
                     }
                 }       
                 if (fam.CHIL) {
-                    text += NL;
+                    text += NL + ' ' + NL;
                     text += get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');
                     text += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]:') + NL;
                     text += _list.children(i18n, gedcom, indi, refs, fam);
@@ -475,34 +479,3 @@ module.exports = {
         }
     }
 };
-
-/*
-function _detailsOf.death(i18n, gedcom, indi, refs) {
-    let ret = '';
-    if (i18n && gedcom && indi && indi.DEAT && indi.DEAT.DATE) {
-        if (indi.BIRT && indi.BIRT.DATE) {
-            const saved = value.birthday;
-            {
-                value.birthday = new FQDate(indi.BIRT.DATE.value);
-                const deathAge = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:age]');
-                if (deathAge.length) {
-                    ret += ', ' + (deathAge == 'stillborn' ? i18n.__(deathAge) : i18n.__('died at age') + ' ' + deathAge);
-                }
-            }
-            value.birthday = saved;
-        } else {
-            const deathDate = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:world]');
-            if (deathDate.length) {
-                ret += ', ' + (deathDate == 'stillborn' ? i18n.__(deathDate) : i18n.__('died on') + ' ' + deathDate);
-            }
-        }
-    }
-    return ret;    
-}
-*/
-            /* OLD
-            let death = get.byTemplate(i18n, gedcom, spouse, refs, ' died on [DEAT:world]| ([DEAT.DATE:age])| due to [DEAT.CAUS]');
-            if (death.length) {
-                ret += ' ' + get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]|') + death + '.';
-            }
-            */

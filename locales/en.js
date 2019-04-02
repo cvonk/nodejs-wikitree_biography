@@ -86,5 +86,9 @@
 	"Siblings": "Siblings",
 	"at age": "at age",
 	"is in a relation": "is in a relation",
-	"reliability": "reliability"
+	"reliability": "reliability",
+	"married": "married",
+	"address": "address",
+	"education": "education",
+	"divorce": "divorce"
 }

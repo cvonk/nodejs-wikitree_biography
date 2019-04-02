@@ -4,11 +4,9 @@
 var value = require('./value.js'),
     util = require('./util.js');
 
-const NL = "\n";
-
 function _id2typeName(id) {
     if (id) {
-        const types = ["FAM", "INDI", "SOUR", "REPO"];
+        const types = ["FAM", "INDI", "SOUR", "REPO", "NOTE"];
         for (let type of types) {
             if (type[0] == id[1]) {
                 return type;
