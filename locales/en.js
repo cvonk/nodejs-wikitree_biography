@@ -90,5 +90,10 @@
 	"married": "married",
 	"address": "address",
 	"education": "education",
-	"divorce": "divorce"
+	"divorce": "divorce",
+	"child": "child",
+	"unknown partner": "unknown partner",
+	"died": "died",
+	"old": "old",
+	"naturalization": "naturalization"
 }

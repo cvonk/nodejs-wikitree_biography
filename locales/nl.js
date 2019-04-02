@@ -29,7 +29,7 @@
 	"died on": "is overleden op",
 	"died at age": "overleed op een leeftijd van",
 	"due to": "ten gevolge van",
-	"worked as": "is van beroep",
+	"worked as": "was van beroep",
 	"half": "stief",
 	"Half siblings": "Stiefbroers en -zussen",
 	"lived at": "woonde op",
@@ -92,5 +92,8 @@
 	"religion": "gezinte",
 	"baptized": "gedoopt",
 	"additional info": "aanvullende info",
-	"address": "adres"
+	"address": "adres",
+	"died": "overleed",
+	"old": "oud",
+	"divorce": "divorce"
 }

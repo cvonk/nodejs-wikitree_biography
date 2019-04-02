@@ -101,8 +101,8 @@ let _detailsOf = {
                     let deathAge = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:age]');  // gets the age, or the date when there is 'about' or some other qualifier
                     if (deathAge.length) {
                         if (long) {
-                            ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT:us]');
-                            ret += ', ' + (deathAge == 'stillborn' ? i18n.__(deathAge) : i18n.__('at age') + ' ' + deathAge);
+                            ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died [DEAT:us]');
+                            ret += ', ' + (deathAge == 'stillborn' ? i18n.__(deathAge) : deathAge + ' ' + i18n.__('old'));
                             ret += get.byTemplate(i18n, gedcom, indi, refs, ' due to [DEAT.CAUS]|');
                         } else {
                             ret += ', ' + (deathAge == 'stillborn' ? i18n.__(deathAge) : i18n.__('died at age') + ' ' + deathAge);
@@ -360,7 +360,7 @@ let _about = {
                 const facts = get.byName(gedcom, indi, key);
                 for (let fact of facts) {
                     const label = (key == 'EVEN' && fact.TYPE) ? fact.TYPE.value : tags[key];
-                    ret += NL + "* ''" + i18n.__(label.toLowerCase()) + "'',";
+                    ret += NL + "* " + i18n.__(label.toLowerCase()) + ": ";
                     ret += _detailsOf.fact(i18n, gedcom, fact, refs) + '.';
                 }
             }
