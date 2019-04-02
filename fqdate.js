@@ -44,6 +44,7 @@ module.exports = class FQDate {
         }
         let pre = '', inbetween = '';
         switch (format) {
+            case 'wtgedcomx':
             case 'iso': inbetween = '/'; break;
             case 'world': 
             case 'us':

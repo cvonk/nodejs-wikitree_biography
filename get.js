@@ -1,7 +1,9 @@
 /** @module get retrieve selected GEDCOM records */
 /** @author Coert Vonk <MY.NAME@gmail.com> */
 
-var value = require('./value.js');
+var value = require('./value.js'),
+    util = require('./util.js');
+
 const NL = "\n";
 
 function _id2typeName(id) {
@@ -38,7 +40,7 @@ function _fieldValue(i18n, gedcom, obj, refs, fields) {
                 case 'NAME': ret += value.name(obj, format); break;
                 case 'SEX': ret += value.sex(i18n, obj, format); break;
                 case 'BIRT':
-                case 'BAPT':
+                case 'BAPM':
                 case 'DEAT':
                 case 'MARR': ret += module.exports.byTemplate(i18n, gedcom, obj[0], refs, '[DATE:' + format + ']| in [PLAC]'); break;
                 case 'PLAC': ret += value.place(obj, format); break;
@@ -186,7 +188,7 @@ module.exports = {
                         ret += ' ' + i18n.__('accessed via') + ' ' + r.NAME.value + '.';
                     }
                 }
-                ret += NL;
+                //ret += NL;
             }
         }
         return ret;
@@ -196,8 +198,9 @@ module.exports = {
         let ret = '';
         if (gedcom && indi) {
             let birth = module.exports.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]');
-            if (!birth.length) birth = module.exports.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
+            if (!birth.length) birth = module.exports.byTemplate(i18n, gedcom, indi, refs, '[BAPM.DATE:year]');
             const death = module.exports.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:year]');
+
             if (birth.length || death.length) {
                 ret += ' (';
                 if (birth.length) {
@@ -211,5 +214,22 @@ module.exports = {
             }
         }
         return ret;
+    },
+
+    siblingBirthOrBaptAge: function(i18n, gedcom, sibling, refs) {
+        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
+    
+        const birth = this.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
+        const baptized = this.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:age]');
+
+        if (birth.length) {
+            const atMostStr = i18n.__('at most');
+            if (birth.startsWith(atMostStr) && !baptized.startsWith(atMostStr)) {
+                return baptized;
+            }
+            return birth;
+        } else {
+            return baptized;
+        }
     }
 }

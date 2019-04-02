@@ -81,5 +81,14 @@
 	"born": "geboren",
 	"residence": "woont",
 	"divorced": "gescheiden",
-	"unknown partner": "onbekende partner"
+	"unknown partner": "onbekende partner",
+	"is in a relation": "heeft een relatie",
+	"reliability": "betrouwbaarheid",
+	"about May": "about May",
+	"married": "trouwde",
+	"education": "opleiding",
+	"naturalization": "inburgering",
+	"event": "gebeurtenis",
+	"religion": "gezinte",
+	"baptized": "gedoopt"
 }

@@ -18,6 +18,22 @@ function _nameYearsOcc(i18n, gedcom, indi, refs) {
     return ret;
 }
 
+function _birthOrBaptDate(indi) {  // when only baptized is avail, the birth date is typically encoded as "BEF" the baptized date
+    if (!indi) return '';
+
+    const birth = indi.BIRT && indi.BIRT.DATE ? indi.BIRT.DATE.value : '';
+    const baptized = indi.BAPM && indi.BAPM.DATE ? indi.BAPM.DATE.value : '';
+
+    if (birth.length) {
+        if (birth.startsWith('BEF') && !baptized.startsWith('BEF')) {
+            return baptized;
+        }
+        return birth;
+    } else {
+        return baptized;
+    }
+}
+
 /*
 function _parentsFirstNames(i18n, gedcom, fam, refs) {
     util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
@@ -33,7 +49,7 @@ function _parentsFirstNames(i18n, gedcom, fam, refs) {
 function _ageDiff(i18n, gedcom, sibling, refs) {
     util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
-    let ret = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
+    let ret = get.siblingBirthOrBaptAge(i18n, gedcom, sibling, refs);
     if (ret.length) {
         const firstDigit = ret.length - ret.replace(/^[^-0-9]+/, '').length;  // could have a prefix such as 'about' before the '-' sign
         const remainder = ret.substring(firstDigit, ret.length);
@@ -41,12 +57,15 @@ function _ageDiff(i18n, gedcom, sibling, refs) {
             const pre = ret.substring(0, firstDigit);
             ret = ', ' + pre + remainder.slice(1) + ' ' + i18n.__('older');
         } else {
-            ret = ', ' + ret + i18n.__('younger');
+            ret = ', ' + ret + ' ' + i18n.__('younger');
         }
     } else {  // perhaps the indi has a birthday in a date range or so ..
-        const birthDate = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:world]');
+        let birthDate = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:world]');
+        let baptizedDate = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:world]');
         if (birthDate.length) {
-            ret += ', ' + (birthDate == 'stillborn' ? i18n.__(birthDate) : i18n.__('born on') + ' ' + birthDate);
+            ret += ', ' + (birthDate == 'stillborn' ? i18n.__(birthDate) : i18n.__('born') + ' ' + birthDate);
+        } else if(baptizedDate.length) {
+            ret += ', ' + (birthDate == 'stillborn' ? i18n.__(birthDate) : i18n.__('baptized') + ' ' + birthDate);
         }
     }
     return ret;
@@ -58,14 +77,14 @@ let _detailsOf = {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         const birth = get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]');
-        const baptized = get.byTemplate(i18n, gedcom, indi, refs, '[BAPT.DATE:year]');
+        const baptized = get.byTemplate(i18n, gedcom, indi, refs, '[BAPM.DATE:year]');
         let ret = get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]');
         if (birth) {
-            ret += get.byTemplate(i18n, gedcom, indi, refs, ' born on [BIRT:us]');
+            ret += get.byTemplate(i18n, gedcom, indi, refs, ' born [BIRT:us]');
         }
-        if (birth && baptized) ret += " and";
+        if (birth && baptized) ret += ' ' + i18n.__('and');
         if (baptized) {
-            ret += get.byTemplate(i18n, gedcom, indi, refs, ' baptized on [BAPT:world]');
+            ret += get.byTemplate(i18n, gedcom, indi, refs, ' baptized [BAPM:world]');
         }
         return ret;
     },
@@ -78,12 +97,12 @@ let _detailsOf = {
             if (indi.BIRT && indi.BIRT.DATE) {
                 const saved = value.birthday;
                 {
-                    value.birthday = new FQDate(indi.BIRT.DATE.value);
+                    value.birthday = new FQDate(_birthOrBaptDate(indi));
                     let deathAge = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:age]');  // gets the age, or the date when there is 'about' or some other qualifier
                     if (deathAge.length) {
                         if (long) {
                             ret += get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]| died on [DEAT:us]');
-                            ret += ', (' + (deathAge == 'stillborn' ? i18n.__(deathAge) : i18n.__('at age') + ' ' + deathAge) + ')';
+                            ret += ', ' + (deathAge == 'stillborn' ? i18n.__(deathAge) : i18n.__('at age') + ' ' + deathAge);
                             ret += get.byTemplate(i18n, gedcom, indi, refs, ' due to [DEAT.CAUS]|');
                         } else {
                             ret += ', ' + (deathAge == 'stillborn' ? i18n.__(deathAge) : i18n.__('died at age') + ' ' + deathAge);
@@ -129,7 +148,7 @@ let _detailsOf = {
         let ret = get.byTemplate(i18n, gedcom, obj, refs, ' [DATE]');    
         if (obj.TYPE) ret += ' ' + i18n.__(obj.TYPE.value.toLowerCase());
         ret += get.byTemplate(i18n, gedcom, obj, refs, ' in [PLAC]');
-        if (obj.value) ret += ', ' + obj.value;
+        if (obj.value) ret += ' ' + obj.value;
         return ret;
     },
 
@@ -138,7 +157,7 @@ let _detailsOf = {
 
         let ret = '';
         const saved = value.birthday;
-        value.birthday = new FQDate(spouse.BIRT && spouse.BIRT.DATE ? spouse.BIRT.DATE.value : undefined);
+        value.birthday = new FQDate(_birthOrBaptDate(spouse));
         {
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' with [NAME:full]');
             //ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])');
@@ -153,7 +172,7 @@ let _detailsOf = {
     old: function(i18n, gedcom, indi, refs) {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
-        let ret = _detailsOf.death(i18n, gedcom, indi, refs, true) + '.' + NL;
+        let ret = _detailsOf.death(i18n, gedcom, indi, refs, true);
         return ret;
     },
 
@@ -161,7 +180,7 @@ let _detailsOf = {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'string'] );
 
         let ret = '';
-        const name = get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:given]| "[NAME:aka]"');
+        const name = get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:givenaka]"');
         if (prefix == 'self') {
             ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hemhaar]self') + ', ' + name;
         } else {
@@ -245,6 +264,7 @@ let _list = {
                 ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])|, married [DATE]');
             }
         }
+        if (!ret.length) ret += ' ' + i18n.__('is in a relation');
         return ret;
     },
 
@@ -252,10 +272,13 @@ let _list = {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object']);
 
         let ret = '';
-        let divs = get.byName(gedcom, fam, 'DIV');
-        if (divs.length) {
-            for (let div of divs) {
-                ret += get.byTemplate(i18n, gedcom, div, refs, ', divorced [DATE]');
+        const tags = {'DIV': 'divorce', 'ANUL': 'annulment'};
+        for (let tag in tags) {
+            let objs = get.byName(gedcom, fam, tag);
+            if (objs.length) {
+                for (let obj of objs) {
+                    ret += get.byTemplate(i18n, gedcom, obj, refs, ', ' + tags[tag] + ' [DATE]');
+                }
             }
         }
         return ret;
@@ -269,7 +292,7 @@ let _about = {
 
         const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en', 'Germany': 'de', 'Belgium': 'nl'}; // add locales here
         let birth = indi.BIRT && indi.BIRT.PLAC ? indi.BIRT.PLAC.value : undefined;
-        let baptized = indi.BAPT && indi.BAPT.PLAC ? indi.BAPT.PLAC.value : undefined;
+        let baptized = indi.BAPM && indi.BAPM.PLAC ? indi.BAPM.PLAC.value : undefined;
         let death = indi.DEAT && indi.DEAT.PLAC ? indi.DEAT.PLAC.value : undefined;
         let locale = 'en';
         for (let key in locales) {
@@ -278,9 +301,9 @@ let _about = {
                 break;
             }
         }
-        if (indi.BIRT && indi.BIRT.DATE) {
-            value.birthday = new FQDate(indi.BIRT.DATE.value);  // for calculating ages later
-        }
+        //if (indi.BIRT && indi.BIRT.DATE) {
+            value.birthday = new FQDate(_birthOrBaptDate(indi));  // for calculating ages later
+        //}
         let i18n = new I18n({ locales: [locale] });
         return i18n;
     },
@@ -312,18 +335,29 @@ let _about = {
 
         let ret = ""
         if (indi.OCCU) {
-            ret += get.byTemplate(i18n, gedcom, indi, refs, '[SEX:HijZij]| worked as [OCCU].' + NL);
+            ret += get.byTemplate(i18n, gedcom, indi, refs, NL + '[SEX:HijZij]| worked as [OCCU].');
         }    
-        if (indi.ADDR || indi.EVEN) {
-            //ret += get.byTemplate(i18n, gedcom, indi, refs, 'Other facts about [SEX:hemhaar]:') + NL;
-            for (let src of ['ADDR', 'EVEN']) {
-                if (indi[src]) {
-                    const facts = get.byName(gedcom, indi, src);
-                    for (let fact of facts) {
-                        ret += NL + '*';
-                        if (src == 'ADDR') ret += ' ' + i18n.__('residence');
-                        ret += _detailsOf.fact(i18n, gedcom, fact, refs) + '.';
-                    }
+        //ret += get.byTemplate(i18n, gedcom, indi, refs, 'Other facts about [SEX:hemhaar]:') + NL;
+        const tags = {'ADDR': 'address', 
+            'EVEN': 'event',
+            'ADOP': 'adoption',
+            'ARVL': 'arrival',
+            'DPRT': 'departure',
+            'DESC': 'physical description',
+            'EDUC': 'education',
+            'EMIG': 'emigration',
+            'ENGA': 'engagement',
+            'GRAD': 'graduation',
+            'IMML': 'immigration',
+            'NATU': 'naturalization',
+            'NOTE': 'additional information',
+            'RELI': 'religion'};
+        for (let key in tags) {
+            if (indi[key]) {
+                const facts = get.byName(gedcom, indi, key);
+                for (let fact of facts) {
+                    ret += NL + "* ''" + i18n.__(tags[key]) + "'',";
+                    ret += _detailsOf.fact(i18n, gedcom, fact, refs) + '.';
                 }
             }
         }
@@ -344,7 +378,7 @@ let _about = {
 
                 let text = '';
                 if (spouse) {
-                    let partnerText = _list.marriages(i18n, gedcom, indi, refs, fam) + _list.divorces(i18n, gedcom, indi, refs, fam);
+                    let partnerText = _list.marriages(i18n, gedcom, refs, fam) + _list.divorces(i18n, gedcom, refs, fam);
                     partnerText += _detailsOf.spouse(i18n, gedcom, spouse, refs);
                     if (partnerText.length)  {
                         text += NL + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + partnerText;
@@ -370,7 +404,7 @@ let _about = {
         let ret = '';
         if (indi.DEAT) {
             ret += _detailsOf.old(i18n, gedcom, indi, refs);
-            if (ret.length) return NL + ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + NL + ret;
+            if (ret.length) return NL + ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + NL + ret + '.';
         }
         return ret;
     }
@@ -397,7 +431,7 @@ let References = class {
                 } else {
                     this.alreadyReferenced.push(shortId);
                     ret += '<ref name="' + shortId + '">';
-                    ret += get.sourceTitle(i18n, gedcom, sour.id) + '<BR />' + NL;
+                    ret += get.sourceTitle(i18n, gedcom, sour.id);
                     if (sour.PAGE) {
                         if (sour._LINK) {
                             ret += "'[" + sour._LINK.value + ' ' + sour.PAGE.value + "]'";
@@ -405,7 +439,7 @@ let References = class {
                             ret += "''" + sour.PAGE.value + "'";
                         }
                     }
-                    if (sour.QUAY) ret += ', quality ' + sour.QUAY.value + '/4';
+                    if (sour.QUAY) ret += ', ' + i18n.__('reliability') + ' ' + sour.QUAY.value + '/4';
                     if (sour.NOTE) ret += ' (' + sour.NOTE.value + ')';
                     if (sour.DATA && sour.DATA.TEXT) ret += '.' + NL + sour.DATA.TEXT.value;
                     ret += '</ref>';

@@ -6,7 +6,7 @@ var FQDate = require('./fqdate.js');
 function _age(i18n, aYear, aMonth, aDay, bYear, bMonth, bDay) {
     if (!aYear || !bYear) return '';  // need at least two years
     const end = new Date(aYear ? aYear : 0, aMonth ? aMonth - 1 : 0, aDay ? aDay : 1);
-    const start = new Date(bYear ? parseInt(bYear) : 0, bMonth ? bMonth - 1 : 0, bDay ? bDay : 1);  // parseInt, because of 1706/07 notation
+    const start = new Date(bYear ? bYear : 0, bMonth ? bMonth - 1 : 0, bDay ? bDay : 1);
     const days = Math.floor((end - start) / (1000 * 3600 * 24));
     const months = Math.floor(days * 12 / 365.25);
     const years = Math.floor(months / 12);
@@ -39,7 +39,7 @@ module.exports = {
                     return 0;
                 }
                 case 'age': {
-                    let birth = module.exports.birthday;
+                    let birth = this.birthday;
                     if (birth && birth.isValid && fqdate.isValid) {
                         if (fqdate.qualifier) return fqdate.qualifier;
                         if (birth.qualifier) return "Birth event shouldn't have qualifier (" + birth.qualifier + ").  Consider moving it to the death fact.";

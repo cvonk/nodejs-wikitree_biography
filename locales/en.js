@@ -83,5 +83,8 @@
 	"Unknown": "Unknown",
 	"born": "born",
 	"Relationship with": "Relationship with",
-	"Siblings": "Siblings"
+	"Siblings": "Siblings",
+	"at age": "at age",
+	"is in a relation": "is in a relation",
+	"reliability": "reliability"
 }

@@ -54,7 +54,7 @@ module.exports = class QDate {
             switch (parts.length) {                                           
                 case 3: this.day   = parts[parts.length - 3]; // fall through
                 case 2: this.month = parts[parts.length - 2]; // fall through
-                case 1: this.year  = parts[parts.length - 1];
+                case 1: this.year  = parseInt(parts[parts.length - 1]);  // parseInt, because of 1706/07 notation
             }
         }
     }
