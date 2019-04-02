@@ -21,7 +21,11 @@ Run the following in a terminal window, assuming you have already installed [nod
   1. Start typing a name, and select one from the drop-down list.  This will bring up the search results from WikiTree on the right.
   2. Find the matching profile id from the search results (they are in the format lastname-integer) and paste it on the left.
   3. Verify that the WikiTree profile matches the data from GEDCOM, and copy'n'paste the generated bio on the left to WikiTree. Press preview. Press `merge` on WikiTree.
-  
+
+### Localization
+
+The tool chooses a locale based on where the person is born, baptized or died.  It currently supports English, Dutch and some German.  You can easily add locales, by adding them to the `locales` directory and adding the Country Name to locale abbreviation mapping in `write.js` function `_about.init()` constant `locales`.
+
 ## Technical Details
 
 The general flow:
