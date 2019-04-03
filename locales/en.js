@@ -95,5 +95,7 @@
 	"unknown partner": "unknown partner",
 	"died": "died",
 	"old": "old",
-	"naturalization": "naturalization"
+	"naturalization": "naturalization",
+	"about Oct": "about Oct",
+	"religion": "religion"
 }

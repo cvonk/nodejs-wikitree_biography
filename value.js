@@ -1,7 +1,8 @@
 /** @module values support functions for GEDCOM app */
 /** @author Coert Vonk <MY.NAME@gmail.com> */
 
-var FQDate = require('./fqdate.js');
+var FQDate = require('./fqdate.js'),
+    placeAbbrevs = require('./place-abbrev.js');
 
 function _age(i18n, aYear, aMonth, aDay, bYear, bMonth, bDay) {
     if (!aYear || !bYear) return '';  // need at least two years
@@ -45,15 +46,17 @@ module.exports = {
                         if (birth.qualifier) return "Birth event shouldn't have qualifier (" + birth.qualifier + ").  Consider moving it to the death fact.";
                         let ageLo = _age(i18n, fqdate.yearLo, fqdate.monthLo, fqdate.dayLo, birth.yearHi, birth.monthHi, birth.dayHi);
                         let ageHi = _age(i18n, fqdate.yearHi, fqdate.monthHi, fqdate.dayHi, birth.yearLo, birth.monthLo, birth.dayLo);
+                        let age;
                         if (ageLo == ageHi) {
-                            return ageLo;
+                            age = ageLo;
                         } else if (!ageHi.length) { 
-                            return i18n.__('at least') + ' ' + ageLo;
+                            age = i18n.__('at least') + ' ' + ageLo;
                         } else if (!ageLo.length) {
-                            return i18n.__('at most') + ' ' + ageHi;
+                            age = i18n.__('at most') + ' ' + ageHi;
                         } else {
-                            return i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
+                            age = i18n.__('between') + ' ' + ageLo + ' ' + i18n.__('and') + ' ' + ageHi;
                         }
+                        return age + ' ' + i18n.__('old');
                     }
                 break;
                 }
@@ -86,10 +89,9 @@ module.exports = {
                     place = place.replace('Fairfield, Connecticut', 'Connecticut');
                     place = place.replace(', Bergen op Zoom', '');
                     place = place.replace(', Tholen', '');
-                    let endings = ['Noord-Brabant, Netherlands', 'Zeeland, Netherlands', 'USA', 'Netherlands'];
-                    for (let ending of endings) {
-                        if (place.endsWith(', ' + ending)) {
-                            return place.substring(0, place.length - ending.length - 2);
+                    for (let ending in placeAbbrevs) {
+                        if (place.endsWith(ending)) {
+                            return place.replace(ending, placeAbbrevs[ending]);
                         }
                     }
                     return place;
@@ -106,6 +108,7 @@ module.exports = {
                 ['zoondochter', 'son', 'daughter', 'child'],
                 ['broerzus', 'brother', 'sister', 'sibling'],
                 ['hijzij', 'her', 'she', 'he/she'],
+                ['hijzijzelf', 'heself', 'herself', 'self'],
                 ['HijZij', 'He', 'She', 'He/She'],
                 ['hemhaar', 'him', 'her', 'him/her'],
                 ['gedcomx', 'Male', 'Female', 'Unknown' ]

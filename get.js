@@ -150,7 +150,7 @@ module.exports = {
         }
     },
 
-    byTemplate: function (i18n, gedcom, obj, refs, templatesStr) {
+    byTemplate: function (i18n, gedcom, obj, refs, templatesStr, fnc) {
         let ret = "";
         if (obj && templatesStr) {
             const templates = templatesStr.split('|');
@@ -161,14 +161,16 @@ module.exports = {
                     const oo = module.exports.byName(gedcom, obj, fieldName);
                     if (oo && oo[0]) {
                         const text = _fieldValue(i18n, gedcom, oo, refs, fieldName);
-                        if (text.length) {
+                        if (text) {
                             ret += _trimmedI18n(i18n, pre) + text + _trimmedI18n(i18n, post);
-                            //ret += value.localizeDateStr(i18n, pre) + text + value.localizeDateStr(i18n, post);
                         }
                     }
                 } else {
                     ret += pre;
                 }
+            }
+            if (ret && fnc) {
+                ret = fnc(ret);
             }
         }
         return ret;
@@ -212,22 +214,6 @@ module.exports = {
             }
         }
         return ret;
-    },
-
-    siblingBirthOrBaptAge: function(i18n, gedcom, sibling, refs) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
-    
-        const birth = this.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
-        const baptized = this.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:age]');
-
-        if (birth.length) {
-            const atMostStr = i18n.__('at most');
-            if (birth.startsWith(atMostStr) && !baptized.startsWith(atMostStr)) {
-                return baptized;
-            }
-            return birth;
-        } else {
-            return baptized;
-        }
     }
-}
+
+ }

@@ -29,7 +29,7 @@
 	"died on": "is overleden op",
 	"died at age": "overleed op een leeftijd van",
 	"due to": "ten gevolge van",
-	"worked as": "was van beroep",
+	"worked as": "werkte als",
 	"half": "stief",
 	"Half siblings": "Stiefbroers en -zussen",
 	"lived at": "woonde op",
@@ -50,7 +50,9 @@
 	"is geboren op": "is geboren op",
 	"dies at age": "overlijdt met",
 	"year": "jaar",
-	"self": " zelf",
+	"heself": "hijzelf",
+	"sheself": "zijzelf",
+	"self": "zelf",
 	"and/or": "en/of",
 	"born on": "geboren op",
 	"baptized on": "gedoopt op",
@@ -95,5 +97,7 @@
 	"address": "adres",
 	"died": "overleed",
 	"old": "oud",
-	"divorce": "divorce"
+	"divorce": "echtscheiding",
+	"marriage": "huwelijk",
+	"loan": "lening"
 }

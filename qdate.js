@@ -88,7 +88,7 @@ module.exports = class QDate {
                     case 'about':  ret +='A'; break;
                     case 'before': ret += '/'; break;
                     case 'after':  post = '/'; break;
-                    default:;
+                    //default: ret += this.qualifier;
                 }
                 ret += '+';
                 if (this.year)  ret += this.yearString;
@@ -107,7 +107,7 @@ module.exports = class QDate {
             case 'us':
             default: {
                 if (this.qualifier) ret += this.qualifier + ' ';
-                if (this.day)   ret += this.dayString + ' ';
+                if (this.day)   ret +=  this.day + ' '; // single digit when possible
                 if (this.month) ret += _monthAbrevs[this.month - 1] + ' ';
                 if (this.year)  ret += this.yearString;
             }
