@@ -108,7 +108,7 @@ module.exports = {
                 ['zoondochter', 'son', 'daughter', 'child'],
                 ['broerzus', 'brother', 'sister', 'sibling'],
                 ['hijzij', 'her', 'she', 'he/she'],
-                ['hijzijzelf', 'heself', 'herself', 'self'],
+                ['hijzijzelf', 'himself', 'herself', 'self'],
                 ['HijZij', 'He', 'She', 'He/She'],
                 ['hemhaar', 'him', 'her', 'him/her'],
                 ['gedcomx', 'Male', 'Female', 'Unknown' ]

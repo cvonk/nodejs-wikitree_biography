@@ -97,5 +97,8 @@
 	"old": "old",
 	"naturalization": "naturalization",
 	"about Oct": "about Oct",
-	"religion": "religion"
+	"religion": "religion",
+	"baptized": "baptized",
+	"heself": "heself",
+	"himself": "himself"
 }

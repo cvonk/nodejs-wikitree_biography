@@ -243,7 +243,7 @@ let _detailsOf = {
 
 let _list = {
 
-    children: function(i18n, gedcom, indi, refs, fam, areSiblings, fnc) {
+    children: function(i18n, gedcom, indi, refs, fam, areSiblings, beforeDate, fnc) {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'object']);
 
         let ret = '';
@@ -251,11 +251,13 @@ let _list = {
         if (childIds) {
             let listOfChildren = [];
             for (let childId of childIds) {
-                if (childId.id != indi.id) { //exclude self
+                if (!areSiblings || childId.id != indi.id) { //exclude self
                     const child = get.byId(gedcom, childId.id);
                     const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
-                    const text = _detailsOf.child(i18n, gedcom, child, refs, areSiblings, child.id == indi.id ? 'self' : '');
-                    listOfChildren.push({date: date, text: text});
+                    if (!beforeDate || date < beforeDate) {
+                        const text = _detailsOf.child(i18n, gedcom, child, refs, areSiblings, child.id == indi.id ? 'self' : '');
+                        listOfChildren.push({date: date, text: text});
+                    }
                 }
             }
             listOfChildren.sort(function(a, b) {
@@ -317,9 +319,10 @@ let _about = {
         ret += _detailsOf.parents(i18n, gedcom, indi, refs);
         if (indi.FAMC) {
             let fams = get.byName(gedcom, indi, 'FAMC');
-            ret += '.' + NL + NL + i18n.__('Siblings');
             for (let fam of fams) {  // for children that were latter assigned a father
-                ret += _list.children(i18n, gedcom, indi, refs, fam, true);
+                ret += _list.children(i18n, gedcom, indi, refs, fam, true, undefined, function (s) {
+                    return '.' + NL + NL + i18n.__('Siblings') + s;
+                });
             }
         }
         return ret;
@@ -328,9 +331,7 @@ let _about = {
     thePerson: function (i18n, gedcom, indi, refs) {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
-        let ret = ""
-        ret += get.byTemplate(i18n, gedcom, indi, refs, NL + '[SEX:HijZij]');
-        ret += get.byTemplate(i18n, gedcom, indi, refs, NL + ' worked as [OCCU]');
+        let ret = get.byTemplate(i18n, gedcom, indi, refs, NL + ' worked as [OCCU]');
         const tags = {'ADDR': 'address', 
             'EVEN': 'event',
             'ADOP': 'adoption',
@@ -356,7 +357,10 @@ let _about = {
                 }
             }
         }
-        if (ret) return '.' + NL + NL + "'''" + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + "'''" + NL + ret;
+        if (ret) {
+            ret = '.' + NL + NL + "'''" + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + "'''" + 
+                NL + get.byTemplate(i18n, gedcom, indi, refs, NL + '[SEX:HijZij]') + ret;
+        }
         return ret;
     },
 
@@ -373,8 +377,18 @@ let _about = {
         if (fam.CHIL) {
             ret += '.' + NL + NL + get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]');
-            ret += NL + _list.children(i18n, gedcom, indi, refs, fam, false);
+            ret += _list.children(i18n, gedcom, indi, refs, fam, false, undefined);
         }
+        if (spouse.FAMS.length > 1) {  // children from earlier relations
+            for (let ff of spouse.FAMS) {
+                if (ff.id != fam.id) {
+                    ret += '.' + NL + NL + get.byTemplate(i18n, gedcom, spouse, refs, 'Earlier children of [NAME:first]');
+                    const thisRelationDate = get.byTemplate(i18n, gedcom, fam, refs,  '[MARR.DATE:iso]');  // year - month - day
+                    ret += NL + _list.children(i18n, gedcom, spouse, refs, ff, false, thisRelationDate);
+                }
+            }
+        }
+
         return ret;
     },
 
@@ -386,14 +400,9 @@ let _about = {
             const fams = get.byName(gedcom, indi, 'FAMS');
             for (let fam of fams) {
                 const spouse = get.spouse(i18n, gedcom, fam, indi);
-                const text = _about.relation(i18n, gedcom, indi, fam, spouse, refs);
-                if (text) {
-                    let spouseName = get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]');
-                    if (!spouseName) {
-                        spouseName = i18n.__('unknown partner');
-                    }
-                    ret += '.' + NL + NL +  "'''" + i18n.__('Relationship with') + ' ' + spouseName + "'''" + NL + text;
-                }
+                const spouseName = spouse ? get.byTemplate(i18n, gedcom, spouse, refs, '[NAME:first]') : i18n.__('unknown partner');
+                const text = spouse ? _about.relation(i18n, gedcom, indi, fam, spouse, refs) : '';
+                ret += '.' + NL + NL +  "'''" + i18n.__('Relationship with') + ' ' + spouseName + "'''" + NL + text;
             }
         }
         return ret;
@@ -406,9 +415,9 @@ let _about = {
 
         if (ret) {
             ret = get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + ' ' + ret;
-            return '.' + NL + NL + ' ' +  NL + "'''" + i18n.__('The old day') + "'''" + NL + NL + ret ;
+            return '.' + NL + NL + "'''" + i18n.__('The old day') + "'''" + NL + NL + ret ;
         }
-        return '.' + ret;
+        return ret;
     }
 }
 
@@ -474,7 +483,7 @@ module.exports = {
             ret += _about.introduction(i18n, gedcom, indi, refs);
             ret += _about.thePerson(i18n, gedcom, indi, refs);
             ret += _about.relationships(i18n, gedcom, indi, refs);
-            ret += _about.oldDay(i18n, gedcom, indi, refs);
+            ret += _about.oldDay(i18n, gedcom, indi, refs) + '.';
             ret += NL + '== ' + i18n.__('Sources') + ' ==\n<references />';
             if (indi_) {
                 return ret;

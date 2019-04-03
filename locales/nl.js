@@ -50,8 +50,8 @@
 	"is geboren op": "is geboren op",
 	"dies at age": "overlijdt met",
 	"year": "jaar",
-	"heself": "hijzelf",
-	"sheself": "zijzelf",
+	"himself": "hijzelf",
+	"herself": "zijzelf",
 	"self": "zelf",
 	"and/or": "en/of",
 	"born on": "geboren op",
@@ -99,5 +99,6 @@
 	"old": "oud",
 	"divorce": "echtscheiding",
 	"marriage": "huwelijk",
-	"loan": "lening"
+	"loan": "lening",
+	"Earlier children of": "Eerdere kinderen van"
 }
