@@ -211,36 +211,31 @@ let _detailsOf = {
         return ret;
     },
 
-    sibling: function(i18n, gedcom, sibling, refs, prefix, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'string'] );
-
+    child: function(i18n, gedcom, child, refs, isSibling, prefix, fnc) {
+        util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'boolean', 'string'] );
         let ret = '';
-        const name = get.byTemplate(i18n, gedcom, sibling, refs, ' [NAME:givenaka]');
-        if (prefix == 'self') {
-            ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:hijzijzelf]') + ', ' + name;
+        if (isSibling) {
+            const name = get.byTemplate(i18n, gedcom, child, refs, ' [NAME:givenaka]');
+            if (prefix == 'self') {
+                ret += get.byTemplate(i18n, gedcom, child, refs, '[SEX:hijzijzelf]') + ', ' + name;
+            } else {
+                ret += get.byTemplate(i18n, gedcom, child, refs, '[SEX:broerzus]') + ', ' + name;
+                ret += ', ' + _ageDiff(i18n, gedcom, child, refs);
+                ret += get.byTemplate(i18n, gedcom, child, refs, ', [OCCU]');
+                ret += _detailsOf.death(i18n, gedcom, child, refs, false, function(s) {
+                    return ',' + s;
+                });
+            }
         } else {
-            ret += get.byTemplate(i18n, gedcom, sibling, refs, '[SEX:broerzus]') + ', ' + name;
-            ret += ', ' + _ageDiff(i18n, gedcom, sibling, refs);
-            ret += get.byTemplate(i18n, gedcom, sibling, refs, ', [OCCU]');
-            ret += _detailsOf.death(i18n, gedcom, sibling, refs, false, function(s) {
-                return ',' + s;
+            ret += get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:givenaka]');
+            ret += get.byTemplate(i18n, gedcom, child, refs, '[BIRT.DATE:year]', function(s) {
+                return ', ' + i18n.__('born') + ' ' + ((typeof s == 'string') ? '' : i18n.__('in ')) + s;
             });
-        }
-        if (ret && fnc) ret = fnc(ret);
-        return ret;
-    },
-
-    child: function(i18n, gedcom, child, refs, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
-
-        let ret = get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:givenaka]');
-        ret += get.byTemplate(i18n, gedcom, child, refs, '[BIRT.DATE:year]', function(s) {
-            return ', ' + i18n.__('born') + ' ' + ((typeof s == 'string') ? '' : i18n.__('in ')) + s;
-        });
-        ret += get.byTemplate(i18n, gedcom, child, refs, '|, [OCCU]');
-        ret += _detailsOf.death(i18n, gedcom, child, refs, false, function (s) { 
-            return ',' +  s;
-        });
+            ret += get.byTemplate(i18n, gedcom, child, refs, '|, [OCCU]');
+            ret += _detailsOf.death(i18n, gedcom, child, refs, false, function (s) { 
+                return ',' +  s;
+            });
+            }
         if (ret && fnc) ret = fnc(ret);
         return ret;
     }
@@ -248,47 +243,29 @@ let _detailsOf = {
 
 let _list = {
 
-    siblings: function(i18n, gedcom, indi, refs, siblings, prefix, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'array', 'string'] );
-
-        let listOfChildren = [];
-        for (let sibling of siblings) {
-            const date = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
-            const text = _detailsOf.sibling(i18n, gedcom, sibling, refs, sibling.id == indi.id ? 'self' : prefix);
-            listOfChildren.push({date: date, text: text});
-        }
-        listOfChildren.sort(function(a, b) { 
-            return a.date == b.date;
-        });
-        let ret = '';
-        for (let child of listOfChildren) {
-            ret += '.' + NL + '* ' + child.text;
-        }
-        if (ret && fnc) ret = fnc(ret);
-        return ret;
-    },
-
-    children: function(i18n, gedcom, indi, refs, fam, fnc) {
+    children: function(i18n, gedcom, indi, refs, fam, areSiblings, fnc) {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'object']);
 
-        let listOfChildren = [];
-        let childIds = get.byName(gedcom, fam, 'CHIL');
-        for (let childId of childIds) {
-            if (childId.id != indi.id) { //exclude self
-                const child = get.byId(gedcom, childId.id);
-                const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
-                const text = _detailsOf.child(i18n, gedcom, child, refs);
-                listOfChildren.push({date: date, text: text});
-            }
-        }
-        listOfChildren.sort(function(a, b) {
-            return a.date == b.date;
-        });
         let ret = '';
-        for (let child of listOfChildren) {
-            ret += '.' + NL + '* ' + child.text;
+        let childIds = get.byName(gedcom, fam, 'CHIL');
+        if (childIds) {
+            let listOfChildren = [];
+            for (let childId of childIds) {
+                if (childId.id != indi.id) { //exclude self
+                    const child = get.byId(gedcom, childId.id);
+                    const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
+                    const text = _detailsOf.child(i18n, gedcom, child, refs, areSiblings, child.id == indi.id ? 'self' : '');
+                    listOfChildren.push({date: date, text: text});
+                }
+            }
+            listOfChildren.sort(function(a, b) {
+                return a.date == b.date;
+            });
+            for (let child of listOfChildren) {
+                ret += '.' + NL + '* ' + child.text;
+            }
+            if (ret && fnc) ret = fnc(ret);
         }
-        if (ret && fnc) ret = fnc(ret);
         return ret;
     },
 
@@ -340,16 +317,9 @@ let _about = {
         ret += _detailsOf.parents(i18n, gedcom, indi, refs);
         if (indi.FAMC) {
             let fams = get.byName(gedcom, indi, 'FAMC');
-            ret += NL + NL + i18n.__('Siblings');
+            ret += '.' + NL + NL + i18n.__('Siblings');
             for (let fam of fams) {  // for children that were latter assigned a father
-                let siblings = get.byName(gedcom, fam, 'CHIL');
-                let prefix = i18n.__('half');
-                if (siblings) {
-                    for (let sibling of siblings) {  // if part of that FAM him/herself ..
-                        if (sibling.id == indi.id) prefix = '';
-                    }
-                    ret += _list.siblings(i18n, gedcom, indi, refs, siblings, prefix);
-                }
+                ret += _list.children(i18n, gedcom, indi, refs, fam, true);
             }
         }
         return ret;
@@ -403,7 +373,7 @@ let _about = {
         if (fam.CHIL) {
             ret += '.' + NL + NL + get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]');
-            ret += NL + _list.children(i18n, gedcom, indi, refs, fam);
+            ret += NL + _list.children(i18n, gedcom, indi, refs, fam, false);
         }
         return ret;
     },
