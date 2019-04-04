@@ -100,5 +100,6 @@
 	"religion": "religion",
 	"baptized": "baptized",
 	"heself": "heself",
-	"himself": "himself"
+	"himself": "himself",
+	"Facts about": "Facts about"
 }

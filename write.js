@@ -72,7 +72,7 @@ function _beforeOrAfter(i18n, ageDiff) {
     return ret;
 }
 
-function _ageDiff(i18n, gedcom, sibling, refs) {
+function _ageDiff(i18n, gedcom, sibling, refs, fnc) {
     util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
     const birthAgeDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
@@ -83,18 +83,21 @@ function _ageDiff(i18n, gedcom, sibling, refs) {
     } else {
         ageDiff = birthAgeDiff;
     }
-    let ret;
+    let ret = '';
     if (ageDiff) {
         ret = _beforeOrAfter(i18n, ageDiff);
     } else {
         let birth = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:world]');
         let baptism = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:world]');
         if (_useBaptismInsteadOfBirth(birth, baptism, i18n.__('at most'))) {
-            ret =  i18n.__('baptized') + ' ' + baptism;
+            if (baptism) {
+                ret +=  ', ' + i18n.__('baptized') + ' ' + baptism;                
+            }
         } else {
-            ret =  i18n.__('born') + ' ' + birth;
+            ret +=  ', ' + i18n.__('born') + ' ' + birth;
         }
     }
+    if (ret && fnc) ret = fnc(ret);
     return ret;
 }
 
@@ -136,7 +139,7 @@ let _detailsOf = {
                     value.birthday = new FQDate(_birthOrBaptDate(indi));
                     ret += get.byTemplate(i18n, gedcom, indi, refs, ' died [DEAT.DATE:age]').replace(i18n.__('died') + ' stillborn', i18n.__('stillborn'));
                     if (long) {
-                        ret += get.byTemplate(i18n, gedcom, indi, refs, ', [DEAT:world]');
+                        ret += get.byTemplate(i18n, gedcom, indi, refs, ', [DEAT:us]');
                     }
                 }
                 value.birthday = saved;
@@ -169,7 +172,7 @@ let _detailsOf = {
             }
         }
         if (ret) {
-            ret = get.byTemplate(i18n, gedcom, indi, refs, ' [SEX:HijZij]| is a [SEX:zoondochter] of') + ret;
+            ret = get.byTemplate(i18n, gedcom, indi, refs, '. [SEX:HijZij]| is a [SEX:zoondochter] of') + ret;
             if (fnc) ret = fnc(ret);
         }
         return ret;
@@ -220,7 +223,7 @@ let _detailsOf = {
                 ret += get.byTemplate(i18n, gedcom, child, refs, '[SEX:hijzijzelf]') + ', ' + name;
             } else {
                 ret += get.byTemplate(i18n, gedcom, child, refs, '[SEX:broerzus]') + ', ' + name;
-                ret += ', ' + _ageDiff(i18n, gedcom, child, refs);
+                ret += _ageDiff(i18n, gedcom, child, refs, function (s) { return ', ' + s; });
                 ret += get.byTemplate(i18n, gedcom, child, refs, ', [OCCU]');
                 ret += _detailsOf.death(i18n, gedcom, child, refs, false, function(s) {
                     return ',' + s;
@@ -248,7 +251,7 @@ let _list = {
 
         let ret = '';
         let childIds = get.byName(gedcom, fam, 'CHIL');
-        if (childIds) {
+        if (childIds && childIds[0]) {
             let listOfChildren = [];
             for (let childId of childIds) {
                 if (!areSiblings || childId.id != indi.id) { //exclude self
@@ -315,7 +318,7 @@ let _about = {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]');
-        ret += _detailsOf.birth(i18n, gedcom, indi, refs) + '.';
+        ret += _detailsOf.birth(i18n, gedcom, indi, refs);
         ret += _detailsOf.parents(i18n, gedcom, indi, refs);
         if (indi.FAMC) {
             let fams = get.byName(gedcom, indi, 'FAMC');
@@ -332,6 +335,9 @@ let _about = {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = get.byTemplate(i18n, gedcom, indi, refs, NL + ' worked as [OCCU]');
+        if (ret) {
+            ret = get.byTemplate(i18n, gedcom, indi, refs, '[SEX:HijZij]') + ret;        
+        }
         const tags = {'ADDR': 'address', 
             'EVEN': 'event',
             'ADOP': 'adoption',
@@ -352,14 +358,16 @@ let _about = {
                 const facts = get.byName(gedcom, indi, key);
                 for (let fact of facts) {
                     const label = (key == 'EVEN' && fact.TYPE) ? fact.TYPE.value : tags[key];
+                    if (!ret) {
+                        ret = get.byTemplate(i18n, gedcom, indi, refs, 'Facts about [SEX:hemhaar]');
+                    }
                     ret += '.' + NL + "* " + i18n.__(label.toLowerCase()) + ": ";
                     ret += _detailsOf.fact(i18n, gedcom, fact, refs);
                 }
             }
         }
         if (ret) {
-            ret = '.' + NL + NL + "'''" + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + "'''" + 
-                NL + get.byTemplate(i18n, gedcom, indi, refs, NL + '[SEX:HijZij]') + ret;
+            ret = '.' + NL + NL + "'''" + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + "'''" + NL + NL + ret;
         }
         return ret;
     },

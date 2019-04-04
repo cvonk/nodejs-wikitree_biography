@@ -100,5 +100,6 @@
 	"divorce": "echtscheiding",
 	"marriage": "huwelijk",
 	"loan": "lening",
-	"Earlier children of": "Eerdere kinderen van"
+	"Earlier children of": "Eerdere kinderen van",
+	"Facts about": "Wetenswaardigheden over"
 }
