@@ -390,9 +390,10 @@ let _about = {
         if (spouse.FAMS.length > 1) {  // children from earlier relations
             for (let ff of spouse.FAMS) {
                 if (ff.id != fam.id) {
-                    ret += '.' + NL + NL + get.byTemplate(i18n, gedcom, spouse, refs, 'Earlier children of [NAME:first]');
                     const thisRelationDate = get.byTemplate(i18n, gedcom, fam, refs,  '[MARR.DATE:iso]');  // year - month - day
-                    ret += NL + _list.children(i18n, gedcom, spouse, refs, ff, false, thisRelationDate);
+                    ret += NL + _list.children(i18n, gedcom, spouse, refs, ff, false, thisRelationDate, function(s) {
+                        return '.' + NL + NL + get.byTemplate(i18n, gedcom, spouse, refs, 'Earlier children of [NAME:first]') + s;
+                    });
                 }
             }
         }
