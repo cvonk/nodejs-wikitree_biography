@@ -264,7 +264,9 @@ let _list = {
                 }
             }
             listOfChildren.sort(function(a, b) {
-                return a.date == b.date;
+                if (a.date < b.date) return -1;
+                if (a.date > b.date) return 1;
+                return 0;
             });
             for (let child of listOfChildren) {
                 ret += '.' + NL + '* ' + child.text;
@@ -334,7 +336,7 @@ let _about = {
     thePerson: function (i18n, gedcom, indi, refs) {
         util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
-        let ret = get.byTemplate(i18n, gedcom, indi, refs, NL + ' worked as [OCCU]');
+        let ret = get.byTemplate(i18n, gedcom, indi, refs, ' worked as [OCCU]');
         if (ret) {
             ret = get.byTemplate(i18n, gedcom, indi, refs, '[SEX:HijZij]') + ret;        
         }
