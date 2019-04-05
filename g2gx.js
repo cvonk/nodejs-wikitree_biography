@@ -20,8 +20,8 @@ GedcomX.enableRecordsExtensions();
 GedcomX.Person.prototype.addNameFromParts = function(nameParts) {
 
   let nameForm = GedcomX.NameForm();
-  for(let type in nameParts){
-    if(nameParts[type]){
+  for (let type in nameParts){
+    if (nameParts[type]){
       nameForm.addPart({
         type: type,
         value: nameParts[type]
@@ -59,8 +59,6 @@ GedcomX.Person.prototype.addTypeDatePlace = function(type, date, place) {
  * Add an ID generator to each GedcomX document. Allows you to easily generate
  * IDs that are unique within one document. Currently it's just a counter
  * that starts at 1 and increases each time it's called.
- *
- * @returns {String}
  * inspired by https://github.com/rootsdev/genscrape/src/gedx-extensions.js
  */
 GedcomX.Root.prototype.generateId = function(){

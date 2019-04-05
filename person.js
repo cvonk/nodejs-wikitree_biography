@@ -111,7 +111,11 @@ module.exports = {
 
         for (let person of persons) {
             if (person.gedcomId == gedcomId) {
-                person.wtUsername = wtUsername;
+                if (wtUsername) {
+                    person.wtUsername = wtUsername;
+                } else {
+                    delete person.wtUsername;
+                }
                 return;
             }
         }

@@ -102,5 +102,10 @@
 	"heself": "heself",
 	"himself": "himself",
 	"Facts about": "Facts about",
-	"about Mar": "about Mar"
+	"about Mar": "about Mar",
+	"was": "was",
+	"web address": "web address",
+	"Earlier children of": "Earlier children of",
+	"divorced": "divorced",
+	"in ": "in "
 }

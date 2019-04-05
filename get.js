@@ -1,8 +1,7 @@
 /** @module get retrieve selected GEDCOM records */
 /** @author Coert Vonk <MY.NAME@gmail.com> */
 
-var value = require('./value.js'),
-    util = require('./util.js');
+var value = require('./value.js');
 
 function _id2typeName(id) {
     if (id) {

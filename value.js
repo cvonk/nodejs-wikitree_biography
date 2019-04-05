@@ -157,6 +157,7 @@ module.exports = {
                 case "last": return last;
                 case "full": return given + akaLong + ' ' + last;
                 case "givenlast": return given + ' ' + last;
+                case "last,given": return last + ', ' + given;
                 case "aka": return aka;
                 case "first": return first;
                 default: return given + ' ' + last;
@@ -179,28 +180,6 @@ module.exports = {
                     parts[ii] = i18n.__(part);
                 }
             }
-/* OLD            good for nothing ;-)
-            // split in thising in phrases containing letters and parts that do not contain letters
-            // e.g. 'Jan en Piet 12 jaar' will separate in ['Jan en Piet', '12', 'jaar']
-            let parts = str.split(' ');
-            let prevPartHasLetters = false;
-            for (let ii = 0; ii < parts.length; ii++) {
-                const part = parts[ii];
-                const partHasLetters = _hasLetters(part);
-                if (partHasLetters && prevPartHasLetters) {
-                    parts[ii-1] = parts[ii-1] + ' ' + parts[ii];
-                    parts.splice(ii--, 1);  // -- because the for-loop will have to step back
-                }
-                prevPartHasLetters = partHasLetters;
-            }
-            // call the function 'fnc' for the phrases that contain letters (e.g. for translation using i18n)
-            for (let ii in parts) {
-                const part = parts[ii];
-                if (_hasLetters(part)) {
-                    parts[ii] = i18n.__(part);
-                }
-            }
-*/            
             return parts.join('');
         }
         return '';

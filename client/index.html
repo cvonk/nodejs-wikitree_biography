@@ -25,7 +25,7 @@
         <div class="step">
           <h2>1. Select a name</h2>
           <div id="step1-detail" class="old-tv-effect">
-            <input id='individuals' type='text' list='individualsList'>
+            <input id='individuals' type='text' list='individualsList' class='pulse-effect'>
             <datalist id="individualsList"></datalist>
             <div class="button-group">
               <input type="button" class="button navigation prev" id='individualsPrev'>
@@ -85,7 +85,7 @@
             <form id="mergeEditForm" method="POST" target="iframe">
               <input type="hidden" id="wtId" name="id">
               <input type="hidden" id="gedcomId" name="gedcom_id">
-              <input type="text" id="wtUsername" name="user_name" placeholder="WikiTree Profilename">
+              <input type="text" id="wtUsername" name="user_name" placeholder="WikiTree Profilename" id="wtUsername" class="pulse-effect">
               <input type="hidden" id="postData" name="data">
               <div class="button-group">
                 <input type="submit" id="mergeEditFormBtn" class="button" name="compare" value="Merge Form" title="Click here to bring up the WikiTree merge form">

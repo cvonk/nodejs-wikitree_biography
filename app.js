@@ -46,24 +46,25 @@ if (!fs.existsSync(gedcomFname)) {
     return;
 }
 
-// parse the GEDCOM file, and make it accessible through a web server instance at http:///localhost:8080
+// parse the GEDCOM file, and make it accessible through a web server instance
 
 gedcomFile.parse(gedcomFname, function (gedcom) {
+    
     gedcom.simplify();
-
-    // use personsFname to map gedcomId to wtUsername
+    
+    /**
+     * Add WikiTree usernames to 'gedcom' based on the 'gedcomId to wtUsername' mapping (if present) in file personsFname
+     */
     let persons = [];
-    const personsFname = "./person-dump.js";
-    if (!fs.existsSync(personsFname)) {  // problems?  ensure the file is not empty!
+    const personsFname = "../person-dump.js";
+    if (!fs.existsSync(personsFname) || fs.statSync(personsFname).size == 0) {  // start afresh if file err/missing
         console.log('Creating a new persons file from GEDCOM (' + personsFname + '), this will take several minutes ...')
         persons = person.get(gedcom);
-        person.write(persons, personsFname); // starting from scratch
+        person.write(persons, personsFname);
         console.log('Created a new persons file (' + personsFname + ')')
     } else {
         persons = require(personsFname);    
     }
-
-    // add wtUsername to gedcom
     let indis = get.byName(gedcom, gedcom, 'INDI');
     for (let indi of indis) {
         let wtUsername = person.getWtUsername(persons, indi.id);
@@ -72,19 +73,26 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
         }
     }
 
-    // serve web page at /
+    /**
+     * Serve web page at http://localhost:8080/
+     */
     app.get('/', function(req, res) {
         res.sendFile('index.html', {root: './client' });
     });
 
-    // serve AJAX data requests
+    /**
+     * Serve AJAX data requests at http://localhost:8080/getIndividualsList
+     */
     app.get('/getIndividualsList', function(req, res) {
         let individuals = [];
         let indis = get.byName(gedcom, gedcom, 'INDI');
-        let i18n = new I18n({ locales: ['xx'] }); // all we need here to shorten 'before', 'about', 'after' to '<', '~', '>'
+        let i18n = new I18n({ locales: ['xx'] });  // to shorten 'before ', 'about ', 'after ' to '<', '~', '>'
         for (let indi of indis) {
+            if (!indi) {
+                debugger;
+            }
             let obj = get.byName(gedcom, indi, 'NAME');
-            let name = value.name(obj, 'givenlast') + get.lifeSpan(i18n, gedcom, indi, undefined);
+            let name = value.name(obj, 'last,given') + get.lifeSpan(i18n, gedcom, indi, undefined);
             if (indi.wtUsername) {
                 name += ' [' + indi.wtUsername + ']';
             }
@@ -96,9 +104,8 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
             if (nameA < nameB) return -1;
             if (nameA > nameB) return 1;
             return 0;
-        });
-        // make names unique, so the prev/next bottons on the client work as expected
-        let prevName = ''; let ii = 1;
+        });        
+        let prevName = ''; let ii = 1;  // make names unique, so the prev/next bottons on the client work as expected
         for (let idx in individuals) {
             if (individuals[idx].name == prevName) {
                 individuals[Number(idx)-1].name += '-' + (ii);
@@ -108,8 +115,17 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
                 prevName = individuals[idx].name;
             }
         }
-        res.render('individuals.pug', {individuals: individuals });
+        let ret = '';
+        for (let individual of individuals) {
+            ret += '<option id="' + individual.id + '">' + individual.name + '</option>';
+        }
+        res.status(200).send(ret);
+        //res.render('individuals.pug', {individuals: individuals });
     });    
+
+    /**
+     * Serve AJAX data requests at http://localhost:8080/getIndividualDetails
+     */
     app.post('/getIndividualDetails', function (req, res) {
         var id = req.param('gedcomId'); //req.body.id;
         let indi = get.byId(gedcom, id);  // I1, I24, I13, I240
@@ -128,18 +144,25 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
             'biography': biography    // client copy'n'pasts this in merge bio form
         });
     });    
-    app.post('/putGedcomId2WtUsername', function(req) { 
+
+    /**
+     * Serve AJAX data requests at http://localhost:8080/putGedcomId2WtUsername
+     */
+    app.post('/putGedcomId2WtUsername', function(req, res) { 
         var gedcomId = req.param('gedcomId');
         var wtUsername = req.param('wtUsername');
-        if (gedcomId && wtUsername) {
+        if (gedcomId) {
             person.setWtUsername(persons, gedcomId, wtUsername);
             person.write(persons, personsFname);  // 2BD: probably don't want to do this every time ..
         } else {
             console.log("ignored /gedcom-wtUsername");
         }
+        res.status(200).send('success');
     });
-    
-    // to test biographies writing on all individuals, enable the next line and disable the app.listen()
+
+    /**
+     * To test biographies writing on all individuals, enable the next line and disable the app.listen()
+     */
     //write.biography(gedcom); //  get.byId(gedcom, indi_)
     app.listen(8080);
     console.log("App listening on http://localhost/index.html");

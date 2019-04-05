@@ -101,5 +101,11 @@
 	"marriage": "huwelijk",
 	"loan": "lening",
 	"Earlier children of": "Eerdere kinderen van",
-	"Facts about": "Wetenswaardigheden over"
+	"Facts about": "Wetenswaardigheden over",
+	"lease": "lease",
+	"inheritance": "erven",
+	"was": "was",
+	"about Feb": "about Feb",
+	"in ": "in ",
+	"baptized in": "gedoopt in"
 }

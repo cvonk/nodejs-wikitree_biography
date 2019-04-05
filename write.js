@@ -4,13 +4,11 @@
 var get = require('./get.js'),
     value = require('./value.js'),
     FQDate = require('./fqdate.js'),
-    I18n = require('i18n-2'),
-    util = require('./util.js');
+    I18n = require('i18n-2');
 
 const NL = "\n";
 
 function _nameYearsOcc(i18n, gedcom, indi, refs) {
-    util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
     let ret = get.byTemplate(i18n, gedcom, indi, refs, ' [NAME:full]');
     ret += get.lifeSpan(i18n, gedcom, indi, refs);
@@ -20,6 +18,7 @@ function _nameYearsOcc(i18n, gedcom, indi, refs) {
 
 // choose the date that doesn't start with 'unfavPrefix'
 function _useBaptismInsteadOfBirth(birth, baptism, unfavPrefix) {
+
     if (birth) {
         if (birth.startsWith(unfavPrefix) && !baptism.startsWith(unfavPrefix)) {
             return true;
@@ -31,33 +30,17 @@ function _useBaptismInsteadOfBirth(birth, baptism, unfavPrefix) {
 }
 
 function _birthOrBaptDate(indi) {  // when only baptized is avail, the birth date is typically encoded as "BEF" the baptized date
-    if (!indi) return '';
 
+    if (!indi) return '';
     const birth = indi.BIRT && indi.BIRT.DATE ? indi.BIRT.DATE.value : '';
     const baptism = indi.BAPM && indi.BAPM.DATE ? indi.BAPM.DATE.value : '';
-
     if (_useBaptismInsteadOfBirth(birth, baptism, 'BEF ')) {
         return baptism;
     }
     return birth;
 }
 
-/*
-function _birthOrBaptAge(i18n, gedcom, sibling, refs) {
-    util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
-
-    const birth = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
-    const baptism = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:age]');
-
-    if (_useBaptismInsteadOfBirth(birth, baptism, i18n.__('at most'))) {
-        return baptism;
-    }
-    return birth;
-}
-*/
-
 function _beforeOrAfter(i18n, ageDiff) {
-    util.assertTypes( arguments, ['object', 'string'] );
 
     ageDiff = ageDiff.replace(' ' + i18n.__('old'), '');
     const firstDigit = ageDiff.length - ageDiff.replace(/^[^-0-9]+/, '').length;  // could have a prefix such as 'about' before the '-' sign
@@ -73,7 +56,6 @@ function _beforeOrAfter(i18n, ageDiff) {
 }
 
 function _ageDiff(i18n, gedcom, sibling, refs, fnc) {
-    util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
     const birthAgeDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
     const baptismAgeDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:age]');
@@ -110,18 +92,18 @@ function _ageDiff(i18n, gedcom, sibling, refs, fnc) {
 let _detailsOf = {
 
     birth: function(i18n, gedcom, indi, refs, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = '';
         if (indi.BIRT) {
-            const birth = get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:year]');
-            const baptized = get.byTemplate(i18n, gedcom, indi, refs, '[BAPM.DATE:year]');
-            if (birth) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, ' born [BIRT:us]');
-            }
-            if (birth && baptized) ret += ' ' + i18n.__('and');
-            if (baptized) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, ' baptized [BAPM:us]');
+            ret += ', ';
+            const birth = get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:us]');
+            const baptism = get.byTemplate(i18n, gedcom, indi, refs, '[BAPM.DATE:us]');
+            if (_useBaptismInsteadOfBirth(birth, baptism, i18n.__('before'))) {
+                if (baptism) {
+                    ret +=  i18n.__('baptized') + ' ' + baptism;                
+                }
+            } else {
+                ret +=  i18n.__('born') + ' ' + birth;
             }
             if (ret && fnc) ret = fnc(ret);
         }
@@ -129,7 +111,6 @@ let _detailsOf = {
     },
 
     death: function(i18n, gedcom, indi, refs, long, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'boolean'] );
 
         let ret = '';
         if (indi.DEAT) {
@@ -158,7 +139,6 @@ let _detailsOf = {
     },
 
     parents: function(i18n, gedcom, indi, refs, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = '';
         let fams = get.byName(gedcom, indi, 'FAMC');
@@ -179,7 +159,6 @@ let _detailsOf = {
     },
 
     fact: function(i18n, gedcom, obj, refs, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = get.byTemplate(i18n, gedcom, obj, refs, ' [DATE]');    
         if (obj.TYPE) ret += ' ' + i18n.__(obj.TYPE.value.toLowerCase());  // 2BD shoud use template to fill in the References
@@ -194,7 +173,6 @@ let _detailsOf = {
     },
 
     spouse: function(i18n, gedcom, spouse, refs, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] ); // 'mar' is optional
 
         let ret = '';
         const saved = value.birthday;
@@ -215,7 +193,7 @@ let _detailsOf = {
     },
 
     child: function(i18n, gedcom, child, refs, isSibling, prefix, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'boolean', 'string'] );
+
         let ret = '';
         if (isSibling) {
             const name = get.byTemplate(i18n, gedcom, child, refs, ' [NAME:givenaka]');
@@ -231,9 +209,21 @@ let _detailsOf = {
             }
         } else {
             ret += get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:givenaka]');
-            ret += get.byTemplate(i18n, gedcom, child, refs, '[BIRT.DATE:year]', function(s) {
-                return ', ' + i18n.__('born') + ' ' + ((typeof s == 'string') ? '' : i18n.__('in ')) + s;
-            });
+
+            const birth = child.BIRT && child.BIRT.DATE ? child.BIRT.DATE.value : '';
+            const baptism = child.BAPM && child.BAPM.DATE ? child.BAPM.DATE.value : '';        
+            if (_useBaptismInsteadOfBirth(birth, baptism, 'BEF ')) {
+                ret += get.byTemplate(i18n, gedcom, child, refs, '[BAPM.DATE:year]', function(s) {
+                    return ', ' + i18n.__('baptized in') + ' ' + (Number(s) ? '' : i18n.__('in ')) + s;
+                });    
+            } else {
+                ret += get.byTemplate(i18n, gedcom, child, refs, '[BIRT.DATE:year]', function(s) {
+                    return ', ' + i18n.__('born in') + ' ' + (Number(s) ? '' : i18n.__('in ')) + s;
+                });    
+            }
+            //ret += get.byTemplate(i18n, gedcom, child, refs, '[BIRT.DATE:year]', function(s) {
+            //    return ', ' + i18n.__('born') + ' ' + (Number(s) ? '' : i18n.__('in ')) + s;
+            //});
             ret += get.byTemplate(i18n, gedcom, child, refs, '|, [OCCU]');
             ret += _detailsOf.death(i18n, gedcom, child, refs, false, function (s) { 
                 return ',' +  s;
@@ -247,8 +237,7 @@ let _detailsOf = {
 let _list = {
 
     children: function(i18n, gedcom, indi, refs, fam, areSiblings, beforeDate, fnc) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'object']);
-
+        
         let ret = '';
         let childIds = get.byName(gedcom, fam, 'CHIL');
         if (childIds && childIds[0]) {
@@ -256,7 +245,9 @@ let _list = {
             for (let childId of childIds) {
                 if (!areSiblings || childId.id != indi.id) { //exclude self
                     const child = get.byId(gedcom, childId.id);
-                    const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
+                    const fqdate = new FQDate(_birthOrBaptDate(indi));
+                    const date = fqdate.year ? fqdate.string('iso') : '';
+                    //const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
                     if (!beforeDate || date < beforeDate) {
                         const text = _detailsOf.child(i18n, gedcom, child, refs, areSiblings, child.id == indi.id ? 'self' : '');
                         listOfChildren.push({date: date, text: text});
@@ -277,7 +268,6 @@ let _list = {
     },
 
     marriages: function(i18n, gedcom, refs, fam, fnc) {        
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object']);
 
         let ret = '';
         const tags = {'MARR': 'married', 'DIV': 'divorced', 'ANUL': 'annulment'};
@@ -298,7 +288,6 @@ let _list = {
 let _about = {
 
     init: function(indi) {
-        util.assertTypes( arguments, ['object'] );
 
         const locales = { 'Netherlands': 'nl', 'USA': 'en', 'UK': 'en', 'Germany': 'de', 'Belgium': 'nl'}; // add locales here
         let locale = 'en';
@@ -317,7 +306,6 @@ let _about = {
     },
 
     introduction: function (i18n, gedcom, indi, refs) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = get.byTemplate(i18n, gedcom, indi, refs, '[NAME:full]');
         ret += _detailsOf.birth(i18n, gedcom, indi, refs);
@@ -334,8 +322,7 @@ let _about = {
     },
 
     thePerson: function (i18n, gedcom, indi, refs) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
-
+        
         let ret = get.byTemplate(i18n, gedcom, indi, refs, ' worked as [OCCU]');
         if (ret) {
             ret = get.byTemplate(i18n, gedcom, indi, refs, '[SEX:HijZij]') + ret;        
@@ -376,7 +363,6 @@ let _about = {
 
 
     relation: function (i18n, gedcom, indi, fam, spouse, refs) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object', 'object', 'object'] );
 
         let ret = '';
         if (spouse) {
@@ -392,19 +378,19 @@ let _about = {
         if (spouse.FAMS.length > 1) {  // children from earlier relations
             for (let ff of spouse.FAMS) {
                 if (ff.id != fam.id) {
-                    const thisRelationDate = get.byTemplate(i18n, gedcom, fam, refs,  '[MARR.DATE:iso]');  // year - month - day
-                    ret += NL + _list.children(i18n, gedcom, spouse, refs, ff, false, thisRelationDate, function(s) {
-                        return '.' + NL + NL + get.byTemplate(i18n, gedcom, spouse, refs, 'Earlier children of [NAME:first]') + s;
+                    const thisRelationDate = (fam.MARR && fam.DATE) ? (new FQDate(fam.MARR.DATE).string('iso')) : undefined;
+                    //const thisRelationDate = get.byTemplate(i18n, gedcom, fam, undefined,  '[MARR.DATE:iso]');  // year - month - day
+                    ret += _list.children(i18n, gedcom, spouse, refs, ff, false, thisRelationDate, function(s) {
+                        const earlierOther = thisRelationDate ? 'Earlier' : 'Other';
+                        return '.' + NL + NL + get.byTemplate(i18n, gedcom, spouse, refs, earlierOther + ' children of [NAME:first]') + s;
                     });
                 }
             }
         }
-
         return ret;
     },
 
     relationships: function (i18n, gedcom, indi, refs) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = '';
         if (indi.FAMS) {
@@ -420,10 +406,8 @@ let _about = {
     },
 
     oldDay: function (i18n, gedcom, indi, refs) {
-        util.assertTypes( arguments, ['object', 'object', 'object', 'object'] );
 
         let ret = _detailsOf.death(i18n, gedcom, indi, refs, true);
-
         if (ret) {
             ret = get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + ' ' + ret;
             return '.' + NL + NL + "'''" + i18n.__('The old day') + "'''" + NL + NL + ret ;
@@ -437,7 +421,7 @@ let References = class {
         this.alreadyReferenced = [];
     }
     add(i18n, gedcom, sours) {
-        util.assertTypes( arguments, ['object', 'object'] );
+
         let ret = '';
         if (sours) {
             if (!(sours instanceof Array)) {
@@ -482,7 +466,6 @@ let References = class {
 module.exports = {
 
     biography: function (gedcom, indi_) {
-        util.assertTypes( arguments, ['object'] );  // 'indi_' is optional, defaults to all individuals (used for SQA)
 
         let refs = new References();
         let indis = indi_ ? [indi_] : get.byName(gedcom, gedcom, 'INDI');

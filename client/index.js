@@ -24,6 +24,7 @@ function _getcomIdFromDataList(listId, inputId) {
             return individual.id;
         }
     }
+    _pulseBackgrond(input);
 }
 
 function _selectNextInDataList(listId, inputId, step) {
@@ -51,6 +52,7 @@ function _copyToClipboard(srcId) {
     document.execCommand("copy");
 }
 
+/*
 function _enterListener(func) {
     function _enterPressed(event) {
         let key = event.which || event.keyCode;
@@ -62,6 +64,7 @@ function _enterListener(func) {
         }
     };
 }
+*/
 
 function _simpleDate(v) {  // search form only seems to handle the simple case
     if (v) {
@@ -162,6 +165,13 @@ function _getIndividualDetails(listId, inputId) {
     xmlhttp.send("gedcomId=" + gedcomId);
 }
 
+function _pulseBackgrond(input) {
+    input.setAttribute('pulse', 'off');
+    setTimeout(function () {
+      input.setAttribute('pulse', 'on');       
+    }, 10);        
+}
+
 /**
  * Prepare for Step 3: A WikiTree Username was entered, now use that along with the details we stored as
  * GEDCOMX data we stored in _getIndividualDetails() populate a merge form on WikiTree.  The user then
@@ -170,13 +180,21 @@ function _getIndividualDetails(listId, inputId) {
 function _reqMergeEditForm(evt) {  // called when mergeEditForm is completed
 
     const mergeEditForm = document.getElementById('mergeEditForm');  // or use evt
-    const wtUsername = mergeEditForm.wtUsername.value.trim();
+    const wtUsernameInput = mergeEditForm.wtUsername;
+    const wtUsername =wtUsernameInput.value.trim();
+    const gedcomId = document.getElementById('gedcomId').value;
+    if (!wtUsername) {
+        evt.preventDefault();  // prevent submit
+        _pulseBackgrond(wtUsernameInput);
+        _putGedcomId2WtUsername(gedcomId, wtUsername);  // remove from server as well
+        return;
+    }
     if (wtUsername.search('-') == -1) {
         evt.preventDefault();  // prevent submit
+        _pulseBackgrond(wtUsernameInput);
         alert("The WikiTree profile name should contain a '-' character\nThe name can be found in the list of search results, just before where it says \"managed by\".");
         return;
     }
-    const gedcomId = document.getElementById('gedcomId').value;
     _putGedcomId2WtUsername(gedcomId, wtUsername);  // store the gedcomId - wtUsername mapping on our server
     document.getElementById("step3-detail").setAttribute('tv', 'on');
     
