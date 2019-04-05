@@ -2,7 +2,7 @@
 
 Imports a GEDCOM to write biographies, and helps you in applying them to corresponding WikiTree profiles.
 
-![screenshot](media/screenshot.png)
+[![Video version of the HOWTO](https://img.youtube.com/vi/ifpU7WXJaJA/0.jpg)](https://www.youtube.com/watch?v=ifpU7WXJaJA)
 
 ## Installing
 
@@ -21,10 +21,6 @@ Run the following in a terminal window, assuming you have already installed [nod
   1. Start typing a name, and select one from the drop-down list.  This will bring up the search results from WikiTree on the right.
   2. Find the matching profile id from the search results (they are in the format lastname-integer) and paste it on the left.
   3. Verify that the WikiTree profile matches the data from GEDCOM, and copy'n'paste the generated bio on the left to WikiTree. Press preview. Press `merge` on WikiTree.
-
-## Video HOWTO
-
-[![Video version of the HOWTO](https://img.youtube.com/vi/ifpU7WXJaJA/0.jpg)](https://www.youtube.com/watch?v=ifpU7WXJaJA)
 
 ### Localization
 
