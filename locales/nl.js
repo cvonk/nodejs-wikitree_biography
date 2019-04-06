@@ -107,5 +107,10 @@
 	"was": "was",
 	"about Feb": "about Feb",
 	"in ": "in ",
-	"baptized in": "gedoopt in"
+	"baptized in": "gedoopt in",
+	"Other children of": "Other children of",
+	"From stepfather's side": "Van stiefvaders kant",
+	"From stepmother's side": "Van stiefmoeders kant",
+	"step": "stief",
+	"stief": "stief"
 }

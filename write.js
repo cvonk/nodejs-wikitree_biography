@@ -200,7 +200,7 @@ let _detailsOf = {
             if (prefix == 'self') {
                 ret += get.byTemplate(i18n, gedcom, child, refs, '[SEX:hijzijzelf]') + ', ' + name;
             } else {
-                ret += get.byTemplate(i18n, gedcom, child, refs, '[SEX:broerzus]') + ', ' + name;
+                ret += get.byTemplate(i18n, gedcom, child, refs, (prefix ? i18n.__(prefix) : '') + '[SEX:broerzus]') + ', ' + name;
                 ret += _ageDiff(i18n, gedcom, child, refs, function (s) { return ', ' + s; });
                 ret += get.byTemplate(i18n, gedcom, child, refs, ', [OCCU]');
                 ret += _detailsOf.death(i18n, gedcom, child, refs, false, function(s) {
@@ -236,20 +236,20 @@ let _detailsOf = {
 
 let _list = {
 
-    children: function(i18n, gedcom, indi, refs, fam, areSiblings, beforeDate, fnc) {
-        
+    children: function(i18n, gedcom, indi, refs, fam, p, fnc) {  // 'p' contains additional parameters
+
         let ret = '';
         let childIds = get.byName(gedcom, fam, 'CHIL');
         if (childIds && childIds[0]) {
             let listOfChildren = [];
             for (let childId of childIds) {
-                if (!areSiblings || childId.id != indi.id) { //exclude self
+                if (!p.areSiblings || childId.id != indi.id) { //exclude self
                     const child = get.byId(gedcom, childId.id);
                     const fqdate = new FQDate(_birthOrBaptDate(indi));
                     const date = fqdate.year ? fqdate.string('iso') : '';
                     //const date = get.byTemplate(i18n, gedcom, child, refs,  '[BIRT.DATE:iso]');  // year - month - day, so it's sortable
-                    if (!beforeDate || date < beforeDate) {
-                        const text = _detailsOf.child(i18n, gedcom, child, refs, areSiblings, child.id == indi.id ? 'self' : '');
+                    if (!p.beforeDate || date < p.beforeDate) {
+                        const text = _detailsOf.child(i18n, gedcom, child, refs, p.areSiblings, p.prefix);
                         listOfChildren.push({date: date, text: text});
                     }
                 }
@@ -261,6 +261,31 @@ let _list = {
             });
             for (let child of listOfChildren) {
                 ret += '.' + NL + '* ' + child.text;
+            }
+            if (ret && fnc) ret = fnc(ret);
+        }
+        return ret;
+    },
+
+    stepChildren: function(i18n, gedcom, indi, refs, parent, p, fnc) {  // 'p' contains additional parameters
+
+        let ret = '';
+        // find other relations of father/mother
+        if (parent.FAMS.length > 1) {  // if he/she had more than 1 relationship
+            for (let otherRelation of parent.FAMS) {
+                if (otherRelation.id != p.naturalFamId) {
+                    
+                    // find the spouse in that other relation
+                    const otherSpouse = get.spouse(i18n, gedcom, otherRelation, parent);
+                    if (otherSpouse) {
+                        for (let oo of otherSpouse.FAMS) {
+                            if (oo.id != otherRelation.id) {
+                                oo = get.resolveIndirects(gedcom, oo);
+                                ret += _list.children(i18n, gedcom, indi, refs, oo, {areSiblings: true, prefix: 'step'});
+                            }
+                        }
+                    }
+                }
             }
             if (ret && fnc) ret = fnc(ret);
         }
@@ -311,12 +336,32 @@ let _about = {
         ret += _detailsOf.birth(i18n, gedcom, indi, refs);
         ret += _detailsOf.parents(i18n, gedcom, indi, refs);
         if (indi.FAMC) {
-            let fams = get.byName(gedcom, indi, 'FAMC');
-            for (let fam of fams) {  // for children that were latter assigned a father
-                ret += _list.children(i18n, gedcom, indi, refs, fam, true, undefined, function (s) {
+            const fams = get.byName(gedcom, indi, 'FAMC');
+            let naturalFam = fams[0];  // find family of who indi is a natural child (usually the first FAMC listed)
+            for (let fam of fams) {
+                for (let child of fam.CHIL) {
+                    if (child.id == indi.id) {
+                        if ((!child._FREL || child._FREL.value == 'Natural') && (!child._MREL || child._MREL.value == 'Natural')) {
+                                naturalFam = fam;
+                                break;
+                        }
+                    }
+                }
+            }
+            for (let fam of fams) {  // children that were latter assigned a father, are part to 2 families
+                ret += _list.children(i18n, gedcom, indi, refs, fam, {areSiblings: true}, function (s) {
                     return '.' + NL + NL + i18n.__('Siblings') + s;
                 });
+                const parentTitles = {'HUSB': 'mother', 'WIFE': 'father'};
+                for (let tag in parentTitles) {
+                    if (fam[tag]) {
+                        const parent = get.resolveIndirects(gedcom, fam[tag]);
+                        ret += _list.stepChildren(i18n, gedcom, indi, refs, parent, {areSiblings: true, naturalFamId: naturalFam.id }, function (s) {
+                            return '.' + NL + NL + i18n.__('From step' + parentTitles[tag] + '\'s side') + s });
+                    }    
+                }
             }
+            // 2BD: add other children from either parent (step siblings)
         }
         return ret;
     },
@@ -361,7 +406,6 @@ let _about = {
         return ret;
     },
 
-
     relation: function (i18n, gedcom, indi, fam, spouse, refs) {
 
         let ret = '';
@@ -373,14 +417,14 @@ let _about = {
         if (fam.CHIL) {
             ret += '.' + NL + NL + get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]');
-            ret += _list.children(i18n, gedcom, indi, refs, fam, false, undefined);
+            ret += _list.children(i18n, gedcom, indi, refs, fam, {});
         }
-        if (spouse.FAMS.length > 1) {  // children from earlier relations
-            for (let ff of spouse.FAMS) {
+        if (spouse.FAMS.length > 1) {
+            const spouseFams = get.resolveIndirects(spouse.FAMS);
+            for (let ff of spouseFams) {
                 if (ff.id != fam.id) {
                     const thisRelationDate = (fam.MARR && fam.DATE) ? (new FQDate(fam.MARR.DATE).string('iso')) : undefined;
-                    //const thisRelationDate = get.byTemplate(i18n, gedcom, fam, undefined,  '[MARR.DATE:iso]');  // year - month - day
-                    ret += _list.children(i18n, gedcom, spouse, refs, ff, false, thisRelationDate, function(s) {
+                    ret += _list.children(i18n, gedcom, spouse, refs, ff, {beforeDate: thisRelationDate}, function(s) {
                         const earlierOther = thisRelationDate ? 'Earlier' : 'Other';
                         return '.' + NL + NL + get.byTemplate(i18n, gedcom, spouse, refs, earlierOther + ' children of [NAME:first]') + s;
                     });

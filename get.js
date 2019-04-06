@@ -15,18 +15,6 @@ function _id2typeName(id) {
     throw "Unsupported id format (" + id + ")";
 }
 
-function _resolveIndirects(gedcom, obj) {
-    if (gedcom && obj) {
-        let lastId = undefined;  // to stop self-reference loop
-        // can't just go by Object.keys(obj).length == 1, 'cause occational there are additional fields (such as  _FREL or _MREL in CHIL)
-        while (obj.id != lastId) {
-            lastId = obj.id;
-            obj = module.exports.byId(gedcom, obj.id);
-        }
-        return obj;
-    }
-}
-
 function _fieldValue(i18n, gedcom, obj, refs, fields) {
     let ret = "";
     if (obj && fields) {
@@ -106,14 +94,14 @@ module.exports = {
             var fields = selector.split('.');
             let field = fields.shift(); // take first el from array
             field = field.split(':')[0]; // remove :format
-            obj = _resolveIndirects(gedcom, obj);
+            obj = this.resolveIndirects(gedcom, obj);
             if (fields.length == 0) {
                 obj = obj[field];
                 if (!(obj instanceof Array)) {
                     obj = [obj];
                 }
                 for (let idx in obj) {
-                    obj[idx] = _resolveIndirects(gedcom, obj[idx]);
+                    obj[idx] = this.resolveIndirects(gedcom, obj[idx]);
                 }
                 return obj;
             }
@@ -213,6 +201,18 @@ module.exports = {
             }
         }
         return ret;
+    },
+
+    resolveIndirects: function(gedcom, obj) {
+        if (gedcom && obj) {
+            let lastId = undefined;  // to stop self-reference loop
+            // can't just go by Object.keys(obj).length == 1, 'cause occational there are additional fields (such as  _FREL or _MREL in CHIL)
+            while (obj.id != lastId) {
+                lastId = obj.id;
+                obj = module.exports.byId(gedcom, obj.id);
+            }
+            return obj;
+        }
     }
 
  }
