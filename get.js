@@ -213,6 +213,21 @@ module.exports = {
             }
             return obj;
         }
+    },
+
+    naturalFamily: function(indi, fams) {
+        for (let fam of fams) {
+            if (fam.CHIL[0]) {
+                for (let child of fam.CHIL) {
+                    if (child.id == indi.id) {
+                        if ((!child._FREL || child._FREL.value == 'Natural') && (!child._MREL || child._MREL.value == 'Natural')) {
+                                return fam;
+                        }
+                    }
+                }
+            }
+        }
+        return fams[0];
     }
 
  }
