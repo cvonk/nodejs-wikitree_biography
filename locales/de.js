@@ -42,5 +42,19 @@
 	"stillborn": "Totgeborene",
 	"Childhood": "Kindzeit",
 	"The old day": "Der alte Tag",
-	"Relationships": "Beziehungen"
+	"Relationships": "Beziehungen",
+	"Biography": "Biography",
+	"reliability": "reliability",
+	"Sep": "Sep",
+	"born": "born",
+	"old": "old",
+	"died": "died",
+	"year": "year",
+	"Siblings": "Siblings",
+	"Jan": "Jan",
+	"Sources": "Sources",
+	"Jun": "Jun",
+	"Mar": "Mar",
+	"Nov": "Nov",
+	"Dec": "Dec"
 }

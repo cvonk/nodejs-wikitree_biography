@@ -107,5 +107,6 @@
 	"web address": "web address",
 	"Earlier children of": "Earlier children of",
 	"divorced": "divorced",
-	"in ": "in "
+	"in ": "in ",
+	"baptized in": "baptized in"
 }

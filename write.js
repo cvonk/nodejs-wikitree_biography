@@ -16,16 +16,16 @@ function _nameYearsOcc(i18n, gedcom, indi, refs) {
     return ret;
 }
 
-// choose the date that doesn't start with 'unfavPrefix'
-function _useBaptismInsteadOfBirth(birth, baptism, unfavPrefix) {
+// prefer the date that doesn't start with 'unfavPrefix'
+function _isPreferableOver(birth, baptism, unfavPrefix) {
 
     if (birth) {
         if (birth.startsWith(unfavPrefix) && !baptism.startsWith(unfavPrefix)) {
-            return true;
+            return false;
         }
-        return false;
-    } else {
         return true;
+    } else {
+        return false;
     }
 }
 
@@ -34,10 +34,21 @@ function _birthOrBaptDate(indi) {  // when only baptized is avail, the birth dat
     if (!indi) return '';
     const birth = indi.BIRT && indi.BIRT.DATE ? indi.BIRT.DATE.value : '';
     const baptism = indi.BAPM && indi.BAPM.DATE ? indi.BAPM.DATE.value : '';
-    if (_useBaptismInsteadOfBirth(birth, baptism, 'BEF ')) {
+    if (_isPreferableOver(baptism, birth, 'BEF ')) {
         return baptism;
     }
     return birth;
+}
+
+function _deathOrBurrialDate(indi) {  // when only baptized is avail, the birth date is typically encoded as "BEF" the baptized date
+
+    if (!indi) return '';
+    const death = indi.DEAT && indi.DEAT.DATE ? indi.DEAT.DATE.value : '';
+    const burrial = indi.BURR && indi.BURR.DATE ? indi.BURR.DATE.value : '';
+    if (_isPreferableOver(burrial, death, 'BEF ')) {
+        return burrial;
+    }
+    return death;
 }
 
 function _beforeOrAfter(i18n, ageDiff) {
@@ -60,7 +71,7 @@ function _ageDiff(i18n, gedcom, sibling, refs, fnc) {
     const birthAgeDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
     const baptismAgeDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:age]');
     let ageDiff;
-    if (_useBaptismInsteadOfBirth(birthAgeDiff, baptismAgeDiff, i18n.__('at most'))) {
+    if (_isPreferableOver(baptismAgeDiff, birthAgeDiff, i18n.__('at most'))) {
         ageDiff = baptismAgeDiff;
     } else {
         ageDiff = birthAgeDiff;
@@ -71,7 +82,7 @@ function _ageDiff(i18n, gedcom, sibling, refs, fnc) {
     } else {
         let birth = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:world]');
         let baptism = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:world]');
-        if (_useBaptismInsteadOfBirth(birth, baptism, i18n.__('at most'))) {
+        if (_isPreferableOver(baptism, birth, i18n.__('at most'))) {
             if (baptism) {
                 ret +=  ', ' + i18n.__('baptized') + ' ' + baptism;                
             }
@@ -98,7 +109,7 @@ let _detailsOf = {
             ret += ', ';
             const birth = get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:us]');
             const baptism = get.byTemplate(i18n, gedcom, indi, refs, '[BAPM.DATE:us]');
-            if (_useBaptismInsteadOfBirth(birth, baptism, i18n.__('before'))) {
+            if (_isPreferableOver(baptism, birth, i18n.__('before'))) {
                 if (baptism) {
                     ret +=  i18n.__('baptized') + ' ' + baptism;                
                 }
@@ -113,27 +124,39 @@ let _detailsOf = {
     death: function(i18n, gedcom, indi, refs, long, fnc) {
 
         let ret = '';
-        if (indi.DEAT) {
-            if (indi.BIRT && indi.BIRT.DATE) {
-                const saved = value.birthday;
-                {
-                    value.birthday = new FQDate(_birthOrBaptDate(indi));
-                    ret += get.byTemplate(i18n, gedcom, indi, refs, ' died [DEAT.DATE:age]').replace(i18n.__('died') + ' stillborn', i18n.__('stillborn'));
-                    if (long) {
-                        ret += get.byTemplate(i18n, gedcom, indi, refs, ', [DEAT:us]');
+        const death   = indi.DEAT && indi.DEAT.DATE && indi.DEAT.DATE.value;
+        const burrial = indi.BURI && indi.BURI.DATE && indi.BURI.DATE.value;
+        if (death || burrial) {
+            const endEvent = _isPreferableOver(burrial, death, 'BEF')
+                ? { type: 'is burried', date: burrial }
+                : { type: 'died', date: death };
+
+            if (endEvent.date == 'stillborn') {
+                ret += i18n.__(endEvent.date);
+            } else {
+                if ((indi.BIRT && indi.BIRT.DATE) || (indi.BAPM && indi.BAPM.DATE)) {
+                    const saved = value.birthday;
+                    {
+                        value.birthday = new FQDate(_birthOrBaptDate(indi));
+                        if (endEvent.type == 'died') {  // get the age *and* associated references
+                            ret += get.byTemplate(i18n, gedcom, indi, refs, ' died [DEAT.DATE:age]');
+                            if (long) ret += ', ' + get.byTemplate(i18n, gedcom, indi, refs, ' [DEAT.DATE:us]');
+                        } else {
+                            ret += get.byTemplate(i18n, gedcom, indi, refs, ' was buried [BURI.DATE:age]');
+                            if (long) ret += ', ' + get.byTemplate(i18n, gedcom, indi, refs, ' [BURI.DATE:us]');
+                        }
+                    }
+                    value.birthday = saved;
+                } else {
+                    if (endEvent.type == 'died') {  // get the date *and* associated references
+                        ret += get.byTemplate(i18n, gedcom, indi, refs, ' died [DEAT.DATE:us]');
+                    } else {
+                        ret += get.byTemplate(i18n, gedcom, indi, refs, ' was buried [BURI.DATE:us]');
                     }
                 }
-                value.birthday = saved;
-            } else {
-                const deathDate = get.byTemplate(i18n, gedcom, indi, refs, '[DEAT.DATE:us]');
-                if (deathDate) {
-                    ret += ' ' + (deathDate == 'stillborn' ? i18n.__(deathDate) : i18n.__('died') + ' ' + deathDate);
-                }
+                if (long) ret += get.byTemplate(i18n, gedcom, indi, refs, ' due to [DEAT.CAUS]');
+                if (ret && fnc) ret = fnc(ret);
             }
-            if (long) {
-                ret += get.byTemplate(i18n, gedcom, indi, refs, ' due to [DEAT.CAUS]');
-            }
-            if (ret && fnc) ret = fnc(ret);
         }
         return ret;
     },
@@ -212,7 +235,7 @@ let _detailsOf = {
 
             const birth = child.BIRT && child.BIRT.DATE ? child.BIRT.DATE.value : '';
             const baptism = child.BAPM && child.BAPM.DATE ? child.BAPM.DATE.value : '';        
-            if (_useBaptismInsteadOfBirth(birth, baptism, 'BEF ')) {
+            if (_isPreferableOver(baptism, birth, 'BEF ')) {
                 ret += get.byTemplate(i18n, gedcom, child, refs, '[BAPM.DATE:year]', function(s) {
                     return ', ' + i18n.__('baptized in') + ' ' + (Number(s) ? '' : i18n.__('in ')) + s;
                 });    

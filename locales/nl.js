@@ -112,5 +112,7 @@
 	"From stepfather's side": "Van stiefvaders kant",
 	"From stepmother's side": "Van stiefmoeders kant",
 	"step": "stief",
+	"death": "dood",
+	"was buried": "is begraven",
 	"stief": "stief"
 }
