@@ -108,5 +108,16 @@
 	"Earlier children of": "Earlier children of",
 	"divorced": "divorced",
 	"in ": "in ",
-	"baptized in": "baptized in"
+	"baptized in": "baptized in",
+	"BEF": "BEF",
+	"was buried": "was buried",
+	"census": "census",
+	"step": "step",
+	"From stepfather's side": "From stepfather's side",
+	"about Sep": "about Sep",
+	"He/She": "He/She",
+	"undefined": "undefined",
+	"passport application": "passport application",
+	"before Apr": "before Apr",
+	"sibling": "sibling"
 }

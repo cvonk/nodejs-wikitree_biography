@@ -16,11 +16,12 @@ function _nameYearsOcc(i18n, gedcom, indi, refs) {
     return ret;
 }
 
-// prefer the date that doesn't start with 'unfavPrefix'
-function _isPreferableOver(birth, baptism, unfavPrefix) {
+// prefer the date that doesn't start with 'BEF ', such as when only the baptized date is know, and the birth date is specified as 'BEF ' the baptized date
+function _isPreferableOver(date1, date2) {
 
-    if (birth) {
-        if (birth.startsWith(unfavPrefix) && !baptism.startsWith(unfavPrefix)) {
+    if (date1) {
+        const unfavPrefix = 'BEF ';
+        if (date1.startsWith(unfavPrefix) && !date2.startsWith(unfavPrefix)) {
             return false;
         }
         return true;
@@ -32,23 +33,12 @@ function _isPreferableOver(birth, baptism, unfavPrefix) {
 function _birthOrBaptDate(indi) {  // when only baptized is avail, the birth date is typically encoded as "BEF" the baptized date
 
     if (!indi) return '';
-    const birth = indi.BIRT && indi.BIRT.DATE ? indi.BIRT.DATE.value : '';
-    const baptism = indi.BAPM && indi.BAPM.DATE ? indi.BAPM.DATE.value : '';
-    if (_isPreferableOver(baptism, birth, 'BEF ')) {
+    const birth   = indi.BIRT && indi.BIRT.DATE && indi.BIRT.DATE.value;
+    const baptism = indi.BAPM && indi.BAPM.DATE && indi.BAPM.DATE.value;
+    if (_isPreferableOver(baptism, birth)) {
         return baptism;
     }
     return birth;
-}
-
-function _deathOrBurrialDate(indi) {  // when only baptized is avail, the birth date is typically encoded as "BEF" the baptized date
-
-    if (!indi) return '';
-    const death = indi.DEAT && indi.DEAT.DATE ? indi.DEAT.DATE.value : '';
-    const burrial = indi.BURR && indi.BURR.DATE ? indi.BURR.DATE.value : '';
-    if (_isPreferableOver(burrial, death, 'BEF ')) {
-        return burrial;
-    }
-    return death;
 }
 
 function _beforeOrAfter(i18n, ageDiff) {
@@ -68,29 +58,31 @@ function _beforeOrAfter(i18n, ageDiff) {
 
 function _ageDiff(i18n, gedcom, sibling, refs, fnc) {
 
-    const birthAgeDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
-    const baptismAgeDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:age]');
-    let ageDiff;
-    if (_isPreferableOver(baptismAgeDiff, birthAgeDiff, i18n.__('at most'))) {
-        ageDiff = baptismAgeDiff;
-    } else {
-        ageDiff = birthAgeDiff;
-    }
     let ret = '';
-    if (ageDiff) {
-        ret = _beforeOrAfter(i18n, ageDiff);
-    } else {
-        let birth = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:world]');
-        let baptism = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:world]');
-        if (_isPreferableOver(baptism, birth, i18n.__('at most'))) {
-            if (baptism) {
-                ret +=  ', ' + i18n.__('baptized') + ' ' + baptism;                
-            }
+    if (sibling.BIRT || sibling.BAPM) {
+        const birth   = sibling.BIRT && sibling.BIRT.DATE && sibling.BIRT.DATE.value;
+        const baptism = sibling.BAPM && sibling.BAPM.DATE && sibling.BAPM.DATE.value;
+        let ageDiff;
+        if (_isPreferableOver(baptism, birth)) {
+            ageDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:age]');  // calculate age and include references
         } else {
-            ret +=  ', ' + i18n.__('born') + ' ' + birth;
+            ageDiff = get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:age]');
         }
+        if (ageDiff) {
+            ret = _beforeOrAfter(i18n, ageDiff);
+        } else {
+            if (_isPreferableOver(baptism, birth)) {
+                ret += get.byTemplate(i18n, gedcom, sibling, refs, '[BAPM.DATE:world]', function (s) {
+                    return ', ' + i18n.__('baptized') + ' ' + s;
+                });                
+            } else {
+                ret +=  get.byTemplate(i18n, gedcom, sibling, refs, '[BIRT.DATE:world]', function (s) {
+                    return ', ' + i18n.__('born') + ' ' +  + s;
+                });
+            }
+        }
+        if (ret && fnc) ret = fnc(ret);
     }
-    if (ret && fnc) ret = fnc(ret);
     return ret;
 }
 
@@ -107,14 +99,16 @@ let _detailsOf = {
         let ret = '';
         if (indi.BIRT) {
             ret += ', ';
-            const birth = get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:us]');
-            const baptism = get.byTemplate(i18n, gedcom, indi, refs, '[BAPM.DATE:us]');
-            if (_isPreferableOver(baptism, birth, i18n.__('before'))) {
-                if (baptism) {
-                    ret +=  i18n.__('baptized') + ' ' + baptism;                
-                }
+            const birth   = indi.BIRT && indi.BIRT.DATE && indi.BIRT.DATE.value;
+            const baptism = indi.BAPM && indi.BAPM.DATE && indi.BAPM.DATE.value;
+            if (_isPreferableOver(baptism, birth)) {
+                ret +=  get.byTemplate(i18n, gedcom, indi, refs, '[BAPM.DATE:us]', function (s) {
+                    return i18n.__('baptized') + ' ' + s;
+                });                
             } else {
-                ret +=  i18n.__('born') + ' ' + birth;
+                ret +=  get.byTemplate(i18n, gedcom, indi, refs, '[BIRT.DATE:us]', function (s) {
+                    return i18n.__('born') + ' ' + s;
+                });
             }
             if (ret && fnc) ret = fnc(ret);
         }
@@ -127,9 +121,9 @@ let _detailsOf = {
         const death   = indi.DEAT && indi.DEAT.DATE && indi.DEAT.DATE.value;
         const burrial = indi.BURI && indi.BURI.DATE && indi.BURI.DATE.value;
         if (death || burrial) {
-            const endEvent = _isPreferableOver(burrial, death, 'BEF')
+            const endEvent = _isPreferableOver(burrial, death)
                 ? { type: 'is burried', date: burrial }
-                : { type: 'died', date: death };
+                : { type: 'died',       date: death };
 
             if (endEvent.date == 'stillborn') {
                 ret += i18n.__(endEvent.date);
@@ -195,14 +189,15 @@ let _detailsOf = {
         return ret;
     },
 
-    spouse: function(i18n, gedcom, spouse, refs, fnc) {
+    spouse: function(i18n, gedcom, spouse, refs, fam, fnc) {
 
         let ret = '';
         const saved = value.birthday;
         value.birthday = new FQDate(_birthOrBaptDate(spouse));
         {
+            const marriage = fam.MARR;            
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' with [NAME:full]');
-            //ret += get.byTemplate(i18n, gedcom, mar, refs, ' ([DATE:age])');
+            ret += get.byTemplate(i18n, gedcom, marriage, refs, ' ([DATE:age])');
             ret += get.byTemplate(i18n, gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]');
             ret += _detailsOf.parents(i18n, gedcom, spouse, refs);
             ret += _detailsOf.death(i18n, gedcom, spouse, refs, true, function(s) {
@@ -233,9 +228,9 @@ let _detailsOf = {
         } else {
             ret += get.byTemplate(i18n, gedcom, child, refs, ' [SEX:zoondochter]| [NAME:givenaka]');
 
-            const birth = child.BIRT && child.BIRT.DATE ? child.BIRT.DATE.value : '';
-            const baptism = child.BAPM && child.BAPM.DATE ? child.BAPM.DATE.value : '';        
-            if (_isPreferableOver(baptism, birth, 'BEF ')) {
+            const birth   = child.BIRT && child.BIRT.DATE && child.BIRT.DATE.value;
+            const baptism = child.BAPM && child.BAPM.DATE && child.BAPM.DATE.value;        
+            if (_isPreferableOver(baptism, birth)) {
                 ret += get.byTemplate(i18n, gedcom, child, refs, '[BAPM.DATE:year]', function(s) {
                     return ', ' + i18n.__('baptized in') + ' ' + (Number(s) ? '' : i18n.__('in ')) + s;
                 });    
@@ -244,9 +239,6 @@ let _detailsOf = {
                     return ', ' + i18n.__('born in') + ' ' + (Number(s) ? '' : i18n.__('in ')) + s;
                 });    
             }
-            //ret += get.byTemplate(i18n, gedcom, child, refs, '[BIRT.DATE:year]', function(s) {
-            //    return ', ' + i18n.__('born') + ' ' + (Number(s) ? '' : i18n.__('in ')) + s;
-            //});
             ret += get.byTemplate(i18n, gedcom, child, refs, '|, [OCCU]');
             ret += _detailsOf.death(i18n, gedcom, child, refs, false, function (s) { 
                 return ',' +  s;
@@ -325,7 +317,9 @@ let _list = {
             let objs = get.byName(gedcom, fam, tag);
             if (objs.length) {
                 for (let obj of objs) {
-                    ret += get.byTemplate(i18n, gedcom, obj, refs, ', ' + tags[tag] + ' [DATE]');
+                    ret += get.byTemplate(i18n, gedcom, obj, refs, ', ' + tags[tag] + ' [DATE]', function (s) {
+                        return get.byTemplate(i18n, gedcom, obj, refs, ' ([DATE:age])') + s;
+                    });
                 }
             }
             if (tag == 'MARR' && !ret) ret += ' ' + i18n.__('is in a relation');
@@ -390,6 +384,7 @@ let _about = {
             'EVEN': 'event',
             'ADOP': 'adoption',
             'ARVL': 'arrival',
+            'CENS': 'census',
             'DPRT': 'departure',
             'DESC': 'physical description',
             'EDUC': 'education',
@@ -426,7 +421,7 @@ let _about = {
         if (spouse) {
             ret += NL + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]');
             ret += _list.marriages(i18n, gedcom, refs, fam);  // will have at least 'in a relation' text
-            ret += _detailsOf.spouse(i18n, gedcom, spouse, refs);
+            ret += _detailsOf.spouse(i18n, gedcom, spouse, refs, fam);
         }       
         if (fam.CHIL) {
             ret += '.' + NL + NL + get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');

@@ -114,5 +114,6 @@
 	"step": "stief",
 	"death": "dood",
 	"was buried": "is begraven",
-	"stief": "stief"
+	"stief": "stief",
+	"about Jan": "about Jan"
 }
