@@ -6,17 +6,12 @@ cache:
   directories:
     - node_modules
 before_install:
-  # Configure npm
   - npm config set shrinkwrap false
   - npm rm --silent --save-dev connect-redis
-  - npm install lint
+  - npm install eslint
   - if [[ -d node_modules ]]; then
       npm prune
       npm rebuild
     fi
 script:
-  - npm run test-ci
-  - npm run lint
-after_script:
-  - npm install --save-dev coveralls@2.10.0
-    coveralls < ./coverage/lcov.info
+  - npm run eslint
