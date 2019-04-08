@@ -2,7 +2,7 @@
 
 Imports a GEDCOM to write biographies, and helps you in applying them to corresponding WikiTree profiles.
 
-![screenshot](media/screenshot.png)
+[![Video version of the HOWTO](https://img.youtube.com/vi/ifpU7WXJaJA/0.jpg)](https://www.youtube.com/watch?v=ifpU7WXJaJA)
 
 ## Installing
 
