@@ -6,12 +6,9 @@ cache:
   directories:
     - node_modules
 before_install:
-  - npm config set shrinkwrap  false
-  - npm rm --silent --save-dev connect-redis
+  - npm install
   - npm install eslint
-  - if [[ -d node_modules ]]; then
-      npm prune
-      npm rebuild
-    fi
+  - npm prune
+  - npm rebuild
 script:
   - npm run eslint
