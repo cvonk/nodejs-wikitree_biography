@@ -1,5 +1,7 @@
 # GEDCOM to WikiTree Biography
 
+[![Build Status](//travis-ci.com/cvonk/nodejs-wikitree_biography.svg?branch=master)](//travis-ci.com/cvonk/nodejs-wikitree_biography)
+
 Imports a GEDCOM to write biographies, and helps you in applying them to corresponding WikiTree profiles.
 
 [![Video version of the HOWTO](https://img.youtube.com/vi/ifpU7WXJaJA/0.jpg)](https://www.youtube.com/watch?v=ifpU7WXJaJA)
