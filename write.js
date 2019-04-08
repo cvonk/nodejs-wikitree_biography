@@ -134,10 +134,10 @@ let _detailsOf = {
                         value.birthday = new FQDate(_birthOrBaptDate(indi));
                         if (endEvent.type == 'died') {  // get the age *and* associated references
                             ret += get.byTemplate(i18n, gedcom, indi, refs, ' died [DEAT.DATE:age]');
-                            if (long) ret += ', ' + get.byTemplate(i18n, gedcom, indi, refs, ' [DEAT.DATE:us]');
+                            if (long) ret += get.byTemplate(i18n, gedcom, indi, refs, ', [DEAT.DATE:us]');
                         } else {
                             ret += get.byTemplate(i18n, gedcom, indi, refs, ' was buried [BURI.DATE:age]');
-                            if (long) ret += ', ' + get.byTemplate(i18n, gedcom, indi, refs, ' [BURI.DATE:us]');
+                            if (long) ret += get.byTemplate(i18n, gedcom, indi, refs, ', [BURI.DATE:us]');
                         }
                     }
                     value.birthday = saved;

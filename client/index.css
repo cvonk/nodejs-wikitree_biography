@@ -176,15 +176,31 @@ textarea {
 }
 
 .pulse-effect[pulse="on"] {
-  animation: pulse-on 0.5s linear;
+  animation: pulse-red 0.5s linear;
 }
 
-@keyframes pulse-on {
+.pulse-effect[pulse="green"] {
+  animation: pulse-green 0.3s linear;
+}
+
+@keyframes pulse-red {
   0% {
     background-color: white;
   }
   20% {
     background-color: red;
+  }
+  100% {
+    background-color: white;
+  }
+}
+
+@keyframes pulse-green {
+  0% {
+    background-color: white;
+  }
+  20% {
+    background-color: lightgreen;
   }
   100% {
     background-color: white;

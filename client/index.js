@@ -24,7 +24,7 @@ function _getcomIdFromDataList(listId, inputId) {
             return individual.id;
         }
     }
-    _pulseBackgrond(input);
+    _pulseBackgrond(input, 'green');
 }
 
 function _selectNextInDataList(listId, inputId, step) {
@@ -165,10 +165,10 @@ function _getIndividualDetails(listId, inputId) {
     xmlhttp.send("gedcomId=" + gedcomId);
 }
 
-function _pulseBackgrond(input) {
-    input.setAttribute('pulse', 'off');
+function _pulseBackgrond(input, color) {
+    input.setAttribute('pulse', 'none');
     setTimeout(function () {
-      input.setAttribute('pulse', 'on');       
+      input.setAttribute('pulse', color);       
     }, 10);        
 }
 
@@ -185,13 +185,13 @@ function _reqMergeEditForm(evt) {  // called when mergeEditForm is completed
     const gedcomId = document.getElementById('gedcomId').value;
     if (!wtUsername) {
         evt.preventDefault();  // prevent submit
-        _pulseBackgrond(wtUsernameInput);
+        _pulseBackgrond(wtUsernameInput, 'green');
         _putGedcomId2WtUsername(gedcomId, wtUsername);  // remove from server as well
         return;
     }
     if (wtUsername.search('-') == -1) {
         evt.preventDefault();  // prevent submit
-        _pulseBackgrond(wtUsernameInput);
+        _pulseBackgrond(wtUsernameInput, 'red');
         alert("The WikiTree profile name should contain a '-' character\nThe name can be found in the list of search results, just before where it says \"managed by\".");
         return;
     }
