@@ -526,6 +526,7 @@ module.exports = {
         let indis = indi_ ? [indi_] : get.byName(gedcom, gedcom, 'INDI');
 
         for (let indi of indis) {            
+            // eslint-disable-next-line no-console
             if (!indi_) console.log(indi.id);
             const i18n = _about.init(indi);
             let ret = '== ' + i18n.__('Biography') + ' ==' + NL;
@@ -537,6 +538,7 @@ module.exports = {
             if (indi_) {
                 return ret;
             } else {
+                // eslint-disable-next-line no-console
                 console.log(ret);
             }
         }

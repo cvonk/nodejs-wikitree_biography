@@ -39,11 +39,11 @@ var app = express();
 const gedcomFname = process.argv[2];
 if (process.argc >= 2 || !gedcomFname) {
     console.log("No GEDCOM file specified.");
-    return;
+    process.exit(-1);
 }
 if (!fs.existsSync(gedcomFname)) {
     console.log("GEDCOM file (" + gedcomFname + ') doesn\'t exist');
-    return;
+    process.exit(-2);
 }
 
 // parse the GEDCOM file, and make it accessible through a web server instance
@@ -88,9 +88,6 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
         let indis = get.byName(gedcom, gedcom, 'INDI');
         let i18n = new I18n({ locales: ['xx'] });  // to shorten 'before ', 'about ', 'after ' to '<', '~', '>'
         for (let indi of indis) {
-            if (!indi) {
-                debugger;
-            }
             let obj = get.byName(gedcom, indi, 'NAME');
             let name = value.name(obj, 'last,given') + get.lifeSpan(i18n, gedcom, indi, undefined);
             if (indi.wtUsername) {
