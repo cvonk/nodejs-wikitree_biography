@@ -7,9 +7,16 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch app.js",
+            "name": "Launch vonk-nomedia.ged",
             "args": ["./data/vonk-nomedia.ged"],
             "program": "${workspaceFolder}\\app.js"
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch test.ged",
+            "args": ["./test/test-1.ged", "writetest"],
+            "program": "${workspaceFolder}\\app.js"
+        }        
     ]
 }

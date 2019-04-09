@@ -37,7 +37,8 @@ var app = express();
 // get path to GEDCOM file from command line argument
 
 const gedcomFname = process.argv[2];
-if (process.argc >= 2 || !gedcomFname) {
+
+if (process.argv.length < 3 || !gedcomFname) {
     console.log("No GEDCOM file specified.");
     process.exit(-1);
 }
@@ -57,8 +58,9 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
      *   1. If the GEDCOM has a REFN (Person ID) field, and it is a WIkiTree URL use that, otherwise
      *   2. use the 'gedcomId to wtUsername' mapping (if present) in file 'personsFname'
      */
+    var personsFnameDot = gedcomFname.lastIndexOf(".");
+    const personsFname = gedcomFname.substr(0, personsFnameDot < 0 ? gedcomFname.length : personsFnameDot) + ".js";
     let persons = [];
-    const personsFname = "./data/person-dump.js";
     if (!fs.existsSync(personsFname) || fs.statSync(personsFname).size == 0) {  // start afresh if file err/missing
         console.log('Creating a new persons file from GEDCOM (' + personsFname + '), this will take several minutes ...')
         persons = person.get(gedcom);
@@ -167,9 +169,12 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
     /**
      * To test biographies writing on all individuals, enable the next line and disable the app.listen()
      */
-    //write.biography(gedcom); //  get.byId(gedcom, indi_)
-    app.listen(8080);
-    console.log("App listening on http://localhost:8080/");
+    if (process.argv.length > 3 && process.argv[3] == 'writetest') {
+        write.biography(gedcom); //  get.byId(gedcom, indi_)
+    } else {
+        app.listen(8080);
+        console.log("App listening on http://localhost:8080/");    
+    }
 });
 
 app.use(bodyParser.json());
