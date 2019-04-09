@@ -53,7 +53,9 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
     gedcom.simplify();
     
     /**
-     * Add WikiTree usernames to 'gedcom' based on the 'gedcomId to wtUsername' mapping (if present) in file personsFname
+     * Try to add WikiTree username to 'gedcom'
+     *   1. If the GEDCOM has a REFN (Person ID) field, and it is a WIkiTree URL use that, otherwise
+     *   2. use the 'gedcomId to wtUsername' mapping (if present) in file 'personsFname'
      */
     let persons = [];
     const personsFname = "./data/person-dump.js";
@@ -67,9 +69,14 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
     }
     let indis = get.byName(gedcom, gedcom, 'INDI');
     for (let indi of indis) {
-        let wtUsername = person.getWtUsername(persons, indi.id);
-        if (wtUsername) {
-            indi.wtUsername = wtUsername;
+        const prefix = 'https://www.wikitree.com/wiki/';        
+        if (indi.REFN && indi.REFN.value.startsWith(prefix)) {
+            indi.wtUsername = indi.REFN.value.substring(prefix.length);
+        } else {
+            let wtUsername = person.getWtUsername(persons, indi.id);
+            if (wtUsername) {
+                indi.wtUsername = wtUsername;
+            }
         }
     }
 
