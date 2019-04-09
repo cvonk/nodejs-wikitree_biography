@@ -162,7 +162,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
      */
     //write.biography(gedcom); //  get.byId(gedcom, indi_)
     app.listen(8080);
-    console.log("App listening on http://localhost/index.html");
+    console.log("App listening on http://localhost:8080/index.html");
 });
 
 app.use(bodyParser.json());
