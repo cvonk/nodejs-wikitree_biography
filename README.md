@@ -17,7 +17,7 @@ Run the following in a terminal window, assuming you have already installed [nod
 ## Using
 
 * Export a GEDCOM file from your Genealogy Software.  Only export preferred facts.  
-* Start the project's server `node app.js gedcom.ged` where `gedcom.ged` is a path to yor GEDCOM file.
+* Start the project's server `node app.js gedcom.ged` where `gedcom.ged` is a path to your GEDCOM file.
 * Open `localhost:8080` in your internet browser
 * Follow the steps shown at the left of the browser window
   1. Start typing a name, and select one from the drop-down list.  This will bring up the search results from WikiTree on the right.
