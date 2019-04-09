@@ -56,7 +56,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
      * Add WikiTree usernames to 'gedcom' based on the 'gedcomId to wtUsername' mapping (if present) in file personsFname
      */
     let persons = [];
-    const personsFname = "../person-dump.js";
+    const personsFname = "./data/person-dump.js";
     if (!fs.existsSync(personsFname) || fs.statSync(personsFname).size == 0) {  // start afresh if file err/missing
         console.log('Creating a new persons file from GEDCOM (' + personsFname + '), this will take several minutes ...')
         persons = person.get(gedcom);
