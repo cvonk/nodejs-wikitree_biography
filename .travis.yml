@@ -12,5 +12,5 @@ before_install:
   - npm rebuild
 script:
   - npm run eslint
-  - node ./app.js ./test/test-1.ged | diff ./test/test-1.pass -
+  - node ./app.js ./test/test-1.ged writetest | diff ./test/test-1.pass -
   - echo "Done"
