@@ -12,4 +12,4 @@ before_install:
   - npm rebuild
 script:
   - npm run eslint
-  - node ./test/test-1.ged | cmp ./test/test-1.pass
+  - node ./app.js ./test/test-1.ged | cmp ./test/test-1.pass
