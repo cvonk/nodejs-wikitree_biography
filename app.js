@@ -91,7 +91,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
             let obj = get.byName(gedcom, indi, 'NAME');
             let name = value.name(obj, 'last,given') + get.lifeSpan(i18n, gedcom, indi, undefined);
             if (indi.wtUsername) {
-                name += ' [' + indi.wtUsername + ']';
+                name += ' \uD83C\uDF32'; //' [' + indi.wtUsername + ']';
             }
             individuals.push({id: indi.id, name: name});
         }
@@ -124,7 +124,7 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
      * Serve AJAX data requests at http://localhost:8080/getIndividualDetails
      */
     app.post('/getIndividualDetails', function (req, res) {
-        var id = req.param('gedcomId'); //req.body.id;
+        var id = req.body.gedcomId;
         let indi = get.byId(gedcom, id);  // I1, I24, I13, I240
         let biography = write.biography(gedcom, indi);  //'== Test ==\n\n1,2,3';
         let gedcomx = g2gx.principal(gedcom, indi);
@@ -146,8 +146,8 @@ gedcomFile.parse(gedcomFname, function (gedcom) {
      * Serve AJAX data requests at http://localhost:8080/putGedcomId2WtUsername
      */
     app.post('/putGedcomId2WtUsername', function(req, res) { 
-        var gedcomId = req.param('gedcomId');
-        var wtUsername = req.param('wtUsername');
+        var gedcomId = req.body.gedcomId;
+        var wtUsername = req.body.wtUsername;
         if (gedcomId) {
             person.setWtUsername(persons, gedcomId, wtUsername);
             person.write(persons, personsFname);  // 2BD: probably don't want to do this every time ..

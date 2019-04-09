@@ -61,7 +61,6 @@ typings/
 .next
 
 # project specific
-.vscode
 person-dump.js
 package-lock.json
 locales/de.1.js
