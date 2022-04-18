@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /** @module person write/read key facts about gedcom individuals */
-/** @author Coert Vonk <MY.NAME@gmail.com> */
+/** @author Coert Vonk <coert vonk at gmail> */
 
 var get = require('./get.js'),
     value = require('./value.js'),

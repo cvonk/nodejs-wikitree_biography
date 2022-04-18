@@ -45,6 +45,7 @@ GedcomX.Person.prototype.addTypeDatePlace = function(type, date, place) {
     fact.setType(type);
     if (date && date.length) {
         fact.setDate(GedcomX.Date()
+            .setFormal(date)
             .setOriginal(date));
     }
     if (place && place.length) {
@@ -52,6 +53,15 @@ GedcomX.Person.prototype.addTypeDatePlace = function(type, date, place) {
             .setOriginal(place));
     }
     this.addFact(fact);
+/*
+   this.addFact(GedcomX.Fact()
+        .setType(type)
+        .setDate(GedcomX.Date()
+            .setOriginal(date)
+            .setFormal(date))
+        .setPlace(GedcomX.PlaceReference()
+            .setOriginal(place)));
+*/
     return this;
 };
 
@@ -76,6 +86,7 @@ GedcomX.Root.prototype.addPersonGedcom = function(i18n, gedcom, indi, relationsh
                                     resourceId: 'https://coertvonk.com/genealogy/' + indi.id,  // 2BD: maybe resource and resourceId need to be swapped
                                     principal: relationshipType == undefined,
                                     identifiers: {'genscrape': indi.id}})
+/*
             .setGender({type: 'http://gedcomx.org/' + get.byTemplate(i18n, gedcom, indi, undefined, '[SEX:gedcomx]')})
             .addNameFromParts({'http://gedcomx.org/Given': get.byTemplate(i18n, gedcom, indi, undefined, '[NAME:given]'),
                                //'http://gedcomx.org/Middle': get.byTemplate(i18n, gedcom, indi, undefined, '[NAME:middle]'),
@@ -87,6 +98,12 @@ GedcomX.Root.prototype.addPersonGedcom = function(i18n, gedcom, indi, relationsh
             .addTypeDatePlace('http://gedcomx.org/Death', 
                 get.byTemplate(i18n, gedcom, indi, undefined, '[DEAT.DATE:wtgedcomx]'), 
                 get.byTemplate(i18n, gedcom, indi, undefined, '[DEAT.PLAC:full]'));
+*/
+            .setGender({type: 'http://gedcomx.org/' + get.byTemplate(gedcom, indi, undefined, '[SEX:gedcomx]')})
+            .addNameFromParts({'http://gedcomx.org/Given': get.byTemplate(gedcom, indi, undefined, '[NAME:given]'),
+                               'http://gedcomx.org/Surname': get.byTemplate(gedcom, indi, undefined, '[NAME:last]')})
+            .addTypeDatePlace('http://gedcomx.org/Birth', get.byTemplate(gedcom, indi, undefined, '[BIRT.DATE:gedcomx]'), get.byTemplate(gedcom, indi, undefined, '[BIRT.PLAC:full]'))
+            .addTypeDatePlace('http://gedcomx.org/Death', get.byTemplate(gedcom, indi, undefined, '[DEAT.DATE:gedcomx]'), get.byTemplate(gedcom, indi, undefined, '[DEAT.PLAC:full]'));
 
         this.addPerson(person);
         if (relationshipType) {
@@ -126,6 +143,7 @@ module.exports = {
     },
     principal: function(gedcom, indi) {
         if (indi) {
+/*
             let i18n = new I18n({ locales: ['en'] });  // English is fine for this purpose
 
 // 2BD: deal with child part of two families ...
@@ -133,6 +151,9 @@ module.exports = {
             if (famc instanceof Array) famc = famc[0]; // only first parents
             let father = get.byName(gedcom, famc, 'HUSB');
             let mother = get.byName(gedcom, famc, 'WIFE');
+*/
+            let father = get.byName(gedcom, indi, 'FAMC.HUSB');
+            let mother = get.byName(gedcom, indi, 'FAMC.WIFE');
             father = father ? father[0] : undefined;
             mother = mother ? mother[0] : undefined;
 

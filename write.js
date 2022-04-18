@@ -41,6 +41,7 @@ function _birthOrBaptDate(indi) {  // when only baptized is avail, the birth dat
     return birth;
 }
 
+<<<<<<< Updated upstream
 function _beforeOrAfter(i18n, ageDiff) {
 
     ageDiff = ageDiff.replace(' ' + i18n.__('old'), '');
@@ -52,6 +53,25 @@ function _beforeOrAfter(i18n, ageDiff) {
         ret = pre + remainder.slice(1) + ' ' + i18n.__('older');
     } else {
         ret = ageDiff + ' ' + i18n.__('younger');
+=======
+function _aboutSpouse(gedcom, spouse, refs, mar) {
+    let ret = '';
+    if (gedcom && spouse) {
+        value.birthday.push(spouse.BIRT && spouse.BIRT.DATE ? spouse.BIRT.DATE.value : undefined);
+        {
+            ret += get.byTemplate(gedcom, spouse, refs, ' ' + i18n.__('with') + ' [NAME:full]');
+            ret += get.byTemplate(gedcom, mar, refs, ' ([DATE:age])');
+            ret += get.byTemplate(gedcom, spouse, refs, ' from [BIRT.PLAC]|, [OCCU]|.');
+            ret += about.parents(gedcom, spouse);
+            let death = get.byTemplate(gedcom, spouse, refs, '[NAME:first]| ' + i18n.__('died on') + ' [DEAT]| ([DEAT.DATE:age])| ' + i18n.__('due to') + ' [DEAT.CAUS]|.');
+            if (death.length) {
+                let ret = ' ' + NL;
+                ret += get.byTemplate(gedcom, spouse, refs, '[NAME:first]|') + death;
+            }
+            //ret += NL;
+        }
+        value.birthday.pop();
+>>>>>>> Stashed changes
     }
     return ret;
 }
@@ -80,6 +100,12 @@ function _ageDiff(i18n, gedcom, sibling, refs, fnc) {
                     return ', ' + i18n.__('born') + ' ' +  + s;
                 });
             }
+<<<<<<< Updated upstream
+=======
+            value.birthday.pop();
+        } else {
+            ret += get.byTemplate(gedcom, indi, refs, ', ' + i18n.__('died on') + ' [DEAT.DATE]');
+>>>>>>> Stashed changes
         }
         if (ret && fnc) ret = fnc(ret);
     }
@@ -407,37 +433,18 @@ let _about = {
                     ret += '.' + NL + "* " + i18n.__(label.toLowerCase()) + ": ";
                     ret += _detailsOf.fact(i18n, gedcom, fact, refs);
                 }
-            }
-        }
-        if (ret) {
-            ret = '.' + NL + NL + "=== " + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]') + " ===" + NL + NL + ret;
-        }
-        return ret;
-    },
-
-    relation: function (i18n, gedcom, indi, fam, spouse, refs) {
-
-        let ret = '';
-        if (spouse) {
-            ret += NL + get.byTemplate(i18n, gedcom, indi, refs, '[NAME:first]');
-            ret += _list.marriages(i18n, gedcom, refs, fam);  // will have at least 'in a relation' text
-            ret += _detailsOf.spouse(i18n, gedcom, spouse, refs, fam);
-        }       
-        if (fam.CHIL) {
-            ret += '.' + NL + NL + get.byTemplate(i18n, gedcom, indi, refs, 'Children of [NAME:first]');
-            ret += get.byTemplate(i18n, gedcom, spouse, refs, ' and [NAME:first]');
-            ret += _list.children(i18n, gedcom, indi, refs, fam, {});
-        }
-        if (spouse.FAMS.length > 1) {
-            const spouseFams = get.resolveIndirects(spouse.FAMS);
-            if (spouseFams && spouseFams[0]) {
-                for (let ff of spouseFams) {
-                    if (ff.id != fam.id) {
-                        const thisRelationDate = (fam.MARR && fam.DATE) ? (new FQDate(fam.MARR.DATE).string('iso')) : undefined;
-                        ret += _list.children(i18n, gedcom, spouse, refs, ff, {beforeDate: thisRelationDate}, function(s) {
-                            const earlierOther = thisRelationDate ? 'Earlier' : 'Other';
-                            return '.' + NL + NL + get.byTemplate(i18n, gedcom, spouse, refs, earlierOther + ' children of [NAME:first]') + s;
-                        });
+                let spouse = get.spouse(gedcom, fam, indi);
+                ret += _aboutSpouse(gedcom, spouse, refs, mars[0]);
+                if (fam.CHIL) {
+                    ret += ' ';
+                    ret += get.byTemplate(gedcom, indi, refs, i18n.__('Children of') + ' [NAME:first]');
+                    ret += get.byTemplate(gedcom, spouse, refs, ' ' + i18n.__('and') + ' [NAME:first]:') + NL;
+                    let childIds = get.byName(gedcom, fam, 'CHIL');
+                    for (let childId of childIds) {
+                        if (childId.id != indi.id) { //exclude self
+                            let child = get.byId(gedcom, childId.id);
+                            ret += '* ' + _aboutChild(gedcom, child, refs) + '.' + NL;
+                        }
                     }
                 }
             }

@@ -147,9 +147,9 @@ module.exports = {
                 if (fieldName) {
                     const oo = module.exports.byName(gedcom, obj, fieldName);
                     if (oo && oo[0]) {
-                        const text = _fieldValue(i18n, gedcom, oo, refs, fieldName);
-                        if (text) {
-                            ret += _trimmedI18n(i18n, pre) + text + _trimmedI18n(i18n, post);
+                        const text = _fieldValue(gedcom, oo, refs, fieldName);
+                        if (text.length) {
+                            ret += i18n.__(pre) + text + i18n.__(post);
                         }
                     }
                 } else {
