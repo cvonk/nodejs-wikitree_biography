@@ -1,6 +1,8 @@
 # GEDCOM to WikiTree Biography
 
-[![Build Status](http://travis-ci.com/cvonk/nodejs-wikitree_biography.svg?branch=master)](https://travis-ci.com/cvonk/nodejs-wikitree_biography)
+[![GitHub Discussions](https://img.shields.io/github/discussions/cvonk/nodejs-wikitree_biography)](https://github.com/cvonk/nodejs-wikitree_biography)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/cvonk/nodejs-wikitree_biography)
+![GitHub](https://img.shields.io/github/license/cvonk/nodejs-wikitree_biography)
 
 Imports a GEDCOM to write biographies, and helps you in applying them to corresponding WikiTree profiles.
 
